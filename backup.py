@@ -138,7 +138,7 @@ def score_pmml(model: Model, feats: Dict[str, float]) -> Tuple[float, Dict[str, 
     return pred, extra
 
 # -------------------- UI -------------------- #
-st.title("🖊️ Anemia Pen — SPSS/PMML Edition")
+st.title("🖊️ Anemia Pen — Prototype")
 
 with st.sidebar:
     st.header("Settings")
@@ -290,4 +290,4 @@ if process:
 
 # Footer
 st.markdown("---")
-st.caption("Tip: Load PMML (SPSS) from sidebar → upload an eye photo → Estimate Hb.")
+st.caption("DEMO")

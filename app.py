@@ -195,42 +195,66 @@ def predict_with_model(model_obj, feat_row: pd.DataFrame) -> Tuple[float, Dict[s
     Supports scikit-learn (.joblib) and PMML (.xml).
     Returns (prediction, debug_info)
     """
-    debug = {}
+    debug: Dict[str, Any] = {}
 
-    # sklearn-like
-    if hasattr(model_obj, "predict"):
-        y = model_obj.predict(feat_row[FEATURE_ORDER])
-        y_val = float(y[0])
-        debug["backend"] = "joblib_sklearn"
-        debug["used_columns"] = list(feat_row.columns)
-        return y_val, debug
-
-    # pypmml-like
-    if _PYPMML_AVAILABLE and hasattr(model_obj, "predict"):
-        # PMML wants a dict, returns a DataFrame-like object
-        inp = {k: float(feat_row.iloc[0][k]) for k in FEATURE_ORDER}
-        out = model_obj.predict(inp)
+    # --- PMML FIRST ---
+    if _PYPMML_AVAILABLE:
         try:
-            out_df = pd.DataFrame(out)
-            debug["pmml_output_columns"] = list(out_df.columns)
-            # pick the first numeric column if 'predicted_' not found
-            used_col = None
-            for c in out_df.columns:
-                if c.lower().startswith("predicted"):
-                    used_col = c
-                    break
-            if used_col is None:
-                # fallback to first column
-                used_col = out_df.columns[0]
-            y_val = float(out_df.iloc[0][used_col])
-            debug["backend"] = "pmml"
-            debug["used_column"] = used_col
-            debug["raw_output_row0"] = {c: float(out_df.iloc[0][c]) for c in out_df.columns if pd.api.types.is_numeric_dtype(out_df[c])}
+            from pypmml import Model as PMMLModel  # type: ignore
+            if isinstance(model_obj, PMMLModel):
+                # PMML expects a dict-like input
+                inp = {k: float(feat_row.iloc[0][k]) for k in FEATURE_ORDER}
+                out = model_obj.predict(inp)
+
+                # pypmml returns a pandas DataFrame in most envs
+                if isinstance(out, pd.DataFrame):
+                    out_df = out
+                else:
+                    # fallback: try to coerce
+                    try:
+                        out_df = pd.DataFrame(out)
+                    except Exception:
+                        raise RuntimeError(f"Unexpected PMML output type: {type(out)}")
+
+                # choose a predicted column
+                used_col = None
+                for c in out_df.columns:
+                    if str(c).lower().startswith("predicted"):
+                        used_col = c
+                        break
+                if used_col is None:
+                    # fallback: first numeric column, else first column
+                    num_cols = [c for c in out_df.columns if pd.api.types.is_numeric_dtype(out_df[c])]
+                    used_col = num_cols[0] if num_cols else out_df.columns[0]
+
+                y_val = float(out_df.iloc[0][used_col])
+
+                debug["backend"] = "pmml"
+                debug["pmml_output_columns"] = list(out_df.columns)
+                debug["used_column"] = used_col
+                # record numeric outputs for transparency
+                debug["raw_output_row0"] = {
+                    c: (float(out_df.iloc[0][c]) if pd.api.types.is_numeric_dtype(out_df[c]) else str(out_df.iloc[0][c]))
+                    for c in out_df.columns
+                }
+                return y_val, debug
+        except Exception as e:
+            raise RuntimeError(f"PMML prediction failed: {e}")
+
+    # --- sklearn / joblib ---
+    if hasattr(model_obj, "predict"):
+        try:
+            X = feat_row[FEATURE_ORDER].astype(float)
+            y = model_obj.predict(X)
+            y_val = float(y[0])
+            debug["backend"] = "joblib_sklearn"
+            debug["used_columns"] = list(X.columns)
             return y_val, debug
         except Exception as e:
-            raise RuntimeError(f"PMML predict parse error: {e}")
+            raise RuntimeError(f"sklearn prediction failed: {e}")
 
     raise RuntimeError("Unknown model object type (neither sklearn nor pypmml).")
+
 
 # -------------------- UI -------------------- #
 st.set_page_config(page_title="Anemia Pen (Conjunctiva Hb Estimator)", layout="wide")
