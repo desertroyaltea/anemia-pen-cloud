@@ -1,150 +1,150 @@
-﻿image_path,hb,Severity,Age,GENDER,REMARK,HOSPITAL,CITY/TOWN,MUNICIPALITY/DISTRICT,REGION,COUNTRY,
-1.jpg,9.3,,82,F,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,1
-2.jpg,10.2,,77,F,Anemic,Ejusu Government Hospital,Ejusu,Ejusu Municipality,Ashanti,Ghana,2
-3.jpg,10.7,,52,F,Non-anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,3
-4.jpg,11.7,,73,F,Non-anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,4
-5.jpg,11.6,,74,F,Anemic,Sunyani Municipal Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,5
-6.jpg,15,,77,F,Non-anemic,Sunyani Municipal Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,6
-7.jpg,12,,72,F,Anemic,SDA Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,7
-8.jpg,14.3,,84,M,Non-anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,8
-9.jpg,9.8,,61,M,Anemic,Kintampo Municipal Hospital,Kintampo,Kintampo Municipality ,Bono-East,Ghana,9
-10.jpg,12.2,,70,M,Anemic,Kintampo Municipal Hospital,Kintampo,Kintampo Municipality ,Bono-East,Ghana,10
-11.jpg,12,,81,F,Non-anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,11
-12.jpg,10,,88,F,Non-anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,12
-13.jpg,10.5,,82,F,Anemic,Ejusu Government Hospital,Ejusu,Ejusu Municipality,Ashanti,Ghana,13
-14.jpg,11.4,,65,F,Non-anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,14
-15.jpg,13.3,,86,F,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,15
-16.jpg,13.5,,55,M,Anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,16
-17.jpg,11,,78,M,Anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,17
-18.jpg,11.8,,77,F,Anemic,Kintampo Municipal Hospital,Kintampo,Kintampo Municipality ,Bono-East,Ghana,18
-19.jpg,11,,65,F,Anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,19
-20.jpg,13.6,,30,M,Non-anemic,Sunyani Municipal Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,20
-21.jpg,9.8,,46,F,Anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,21
-22.jpg,12.6,,65,M,Anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,22
-23.jpg,9.6,,57,M,Non-anemic,Manhyia District Hospital,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,23
-24.jpg,9.2,,56,M,Non-anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,24
-25.jpg,8.7,,53,M,Anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,25
-26.jpg,8.6,,60,M,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,26
-27.jpg,9.4,,59,M,Non-anemic,Sunyani Municipal Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,27
-28.jpg,15.5,,22,M,Non-anemic,Manhyia District Hospital,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,28
-29.jpg,10.9,,76,F,Anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,29
-30.jpg,12.7,,70,F,Anemic,Sunyani Municipal Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,30
-31.jpg,14.8,,54,F,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,31
-32.jpg,14.1,,40,F,Anemic,Ejusu Government Hospital,Ejusu,Ejusu Municipality,Ashanti,Ghana,32
-33.jpg,13.9,,34,F,Anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,33
-34.jpg,14.1,,53,M,Anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,34
-35.jpg,15.7,,36,M,Anemic,Kintampo Municipal Hospital,Kintampo,Kintampo Municipality ,Bono-East,Ghana,35
-36.jpg,13.9,,51,M,Anemic,Sunyani Municipal Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,36
-37.jpg,13.6,,51,F,Anemic,Sunyani Municipal Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,37
-38.jpg,15.4,,56,M,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,38
-39.jpg,13.7,,47,M,Anemic,SDA Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,39
-40.jpg,13.3,,46,F,Anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,40
-41.jpg,13.9,,36,F,Anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,41
-42.jpg,15,,49,M,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,42
-43.jpg,14.7,,59,M,Anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,43
-44.jpg,15.4,,26,M,Anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,44
-45.jpg,14.9,,50,M,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,45
-46.jpg,14.1,,58,M,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,46
-47.jpg,14.1,,20,M,Anemic,Sunyani Municipal Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,47
-48.jpg,16.1,,29,M,Anemic,Sunyani Municipal Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,48
-49.jpg,15.1,,33,M,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,49
-50.jpg,15.3,,40,F,Anemic,Kintampo Municipal Hospital,Kintampo,Kintampo Municipality ,Bono-East,Ghana,50
-51.jpg,13.9,,54,M,Anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,51
-52.jpg,14.4,,24,F,Anemic,Manhyia District Hospital,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,52
-53.jpg,15.1,,43,M,Anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,53
-54.jpg,15.3,,42,M,Anemic,Ejusu Government Hospital,Ejusu,Ejusu Municipality,Ashanti,Ghana,54
-55.jpg,16.9,,34,M,Anemic,Manhyia District Hospital,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,55
-56.jpg,13.2,,24,F,Anemic,Ejusu Government Hospital,Ejusu,Ejusu Municipality,Ashanti,Ghana,56
-57.jpg,13.5,,51,F,Anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,57
-58.jpg,15,,56,M,Non-anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,58
-59.jpg,15.5,,62,M,Non-anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,59
-60.jpg,15.6,,41,M,Non-anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,60
-61.jpg,15,,50,M,Non-anemic,Kintampo Municipal Hospital,Kintampo,Kintampo Municipality ,Bono-East,Ghana,61
-62.jpg,13,,40,F,Non-anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,62
-63.jpg,14.9,,54,M,Non-anemic,SDA Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,63
-64.jpg,17.4,,52,M,Non-anemic,Manhyia District Hospital,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,64
-65.jpg,13.8,,63,M,Non-anemic,Sunyani Municipal Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,65
-66.jpg,15.9,,55,M,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,66
-67.jpg,16.2,,48,M,Non-anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,67
-68.jpg,15.5,,55,M,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,68
-69.jpg,14.1,,51,M,Anemic,Sunyani Municipal Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,69
-70.jpg,15.3,,37,M,Non-anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,70
-71.jpg,13.7,,20,M,Non-anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,71
-72.jpg,13.4,,48,M,Non-anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,72
-73.jpg,12.3,,56,F,Non-anemic,Manhyia District Hospital,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,73
-74.jpg,12.9,,48,M,Anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,74
-75.jpg,13.5,,48,F,Non-anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,75
-76.jpg,13.7,,48,F,Anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,76
-77.jpg,16.8,,60,M,Anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,77
-78.jpg,15.4,,25,M,Anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,78
-79.jpg,14.7,,31,M,Anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,79
-80.jpg,13.5,,40,F,Anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,80
-81.jpg,15.6,,64,M,Non-anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,81
-82.jpg,14.8,,24,M,Anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,82
-83.jpg,14.8,,25,M,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,83
-84.jpg,14.9,,46,M,Anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,84
-85.jpg,12.4,,42,F,Anemic,Kintampo Municipal Hospital,Kintampo,Kintampo Municipality ,Bono-East,Ghana,85
-86.jpg,16.9,,48,M,Anemic,Kintampo Municipal Hospital,Kintampo,Kintampo Municipality ,Bono-East,Ghana,86
-87.jpg,15.6,,51,M,Anemic,Sunyani Municipal Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,87
-88.jpg,13.7,,38,F,Non-anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,88
-89.jpg,15.4,,44,M,Anemic,Kintampo Municipal Hospital,Kintampo,Kintampo Municipality ,Bono-East,Ghana,89
-90.jpg,13,,21,F,Non-anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,90
-91.jpg,15.4,,41,M,Anemic,Kintampo Municipal Hospital,Kintampo,Kintampo Municipality ,Bono-East,Ghana,91
-92.jpg,12.3,,52,F,Anemic,Manhyia District Hospital,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,92
-94.jpg,15.2,,34,M,Anemic,Manhyia District Hospital,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,#REF!
-95.jpg,13.8,,31,M,Non-anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,#REF!
-96.jpg,14.7,,45,M,Non-anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,#REF!
-97.jpg,15.1,,49,M,Non-anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,#REF!
-98.jpg,15.2,,54,M,Non-anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,#REF!
-99.jpg,15.5,,44,M,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,#REF!
-100.jpg,14.5,,63,F,Non-anemic,Ejusu Government Hospital,Ejusu,Ejusu Municipality,Ashanti,Ghana,#REF!
-101.jpg,14,,28,M,Anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,#REF!
-102.jpg,15.8,,40,M,Anemic,Kintampo Municipal Hospital,Kintampo,Kintampo Municipality ,Bono-East,Ghana,#REF!
-103.jpg,14.1,,59,M,Non-anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,#REF!
-104.jpg,16.5,,45,M,Anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,#REF!
-105.jpg,7,,26,F,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,#REF!
-106.jpg,15.5,,68,M,Non-anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,#REF!
-107.jpg,13,,40,F,Non-anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,#REF!
-108.jpg,13.5,,21,M,Non-anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,#REF!
-109.jpg,15.7,,59,M,Anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,#REF!
-110.jpg,15.8,,45,M,Anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,#REF!
-111.jpg,13.1,,37,M,Anemic,Sunyani Municipal Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,#REF!
-112.jpg,15.4,,57,M,Anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,#REF!
-113.jpg,14,,58,M,Non-anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,#REF!
-114.jpg,15.1,,39,M,Non-anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,#REF!
-115.jpg,15.4,,43,M,Anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,#REF!
-116.jpg,13.7,,28,M,Anemic,SDA Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,#REF!
-117.jpg,15.1,,47,M,Non-anemic,Ejusu Government Hospital,Ejusu,Ejusu Municipality,Ashanti,Ghana,#REF!
-118.jpg,15.2,,48,M,Anemic,Sunyani Municipal Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,#REF!
-119.jpg,16.7,,41,M,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,#REF!
-120.jpg,15.4,,22,M,Anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,#REF!
-121.jpg,12.8,,40,F,Anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,#REF!
-122.jpg,15.7,,33,M,Anemic,Kintampo Municipal Hospital,Kintampo,Kintampo Municipality ,Bono-East,Ghana,#REF!
-123.jpg,15.6,,48,M,Anemic,SDA Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,#REF!
-124.jpg,12.2,,29,M,Non-anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,#REF!
-125.jpg,8,,36,F,Anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,#REF!
-126.jpg,10.7,,30,F,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,#REF!
-127.jpg,8.3,,39,F,Anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,#REF!
-128.jpg,7.8,,29,F,Anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,#REF!
-129.jpg,11.8,,55,F,Non-anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,#REF!
-130.jpg,9.2,,27,F,Non-anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,#REF!
-131.jpg,13,,32,M,Non-anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,#REF!
-132.jpg,11.5,,32,M,Anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,#REF!
-133.jpg,11.3,,35,F,Non-anemic,Kintampo Municipal Hospital,Kintampo,Kintampo Municipality ,Bono-East,Ghana,#REF!
-134.jpg,13.2,,38,M,Non-anemic,Bolgatanga Regional Hospital,Bolgatanga,Bolgatanga Municipality,Upper East,Ghana,#REF!
-135.jpg,10.6,,75,M,Non-anemic,Kintampo Municipal Hospital,Kintampo,Kintampo Municipality ,Bono-East,Ghana,#REF!
-136.jpg,10.6,,71,F,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,#REF!
-137.jpg,9.1,,29,F,Non-anemic,Ejusu Government Hospital,Ejusu,Ejusu Municipality,Ashanti,Ghana,#REF!
-138.jpg,10.9,,30,F,Anemic,Nkawie-Toase Government Hospital,Nkawie-Toase,Atwima Nwabiagya South,Ashanti,Ghana,#REF!
-139.jpg,8.9,,37,F,Anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,#REF!
-140.jpg,11.5,,57,M,Anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,#REF!
-141.jpg,10.1,,32,M,Anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,#REF!
-142.jpg,12.6,,21,M,Non-anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,#REF!
-143.jpg,11.9,,21,M,Non-anemic,Ahmadiyya Muslim Hospital,Tachiman,Techiman Municipality,Bono-East,Ghana,#REF!
-144.jpg,14.8,,21,M,Anemic,Sunyani Municipal Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,#REF!
-145.jpg,10.7,,21,M,Non-anemic,Sunyani Municipal Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,#REF!
-146.jpg,9.8,,21,F,Anemic,Manhyia District Hospital,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,#REF!
-147.jpg,13.4,,23,F,Non-anemic,Komfo Anokye Teaching Hospital ,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,#REF!
-148.jpg,9.2,,30,F,Anemic,Manhyia District Hospital,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,#REF!
-149.jpg,7.6,,39,F,Anemic,Sunyani Municipal Hospital,Sunyani,Sunyani Municipality,Bono,Ghana,#REF!
-150.jpg,12.2,,48,F,Anemic,Manhyia District Hospital,Kumasi ,Kumasi Metropolitan,Ashanti,Ghana,#REF!
+﻿image_path,hb,Severity,Age,GENDER
+1.jpg,9.3,,82,F
+2.jpg,10.2,,77,F
+3.jpg,10.7,,52,F
+4.jpg,11.7,,73,F
+5.jpg,11.6,,74,F
+6.jpg,15,,77,F
+7.jpg,12,,72,F
+8.jpg,14.3,,84,M
+9.jpg,9.8,,61,M
+10.jpg,12.2,,70,M
+11.jpg,12,,81,F
+12.jpg,10,,88,F
+13.jpg,10.5,,82,F
+14.jpg,11.4,,65,F
+15.jpg,13.3,,86,F
+16.jpg,13.5,,55,M
+17.jpg,11,,78,M
+18.jpg,11.8,,77,F
+19.jpg,11,,65,F
+20.jpg,13.6,,30,M
+21.jpg,9.8,,46,F
+22.jpg,12.6,,65,M
+23.jpg,9.6,,57,M
+24.jpg,9.2,,56,M
+25.jpg,8.7,,53,M
+26.jpg,8.6,,60,M
+27.jpg,9.4,,59,M
+28.jpg,15.5,,22,M
+29.jpg,10.9,,76,F
+30.jpg,12.7,,70,F
+31.jpg,14.8,,54,F
+32.jpg,14.1,,40,F
+33.jpg,13.9,,34,F
+34.jpg,14.1,,53,M
+35.jpg,15.7,,36,M
+36.jpg,13.9,,51,M
+37.jpg,13.6,,51,F
+38.jpg,15.4,,56,M
+39.jpg,13.7,,47,M
+40.jpg,13.3,,46,F
+41.jpg,13.9,,36,F
+42.jpg,15,,49,M
+43.jpg,14.7,,59,M
+44.jpg,15.4,,26,M
+45.jpg,14.9,,50,M
+46.jpg,14.1,,58,M
+47.jpg,14.1,,20,M
+48.jpg,16.1,,29,M
+49.jpg,15.1,,33,M
+50.jpg,15.3,,40,F
+51.jpg,13.9,,54,M
+52.jpg,14.4,,24,F
+53.jpg,15.1,,43,M
+54.jpg,15.3,,42,M
+55.jpg,16.9,,34,M
+56.jpg,13.2,,24,F
+57.jpg,13.5,,51,F
+58.jpg,15,,56,M
+59.jpg,15.5,,62,M
+60.jpg,15.6,,41,M
+61.jpg,15,,50,M
+62.jpg,13,,40,F
+63.jpg,14.9,,54,M
+64.jpg,17.4,,52,M
+65.jpg,13.8,,63,M
+66.jpg,15.9,,55,M
+67.jpg,16.2,,48,M
+68.jpg,15.5,,55,M
+69.jpg,14.1,,51,M
+70.jpg,15.3,,37,M
+71.jpg,13.7,,20,M
+72.jpg,13.4,,48,M
+73.jpg,12.3,,56,F
+74.jpg,12.9,,48,M
+75.jpg,13.5,,48,F
+76.jpg,13.7,,48,F
+77.jpg,16.8,,60,M
+78.jpg,15.4,,25,M
+79.jpg,14.7,,31,M
+80.jpg,13.5,,40,F
+81.jpg,15.6,,64,M
+82.jpg,14.8,,24,M
+83.jpg,14.8,,25,M
+84.jpg,14.9,,46,M
+85.jpg,12.4,,42,F
+86.jpg,16.9,,48,M
+87.jpg,15.6,,51,M
+88.jpg,13.7,,38,F
+89.jpg,15.4,,44,M
+90.jpg,13,,21,F
+91.jpg,15.4,,41,M
+92.jpg,12.3,,52,F
+94.jpg,15.2,,34,M
+95.jpg,13.8,,31,M
+96.jpg,14.7,,45,M
+97.jpg,15.1,,49,M
+98.jpg,15.2,,54,M
+99.jpg,15.5,,44,M
+100.jpg,14.5,,63,F
+101.jpg,14,,28,M
+102.jpg,15.8,,40,M
+103.jpg,14.1,,59,M
+104.jpg,16.5,,45,M
+105.jpg,7,,26,F
+106.jpg,15.5,,68,M
+107.jpg,13,,40,F
+108.jpg,13.5,,21,M
+109.jpg,15.7,,59,M
+110.jpg,15.8,,45,M
+111.jpg,13.1,,37,M
+112.jpg,15.4,,57,M
+113.jpg,14,,58,M
+114.jpg,15.1,,39,M
+115.jpg,15.4,,43,M
+116.jpg,13.7,,28,M
+117.jpg,15.1,,47,M
+118.jpg,15.2,,48,M
+119.jpg,16.7,,41,M
+120.jpg,15.4,,22,M
+121.jpg,12.8,,40,F
+122.jpg,15.7,,33,M
+123.jpg,15.6,,48,M
+124.jpg,12.2,,29,M
+125.jpg,8,,36,F
+126.jpg,10.7,,30,F
+127.jpg,8.3,,39,F
+128.jpg,7.8,,29,F
+129.jpg,11.8,,55,F
+130.jpg,9.2,,27,F
+131.jpg,13,,32,M
+132.jpg,11.5,,32,M
+133.jpg,11.3,,35,F
+134.jpg,13.2,,38,M
+135.jpg,10.6,,75,M
+136.jpg,10.6,,71,F
+137.jpg,9.1,,29,F
+138.jpg,10.9,,30,F
+139.jpg,8.9,,37,F
+140.jpg,11.5,,57,M
+141.jpg,10.1,,32,M
+142.jpg,12.6,,21,M
+143.jpg,11.9,,21,M
+144.jpg,14.8,,21,M
+145.jpg,10.7,,21,M
+146.jpg,9.8,,21,F
+147.jpg,13.4,,23,F
+148.jpg,9.2,,30,F
+149.jpg,7.6,,39,F
+150.jpg,12.2,,48,F
