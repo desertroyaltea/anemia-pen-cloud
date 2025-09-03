@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual envs
+.venv/
+venv/
+
+# Streamlit local stuff
+.streamlit/
+
+# Build/cache/outputs (keep your repo light)
+outputs/
+*.joblib
+*.pkl
+*.csv
+*.xlsx
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# BIG raw data (optional)
+images/
+cropped_images/

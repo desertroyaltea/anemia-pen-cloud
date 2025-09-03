@@ -1,0 +1,2 @@
+filename,hb_pred,hb_lower,hb_upper,det_class,det_conf,det_x,det_y,det_w,det_h
+113.jpg,14.738232675191686,11.406232675191685,18.070232675191686,forniceal_palpebral,0.6260092258453369,1644.5,2708.0,2687.0,1456.0
