@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Dict, Tuple, Optional, List
 
 import numpy as np
+import time
 import pandas as pd
 import cv2
 import requests
@@ -56,6 +57,18 @@ def draw_box(img_bgr: np.ndarray, box: Tuple[int, int, int, int]) -> np.ndarray:
     out = img_bgr.copy()
     cv2.rectangle(out, (x, y), (x + w, y + h), (0, 255, 0), 3)
     return out
+
+def downscale_if_needed(pil_img: Image.Image, max_side: int = 1600) -> Image.Image:
+    """Constrain largest side to max_side while keeping aspect ratio."""
+    w, h = pil_img.size
+    m = max(w, h)
+    if m <= max_side:
+        return pil_img
+    scale = max_side / float(m)
+    new_w = int(round(w * scale))
+    new_h = int(round(h * scale))
+    return pil_img.resize((new_w, new_h), Image.LANCZOS)
+
 
 def safe_kurtosis(x: np.ndarray) -> float:
     """Fisher kurtosis (excess), bias=True. No SciPy needed."""
@@ -129,30 +142,58 @@ def roboflow_detect_and_crop(
 ) -> Tuple[np.ndarray, np.ndarray, Dict]:
     """
     Send JPEG bytes to Roboflow, get best box, return (crop_bgr, overlay_bgr, det_info).
+    Retries on 5xx and auto-downscales huge images to reduce server errors.
     Raises RuntimeError if no detection.
     """
-    # Honor EXIF orientation first
+    # Fix EXIF rotation and downscale large images (e.g., iPhone 12MP+)
     pil_fixed = exif_fix(pil_img)
-    jpeg_bytes = pil_to_jpeg_bytes(pil_fixed)
+    pil_small = downscale_if_needed(pil_fixed, max_side=1600)
+    jpeg_bytes = pil_to_jpeg_bytes(pil_small, quality=92)
 
-    url = f"{ROBOFLOW_API_URL}/{model_id}?api_key={api_key}&confidence={conf:.2f}"
+    url = f"{ROBOFLOW_API_URL}/{model_id}"
+    params = {"api_key": api_key, "confidence": f"{conf:.2f}"}
     headers = {"Content-Type": "application/octet-stream"}
-    resp = requests.post(url, data=jpeg_bytes, headers=headers, timeout=30)
-    resp.raise_for_status()
-    out = resp.json()
 
+    # Retry on 5xx (server-side) with small backoff
+    last_text = None
+    for attempt in range(3):
+        resp = requests.post(url, params=params, data=jpeg_bytes, headers=headers, timeout=30)
+        last_text = None
+        try:
+            if resp.status_code >= 500:
+                last_text = resp.text[:500]
+                time.sleep(0.8 * (attempt + 1))
+                continue
+            resp.raise_for_status()
+            break
+        except requests.HTTPError:
+            # propagate non-5xx errors immediately (likely 401/403/404/429)
+            last_text = resp.text[:500]
+            raise RuntimeError(
+                f"Roboflow error {resp.status_code}: {last_text}"
+            ) from None
+    else:
+        # after retries still 5xx
+        raise RuntimeError(
+            f"Roboflow 5xx after retries. Status={resp.status_code}. "
+            f"Body: {last_text}"
+        )
+
+    out = resp.json()
     preds = out.get("predictions", []) or []
     if pred_class:
         preds = [p for p in preds if p.get("class") == pred_class]
 
     if not preds:
-        raise RuntimeError("No detection above threshold. Try a clearer eye photo.")
+        raise RuntimeError(
+            f"No detection above threshold (conf>={conf}). Raw: {json.dumps(out)[:400]}"
+        )
 
     # pick highest confidence
     best = max(preds, key=lambda p: p.get("confidence", 0.0))
 
-    # Roboflow boxes are center x,y with width,height in pixels
-    W, H = pil_fixed.size
+    # Roboflow x,y are centers in the *sent* image coords
+    W, H = pil_small.size
     cx, cy = float(best["x"]), float(best["y"])
     bw, bh = float(best["width"]), float(best["height"])
     x0 = int(round(cx - bw / 2))
@@ -160,25 +201,29 @@ def roboflow_detect_and_crop(
     w = int(round(bw))
     h = int(round(bh))
 
-    # clamp
+    # clamp to bounds
     x0 = max(0, min(x0, W - 1))
     y0 = max(0, min(y0, H - 1))
     w = max(1, min(w, W - x0))
     h = max(1, min(h, H - y0))
 
-    # to OpenCV for crop + overlay
-    full_bgr = pil_to_cv_bgr(pil_fixed)
+    full_bgr = pil_to_cv_bgr(pil_small)
     crop_bgr = full_bgr[y0 : y0 + h, x0 : x0 + w].copy()
     overlay_bgr = draw_box(full_bgr, (x0, y0, w, h))
 
     det_info = {
-        "image_size": {"W": W, "H": H},
+        "request": {
+            "url": url,
+            "params": params,
+            "sent_size": {"W": W, "H": H},
+        },
         "box_xywh": {"x": x0, "y": y0, "w": w, "h": h},
         "confidence": float(best.get("confidence", 0.0)),
         "pred_class": best.get("class", None),
-        "raw": best,
+        "raw_pred": best,
     }
     return crop_bgr, overlay_bgr, det_info
+
 
 # -------------------- PMML: strict input build + predict -------------------- #
 def get_pmml_input_names(model: Model) -> List[str]:
