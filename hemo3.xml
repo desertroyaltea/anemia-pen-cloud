@@ -10,7 +10,7 @@
 		<Application
 			name="IBM SPSS Statistics"
 			version="26.0.0.0"/>
-		<Timestamp>Wed Sep 03 23:09:24 2025</Timestamp>
+		<Timestamp>Thu Sep 04 01:48:03 2025</Timestamp>
 	</Header>
 	<DataDictionary
 		numberOfFields="15">
@@ -83,11 +83,11 @@
 			<NormContinuous
 				field="hb">
 				<LinearNorm
-					orig="8.3"
-					norm="-2.9065735180183"/>
+					orig="7.6"
+					norm="-2.48651660417146"/>
 				<LinearNorm
 					orig="17.4"
-					norm="1.69840041259611"/>
+					norm="1.79537620620686"/>
 			</NormContinuous>
 		</DerivedField>
 		<DerivedField
@@ -97,11 +97,11 @@
 			<NormContinuous
 				field="R_norm_p50">
 				<LinearNorm
-					orig="0.485714286565781"
-					norm="-2.69334722103311"/>
+					orig="0.485221683979034"
+					norm="-2.61573981578194"/>
 				<LinearNorm
-					orig="0.510971784591675"
-					norm="1.95809443206198"/>
+					orig="0.51485151052475"
+					norm="2.46607162944304"/>
 			</NormContinuous>
 		</DerivedField>
 		<DerivedField
@@ -111,11 +111,11 @@
 			<NormContinuous
 				field="a_mean">
 				<LinearNorm
-					orig="128.433517456055"
-					norm="-1.87886443802"/>
+					orig="128.333724975586"
+					norm="-1.95545498800863"/>
 				<LinearNorm
 					orig="130.422348022461"
-					norm="2.80160985407133"/>
+					norm="3.11847514567654"/>
 			</NormContinuous>
 		</DerivedField>
 		<DerivedField
@@ -125,11 +125,11 @@
 			<NormContinuous
 				field="R_p50">
 				<LinearNorm
-					orig="126"
-					norm="-3.10039076805459"/>
+					orig="138"
+					norm="-2.19816793131343"/>
 				<LinearNorm
-					orig="180"
-					norm="1.61569659743689"/>
+					orig="190"
+					norm="2.75854188489398"/>
 			</NormContinuous>
 		</DerivedField>
 		<DerivedField
@@ -139,11 +139,11 @@
 			<NormContinuous
 				field="R_p10">
 				<LinearNorm
-					orig="73"
-					norm="-2.85533725202492"/>
+					orig="58"
+					norm="-3.08744422410854"/>
 				<LinearNorm
-					orig="159"
-					norm="1.61784383957237"/>
+					orig="160"
+					norm="1.6877145712733"/>
 			</NormContinuous>
 		</DerivedField>
 		<DerivedField
@@ -153,11 +153,11 @@
 			<NormContinuous
 				field="RG">
 				<LinearNorm
-					orig="0.99991154801906"
-					norm="-1.00689346076842"/>
+					orig="0.99969749588803"
+					norm="-1.17758725085469"/>
 				<LinearNorm
-					orig="1.00204603589501"
-					norm="4.8001060740271"/>
+					orig="1.00327022917772"
+					norm="5.59294471889484"/>
 			</NormContinuous>
 		</DerivedField>
 		<DerivedField
@@ -168,10 +168,10 @@
 				field="S_p50">
 				<LinearNorm
 					orig="26"
-					norm="-1.93533388924688"/>
+					norm="-1.97044136481764"/>
 				<LinearNorm
 					orig="71"
-					norm="2.52129852095915"/>
+					norm="2.88213811570341"/>
 			</NormContinuous>
 		</DerivedField>
 		<DerivedField
@@ -181,11 +181,11 @@
 			<NormContinuous
 				field="gray_p90">
 				<LinearNorm
-					orig="171"
-					norm="-3.65687659144892"/>
+					orig="166"
+					norm="-3.49644546271813"/>
 				<LinearNorm
-					orig="227"
-					norm="1.23838450308031"/>
+					orig="228"
+					norm="1.38553412103161"/>
 			</NormContinuous>
 		</DerivedField>
 		<DerivedField
@@ -196,10 +196,10 @@
 				field="gray_kurt">
 				<LinearNorm
 					orig="-1.47100341320038"
-					norm="-1.75951305283604"/>
+					norm="-1.80445999154411"/>
 				<LinearNorm
 					orig="0.724102020263672"
-					norm="3.08397665597372"/>
+					norm="2.9906011565739"/>
 			</NormContinuous>
 		</DerivedField>
 		<DerivedField
@@ -209,11 +209,11 @@
 			<NormContinuous
 				field="gray_std">
 				<LinearNorm
-					orig="24.8686065673828"
-					norm="-2.49490289490366"/>
+					orig="23.6167831420898"
+					norm="-2.61410591214778"/>
 				<LinearNorm
-					orig="52.4422035217285"
-					norm="1.75394437400081"/>
+					orig="53.3322944641113"
+					norm="2.02212718547511"/>
 			</NormContinuous>
 		</DerivedField>
 		<DerivedField
@@ -223,11 +223,11 @@
 			<NormContinuous
 				field="gray_mean">
 				<LinearNorm
-					orig="122.37117767334"
-					norm="-2.97070455444524"/>
+					orig="127.347358703613"
+					norm="-2.61533537751287"/>
 				<LinearNorm
-					orig="179.228439331055"
-					norm="1.88497910503862"/>
+					orig="182.334701538086"
+					norm="2.41981224905752"/>
 			</NormContinuous>
 		</DerivedField>
 		<DerivedField
@@ -237,11 +237,11 @@
 			<NormContinuous
 				field="B_mean">
 				<LinearNorm
-					orig="122.390121459961"
-					norm="-2.97134620709067"/>
+					orig="127.343482971191"
+					norm="-2.61937173649742"/>
 				<LinearNorm
-					orig="179.24089050293"
-					norm="1.88338680901743"/>
+					orig="182.352874755859"
+					norm="2.41940592192407"/>
 			</NormContinuous>
 		</DerivedField>
 		<DerivedField
@@ -251,11 +251,11 @@
 			<NormContinuous
 				field="B_p10">
 				<LinearNorm
-					orig="67"
-					norm="-1.3276037172719"/>
+					orig="61"
+					norm="-1.85587558111405"/>
 				<LinearNorm
 					orig="140"
-					norm="2.59807005937008"/>
+					norm="2.78886135325171"/>
 			</NormContinuous>
 		</DerivedField>
 		<DerivedField
@@ -265,11 +265,11 @@
 			<NormContinuous
 				field="B_p75">
 				<LinearNorm
-					orig="143"
-					norm="-3.6713425230595"/>
+					orig="156"
+					norm="-2.57989202012437"/>
 				<LinearNorm
 					orig="222"
-					norm="1.73935737878334"/>
+					norm="1.97482682869829"/>
 			</NormContinuous>
 		</DerivedField>
 		<DerivedField
@@ -280,10 +280,10 @@
 				field="G_kurt">
 				<LinearNorm
 					orig="-1.4890398979187"
-					norm="-1.73796110723868"/>
+					norm="-2.01941655598965"/>
 				<LinearNorm
-					orig="0.504038095474243"
-					norm="3.25430473030928"/>
+					orig="0.306849718093872"
+					norm="3.29628527437265"/>
 			</NormContinuous>
 		</DerivedField>
 	</TransformationDictionary>
@@ -455,141 +455,141 @@
 			numberOfNeurons="3">
 			<Neuron
 				id="14"
-				bias="-0.101915806610373">
+				bias="-0.784292268697263">
 				<Con
 					from="0"
-					weight="0.389819656485085"/>
+					weight="0.22151242754203"/>
 				<Con
 					from="1"
-					weight="0.0877270297563421"/>
+					weight="-1.33044350259704"/>
 				<Con
 					from="2"
-					weight="-0.362604353211821"/>
+					weight="-0.336021906778038"/>
 				<Con
 					from="3"
-					weight="0.40166609644106"/>
+					weight="-0.237140511997269"/>
 				<Con
 					from="4"
-					weight="-0.218414121934477"/>
+					weight="-0.783986227027933"/>
 				<Con
 					from="5"
-					weight="0.523029957583211"/>
+					weight="0.479791276187092"/>
 				<Con
 					from="6"
-					weight="0.331232417350552"/>
+					weight="-0.231354147957552"/>
 				<Con
 					from="7"
-					weight="0.306285020396703"/>
+					weight="0.475820586015484"/>
 				<Con
 					from="8"
-					weight="0.264059964337136"/>
+					weight="0.782342202568424"/>
 				<Con
 					from="9"
-					weight="-0.338853567591392"/>
+					weight="-0.0395228387565088"/>
 				<Con
 					from="10"
-					weight="-0.400103123713238"/>
+					weight="0.323546279902891"/>
 				<Con
 					from="11"
-					weight="-0.349269763283166"/>
+					weight="0.916704585749532"/>
 				<Con
 					from="12"
-					weight="0.292988182807914"/>
+					weight="-0.0301173661755549"/>
 				<Con
 					from="13"
-					weight="-0.00569234163280275"/>
+					weight="-0.494740575634935"/>
 			</Neuron>
 			<Neuron
 				id="15"
-				bias="0.892971406381425">
+				bias="0.887968875836389">
 				<Con
 					from="0"
-					weight="0.103514186195929"/>
+					weight="-0.148151091428627"/>
 				<Con
 					from="1"
-					weight="1.44922972488897"/>
+					weight="1.43858028212128"/>
 				<Con
 					from="2"
-					weight="0.152455452278973"/>
+					weight="0.25733696211301"/>
 				<Con
 					from="3"
-					weight="0.828763380033872"/>
+					weight="0.0650295083893726"/>
 				<Con
 					from="4"
-					weight="0.309997827155594"/>
+					weight="-0.255415629444591"/>
 				<Con
 					from="5"
-					weight="-0.459433203252092"/>
+					weight="-0.244880971846985"/>
 				<Con
 					from="6"
-					weight="-0.13516958709111"/>
+					weight="-0.356451731976929"/>
 				<Con
 					from="7"
-					weight="-0.192212675155646"/>
+					weight="-0.495782514309807"/>
 				<Con
 					from="8"
-					weight="-0.00725748664609503"/>
+					weight="-0.809755764070709"/>
 				<Con
 					from="9"
-					weight="0.319205772806855"/>
+					weight="0.0376411712089737"/>
 				<Con
 					from="10"
-					weight="0.123162498839187"/>
+					weight="0.417160745335987"/>
 				<Con
 					from="11"
-					weight="-1.18930253253304"/>
+					weight="-0.206010614868456"/>
 				<Con
 					from="12"
-					weight="-0.433621632560115"/>
+					weight="0.0964375636269856"/>
 				<Con
 					from="13"
-					weight="0.383464100714685"/>
+					weight="0.539795121961968"/>
 			</Neuron>
 			<Neuron
 				id="16"
-				bias="0.248639850765767">
+				bias="0.534643472682479">
 				<Con
 					from="0"
-					weight="-0.0405854715512548"/>
+					weight="-0.443943243620278"/>
 				<Con
 					from="1"
-					weight="0.263767103829304"/>
+					weight="0.536957611981263"/>
 				<Con
 					from="2"
-					weight="0.00924231598636357"/>
+					weight="0.241203096863266"/>
 				<Con
 					from="3"
-					weight="-0.308136375384411"/>
+					weight="0.881966897029199"/>
 				<Con
 					from="4"
-					weight="0.0585092089290804"/>
+					weight="0.585379097067606"/>
 				<Con
 					from="5"
-					weight="0.154994619831238"/>
+					weight="0.248552758782655"/>
 				<Con
 					from="6"
-					weight="0.448495430117629"/>
+					weight="0.111386885169637"/>
 				<Con
 					from="7"
-					weight="0.0838355481919456"/>
+					weight="0.173066088249587"/>
 				<Con
 					from="8"
-					weight="-0.150391105954589"/>
+					weight="-0.439511613703605"/>
 				<Con
 					from="9"
-					weight="-0.0741119998452765"/>
+					weight="-0.41002095111329"/>
 				<Con
 					from="10"
-					weight="0.0420618414163836"/>
+					weight="-0.553622209390368"/>
 				<Con
 					from="11"
-					weight="-0.270267960760064"/>
+					weight="0.172837197766002"/>
 				<Con
 					from="12"
-					weight="0.00212662867413469"/>
+					weight="0.0595775138722361"/>
 				<Con
 					from="13"
-					weight="-0.305949729612866"/>
+					weight="-0.369143615342555"/>
 			</Neuron>
 		</NeuralLayer>
 		<NeuralLayer
@@ -597,16 +597,16 @@
 			activationFunction="identity">
 			<Neuron
 				id="17"
-				bias="-0.472726459377352">
+				bias="-0.502860014625514">
 				<Con
 					from="14"
-					weight="-0.416067659925297"/>
+					weight="-0.963980988262623"/>
 				<Con
 					from="15"
-					weight="1.27539679562492"/>
+					weight="0.761763387798862"/>
 				<Con
 					from="16"
-					weight="-0.028083905140729"/>
+					weight="-0.456804219135573"/>
 			</Neuron>
 		</NeuralLayer>
 		<NeuralOutputs>
