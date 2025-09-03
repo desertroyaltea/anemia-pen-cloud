@@ -1,0 +1,10 @@
+streamlit==1.49.1
+requests
+pypmml==1.5.8
+py4j
+jpype1
+opencv-python-headless==4.10.0.84
+numpy==1.26.4
+pandas==2.1.4
+scipy==1.11.4
+Pillow==10.2.0
