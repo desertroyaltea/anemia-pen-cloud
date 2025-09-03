@@ -1,11 +1,7 @@
-streamlit==1.49.1
-requests
-pypmml==1.5.8
-py4j
-jpype1
-opencv-python-headless==4.10.0.84
+streamlit>=1.34
+pypmml==0.9.17
 numpy==1.26.4
 pandas==2.1.4
-scipy==1.11.4
-Pillow==10.2.0
-pillow-heif==0.17.0
+opencv-python-headless==4.10.0.84
+pillow==10.2.0
+requests>=2.31.0
