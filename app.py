@@ -4,7 +4,6 @@
 import io
 import os
 import base64
-import json
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List
 
@@ -15,10 +14,19 @@ from PIL import Image, ImageOps, ImageDraw
 import cv2
 from scipy.stats import kurtosis
 import streamlit as st
+
+# HEIC/HEIF support for iPhone photos (registers a PIL opener)
+try:
+    from pillow_heif import register_heif_opener
+    register_heif_opener()
+except Exception:
+    pass  # If pillow-heif not installed, HEIC won't work; we'll warn later when needed.
+
+# PMML (SPSS model) runtime
 from pypmml import Model
 
 # -------------------- Settings -------------------- #
-DEFAULT_PMML_PATH = Path("hemo.xml")                     # your exported SPSS PMML
+DEFAULT_PMML_PATH = Path("hemo.xml")                     # your exported SPSS PMML in repo root
 DEFAULT_MODEL_ID = "eye-conjunctiva-detector/2"          # Roboflow model id
 DEFAULT_CLASS_NAME = "conjunctiva"
 DEFAULT_CONF_0_100 = 25                                  # 0..100 (≈ 0.25)
@@ -30,6 +38,7 @@ FEATURE_COLUMNS = [
 # --------------------------------------------------- #
 
 st.set_page_config(page_title="Anemia Pen (PMML)", layout="wide")
+st.title("🖊️ Anemia Pen — SPSS/PMML Edition")
 
 # ---------------- Helper functions ----------------- #
 def exif_upright(pil_img: Image.Image) -> Image.Image:
@@ -121,6 +130,17 @@ def compute_features_from_pil(pil_img: Image.Image) -> Dict[str, float]:
 def load_pmml(path_str: str) -> Model:
     return Model.load(path_str)
 
+# Auto-load PMML ON STARTUP (no user action)
+MODEL: Optional[Model] = None
+PMML_LOAD_ERROR: Optional[str] = None
+try:
+    if DEFAULT_PMML_PATH.exists():
+        MODEL = load_pmml(str(DEFAULT_PMML_PATH))
+    else:
+        PMML_LOAD_ERROR = f"PMML file not found at {DEFAULT_PMML_PATH}. Commit hemo.xml or upload per-session."
+except Exception as _e:
+    PMML_LOAD_ERROR = f"Failed to load PMML: {_e}"
+
 def score_pmml(model: Model, feats: Dict[str, float]) -> Tuple[float, Dict[str, Any]]:
     df = pd.DataFrame([{k: float(feats[k]) for k in FEATURE_COLUMNS}])
     scored = model.predict(df)
@@ -137,63 +157,45 @@ def score_pmml(model: Model, feats: Dict[str, float]) -> Tuple[float, Dict[str, 
     extra = {"columns": list(scored.columns)}
     return pred, extra
 
-# -------------------- UI -------------------- #
-st.title("🖊️ Anemia Pen — SPSS/PMML Edition")
+def get_uploaded_image_bytes() -> Tuple[Optional[bytes], Optional[str]]:
+    """
+    Returns (image_bytes, source) where source is 'camera' or 'upload'.
+    Prefers camera if both provided.
+    """
+    # Camera capture (works on iPhone Safari). Returns a BytesIO-like object.
+    cam = st.camera_input("Take a photo (camera)", help="On iPhone, allow camera access")
+    if cam is not None:
+        return cam.getvalue(), "camera"
+
+    # Fallback: file upload. Include HEIC for iPhones.
+    up = st.file_uploader(
+        "…or upload an image",
+        type=["jpg", "jpeg", "png", "bmp", "tif", "tiff", "webp", "heic", "heif"],
+        accept_multiple_files=False,
+    )
+    if up is not None:
+        return up.read(), "upload"
+
+    return None, None
 
 with st.sidebar:
     st.header("Settings")
     api_key = st.text_input(
         "Roboflow API Key",
-        value=os.getenv("ROBOFLOW_API_KEY", ""),
+        value=(st.secrets.get("ROBOFLOW_API_KEY") or os.getenv("ROBOFLOW_API_KEY", "")),
         type="password",
-        help="Stored only in your session. Or set env var ROBOFLOW_API_KEY.",
+        help="Stored only in your session. You can also set ROBOFLOW_API_KEY in app secrets.",
     )
     model_id = st.text_input("Roboflow Model ID", value=DEFAULT_MODEL_ID)
-    class_name = st.text_input("Target class", value=DEFAULT_CLASS_NAME, help="Class to prefer when multiple detections")
+    class_name = st.text_input("Target class", value=DEFAULT_CLASS_NAME)
     conf = st.slider("Confidence threshold (0–100)", min_value=1, max_value=100, value=DEFAULT_CONF_0_100)
     rmse = st.number_input("Optional RMSE for CI (±1.96×RMSE)", min_value=0.0, value=0.0, step=0.1, help="Leave 0 to hide CI")
 
     st.markdown("---")
-    st.caption("Model file (SPSS → PMML)")
-    pmml_source = st.radio("Load PMML from…", ["Path", "Upload"], horizontal=True)
-    pmml_path_str = ""
-    pmml_tmp_file: Optional[Path] = None
-    if pmml_source == "Path":
-        pmml_path_str = st.text_input("PMML path", value=str(DEFAULT_PMML_PATH))
+    if PMML_LOAD_ERROR:
+        st.error(PMML_LOAD_ERROR)
     else:
-        up = st.file_uploader("Upload .pmml / .xml", type=["pmml", "xml"])
-        if up is not None:
-            pmml_tmp_file = Path(st.secrets.get("_tmp_pmml_name_", "uploaded_hemo.xml"))
-            # write to a temp file in working dir (Streamlit reload-safe)
-            with open(pmml_tmp_file, "wb") as f:
-                f.write(up.read())
-            pmml_path_str = str(pmml_tmp_file)
-
-    load_btn = st.button("Load PMML model", use_container_width=True)
-
-    model_loaded: Optional[Model] = None
-    if load_btn:
-        try:
-            model_loaded = load_pmml(pmml_path_str)
-            st.success(f"PMML loaded: {pmml_path_str}")
-        except Exception as e:
-            st.error(f"Failed to load PMML: {e}")
-
-# If user already pressed the button in a previous run, try to use cache:
-if "model_loaded_flag" not in st.session_state:
-    st.session_state["model_loaded_flag"] = False
-if load_btn:
-    st.session_state["model_loaded_flag"] = (model_loaded is not None)
-
-# Try to use cached model if path string is available and user had loaded before
-cached_model: Optional[Model] = None
-if st.session_state["model_loaded_flag"] and pmml_path_str:
-    try:
-        cached_model = load_pmml(pmml_path_str)
-    except Exception:
-        cached_model = None
-
-uploaded = st.file_uploader("Upload a full-eye photo", type=["jpg", "jpeg", "png", "bmp", "tif", "tiff", "webp"])
+        st.success(f"PMML auto-loaded: {DEFAULT_PMML_PATH.name}")
 
 colL, colR = st.columns([1, 1])
 with colL:
@@ -201,26 +203,27 @@ with colL:
 with colR:
     st.subheader("2) Cropped Conjunctiva")
 
-process = st.button("Estimate Hb", type="primary", disabled=(uploaded is None))
+img_bytes, source = get_uploaded_image_bytes()
+process = st.button("Estimate Hb", type="primary", disabled=(img_bytes is None))
 
 # ----------------- Main action ----------------- #
 if process:
-    if uploaded is None:
-        st.warning("Please upload an image.")
+    if img_bytes is None:
+        st.warning("No image received. On iPhone, try the camera button again and allow camera access.")
         st.stop()
     if not api_key:
         st.error("Missing Roboflow API key.")
         st.stop()
-    if cached_model is None:
-        st.error("PMML model is not loaded. Load it from the sidebar first.")
+    if MODEL is None:
+        st.error("PMML model is not loaded. Please commit hemo.xml or fix loading error in sidebar.")
         st.stop()
 
-    # Read & fix orientation
+    # Read & fix orientation (support HEIC if pillow-heif is installed)
     try:
-        pil_full = Image.open(io.BytesIO(uploaded.read()))
+        pil_full = Image.open(io.BytesIO(img_bytes))
         pil_full = exif_upright(pil_full)
     except Exception as e:
-        st.error(f"Failed to open image: {e}")
+        st.error(f"Failed to open image. If this is HEIC, ensure pillow-heif and libheif are installed. Error: {e}")
         st.stop()
 
     # Detect via Roboflow (send the upright image)
@@ -245,7 +248,7 @@ if process:
         st.stop()
 
     with colL:
-        st.image(overlay, caption=f"Detection: {best.get('class','?')} (conf {best.get('confidence',0.0):.2f})", use_container_width=True)
+        st.image(overlay, caption=f"Detection: {best.get('class','?')} (conf {best.get('confidence',0.0):.2f}) — source: {source}", use_container_width=True)
     with colR:
         st.image(crop, caption="Cropped conjunctiva", use_container_width=True)
 
@@ -258,7 +261,7 @@ if process:
 
     # Score
     try:
-        pred_hb, extra = score_pmml(cached_model, feats)
+        pred_hb, extra = score_pmml(MODEL, feats)
     except Exception as e:
         st.error(f"PMML scoring error: {e}")
         st.stop()
@@ -288,6 +291,5 @@ if process:
         st.write("Roboflow best box:", best)
         st.write("PMML output columns:", extra.get("columns"))
 
-# Footer
 st.markdown("---")
-st.caption("Tip: Load PMML (SPSS) from sidebar → upload an eye photo → Estimate Hb.")
+st.caption("Tip: Use the **camera** on iPhone or upload an image. PMML model auto-loads from hemo.xml.")
