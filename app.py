@@ -239,8 +239,27 @@ def roboflow_detect_and_crop(
     }
     return crop_bgr, overlay_bgr, det_info
 
-with st.expander("Detection debug", expanded=False):
-    st.write(det_info)  # this will include every attempt with status/body
+# -------------------- Debug Expander -------------------- #
+with st.expander("🔍 Debug Info", expanded=False):
+    st.write("Detection Info (raw):", det_info)
+
+    # Show PMML model currently loaded
+    if 'model' in st.session_state and st.session_state['model'] is not None:
+        st.write("Loaded PMML file:", st.session_state['pmml_path'])
+
+    # Show extracted features (before PMML predict)
+    if 'features' in locals():
+        st.write("Extracted Features (14):")
+        st.json(features)
+
+    # If prediction happened, show raw PMML output
+    if 'pred_value' in locals():
+        st.write("PMML Prediction Debug:")
+        st.json({
+            "pmml_output_columns": model.outputNames,
+            "raw_output_row0": prediction_row,
+            "used_column": "predicted_hb" if "predicted_hb" in prediction_row else model.outputNames
+        })
 
 
 # -------------------- PMML: strict input build + predict -------------------- #
