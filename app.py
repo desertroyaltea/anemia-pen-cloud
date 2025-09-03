@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Dict, Tuple, Optional, List
 
 import numpy as np
-import time
+import time, base64, json
 import pandas as pd
 import cv2
 import requests
@@ -58,7 +58,7 @@ def draw_box(img_bgr: np.ndarray, box: Tuple[int, int, int, int]) -> np.ndarray:
     cv2.rectangle(out, (x, y), (x + w, y + h), (0, 255, 0), 3)
     return out
 
-def downscale_if_needed(pil_img: Image.Image, max_side: int = 1600) -> Image.Image:
+def downscale_if_needed(pil_img, max_side: int = 1600):
     """Constrain largest side to max_side while keeping aspect ratio."""
     w, h = pil_img.size
     m = max(w, h)
@@ -68,6 +68,7 @@ def downscale_if_needed(pil_img: Image.Image, max_side: int = 1600) -> Image.Ima
     new_w = int(round(w * scale))
     new_h = int(round(h * scale))
     return pil_img.resize((new_w, new_h), Image.LANCZOS)
+
 
 
 def safe_kurtosis(x: np.ndarray) -> float:
@@ -141,58 +142,75 @@ def roboflow_detect_and_crop(
     pred_class: Optional[str] = PRED_CLASS,
 ) -> Tuple[np.ndarray, np.ndarray, Dict]:
     """
-    Send JPEG bytes to Roboflow, get best box, return (crop_bgr, overlay_bgr, det_info).
-    Retries on 5xx and auto-downscales huge images to reduce server errors.
-    Raises RuntimeError if no detection.
+    Send image to Roboflow with multiple fallbacks; return (crop_bgr, overlay_bgr, det_info).
+    Robust against 5xx via alternate upload methods and endpoints.
     """
-    # Fix EXIF rotation and downscale large images (e.g., iPhone 12MP+)
+    # 1) Normalize orientation + size (iPhone originals can be huge & EXIF-rotated)
     pil_fixed = exif_fix(pil_img)
     pil_small = downscale_if_needed(pil_fixed, max_side=1600)
+
     jpeg_bytes = pil_to_jpeg_bytes(pil_small, quality=92)
+    b64 = base64.b64encode(jpeg_bytes).decode("ascii")
+    datauri = f"image=data:image/jpeg;base64,{b64}"
 
-    url = f"{ROBOFLOW_API_URL}/{model_id}"
-    params = {"api_key": api_key, "confidence": f"{conf:.2f}"}
-    headers = {"Content-Type": "application/octet-stream"}
+    attempts_log = []
 
-    # Retry on 5xx (server-side) with small backoff
-    last_text = None
-    for attempt in range(3):
-        resp = requests.post(url, params=params, data=jpeg_bytes, headers=headers, timeout=30)
-        last_text = None
+    def _try(url, payload_kind, **kwargs):
+        params = {"api_key": api_key, "confidence": f"{conf:.2f}"}
         try:
+            resp = requests.post(url, params=params, timeout=45, **kwargs)
+            attempts_log.append({
+                "kind": payload_kind,
+                "url": url,
+                "status": resp.status_code,
+                "body": resp.text[:500],
+            })
             if resp.status_code >= 500:
-                last_text = resp.text[:500]
-                time.sleep(0.8 * (attempt + 1))
-                continue
+                # server error: move to next fallback
+                return None
             resp.raise_for_status()
-            break
-        except requests.HTTPError:
-            # propagate non-5xx errors immediately (likely 401/403/404/429)
-            last_text = resp.text[:500]
-            raise RuntimeError(
-                f"Roboflow error {resp.status_code}: {last_text}"
-            ) from None
-    else:
-        # after retries still 5xx
-        raise RuntimeError(
-            f"Roboflow 5xx after retries. Status={resp.status_code}. "
-            f"Body: {last_text}"
+            return resp.json()
+        except Exception as e:
+            attempts_log.append({
+                "kind": payload_kind,
+                "url": url,
+                "error": str(e),
+            })
+            return None
+
+    # Try detect.roboflow.com first
+    base1 = f"https://detect.roboflow.com/{model_id}"
+    out = (
+        _try(base1, "octet-stream", headers={"Content-Type": "application/octet-stream"}, data=jpeg_bytes)
+        or _try(base1, "multipart-file", files={"file": ("image.jpg", jpeg_bytes, "image/jpeg")})
+        or _try(base1, "form-base64", headers={"Content-Type": "application/x-www-form-urlencoded"}, data=datauri)
+    )
+
+    # Fallback to serverless if needed
+    if out is None:
+        base2 = f"https://serverless.roboflow.com/{model_id}"
+        out = (
+            _try(base2, "serverless-form-base64", headers={"Content-Type": "application/x-www-form-urlencoded"}, data=datauri)
+            or _try(base2, "serverless-multipart-file", files={"file": ("image.jpg", jpeg_bytes, "image/jpeg")})
         )
 
-    out = resp.json()
+    if out is None:
+        # Everything failed – raise with a concise summary
+        brief = json.dumps(attempts_log, ensure_ascii=False)[:1200]
+        raise RuntimeError(f"All Roboflow calls failed. Attempts: {brief}")
+
     preds = out.get("predictions", []) or []
     if pred_class:
         preds = [p for p in preds if p.get("class") == pred_class]
 
     if not preds:
-        raise RuntimeError(
-            f"No detection above threshold (conf>={conf}). Raw: {json.dumps(out)[:400]}"
-        )
+        brief = json.dumps(out, ensure_ascii=False)[:600]
+        raise RuntimeError(f"No detection above threshold (conf>={conf}). Raw: {brief}")
 
-    # pick highest confidence
+    # Pick highest-confidence detection
     best = max(preds, key=lambda p: p.get("confidence", 0.0))
 
-    # Roboflow x,y are centers in the *sent* image coords
+    # Roboflow x,y are centers in the coords of the SENT image
     W, H = pil_small.size
     cx, cy = float(best["x"]), float(best["y"])
     bw, bh = float(best["width"]), float(best["height"])
@@ -201,28 +219,28 @@ def roboflow_detect_and_crop(
     w = int(round(bw))
     h = int(round(bh))
 
-    # clamp to bounds
+    # Clamp to bounds
     x0 = max(0, min(x0, W - 1))
     y0 = max(0, min(y0, H - 1))
     w = max(1, min(w, W - x0))
     h = max(1, min(h, H - y0))
 
     full_bgr = pil_to_cv_bgr(pil_small)
-    crop_bgr = full_bgr[y0 : y0 + h, x0 : x0 + w].copy()
+    crop_bgr = full_bgr[y0:y0+h, x0:x0+w].copy()
     overlay_bgr = draw_box(full_bgr, (x0, y0, w, h))
 
     det_info = {
-        "request": {
-            "url": url,
-            "params": params,
-            "sent_size": {"W": W, "H": H},
-        },
+        "attempts": attempts_log,
         "box_xywh": {"x": x0, "y": y0, "w": w, "h": h},
         "confidence": float(best.get("confidence", 0.0)),
         "pred_class": best.get("class", None),
+        "sent_size": {"W": W, "H": H},
         "raw_pred": best,
     }
     return crop_bgr, overlay_bgr, det_info
+
+with st.expander("Detection debug", expanded=False):
+    st.write(det_info)  # this will include every attempt with status/body
 
 
 # -------------------- PMML: strict input build + predict -------------------- #
