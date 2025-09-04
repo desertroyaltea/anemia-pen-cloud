@@ -4,9 +4,8 @@
 import io
 import os
 import base64
-import json
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple, List
+from typing import Dict, Any, Optional, List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -15,25 +14,31 @@ from PIL import Image, ImageOps, ImageDraw
 import cv2
 from scipy.stats import kurtosis
 import streamlit as st
-from pypmml import Model
+
+# Optional imports (we guard them at runtime)
+try:
+    import joblib
+except Exception:
+    joblib = None
 
 # -------------------- Settings -------------------- #
-DEFAULT_PMML_PATH = Path("hemo.xml")                     # your exported SPSS PMML
-DEFAULT_MODEL_ID = "eye-conjunctiva-detector/2"          # Roboflow model id
+DEFAULT_JOBLIB_PATH = Path("outputs/models/hemo_surrogate.joblib")
+DEFAULT_PMML_PATH = Path("outputs/models/hemo_model.pmml")
+
+DEFAULT_MODEL_ID = "eye-conjunctiva-detector/2"   # Roboflow model id
 DEFAULT_CLASS_NAME = "conjunctiva"
-DEFAULT_CONF_0_100 = 25                                  # 0..100 (≈ 0.25)
+DEFAULT_CONF_0_100 = 25                           # 0..100 (≈ 0.25)
+
 FEATURE_COLUMNS = [
     "R_norm_p50", "a_mean", "R_p50", "R_p10", "RG", "S_p50",
     "gray_p90", "gray_kurt", "gray_std", "gray_mean",
     "B_mean", "B_p10", "B_p75", "G_kurt",
 ]
-# --------------------------------------------------- #
 
-st.set_page_config(page_title="Anemia Pen (PMML)", layout="wide")
+st.set_page_config(page_title="Anemia Pen — PMML/Joblib", layout="wide")
 
-# ---------------- Helper functions ----------------- #
+# ---------------- Helper functions ---------------- #
 def exif_upright(pil_img: Image.Image) -> Image.Image:
-    """Physically apply EXIF orientation so pixels are upright."""
     return ImageOps.exif_transpose(pil_img).convert("RGB")
 
 def pil_to_jpeg_bytes(img: Image.Image, quality: int = 90) -> bytes:
@@ -84,7 +89,14 @@ def draw_box_overlay(pil_img: Image.Image, box: Dict[str, Any]) -> Image.Image:
     return img
 
 def compute_features_from_pil(pil_img: Image.Image) -> Dict[str, float]:
-    """Compute the 14 features exactly as in Step 2."""
+    """
+    Compute 14 features (non-WB recipe):
+      - R_norm_p50 uses R/(R+G+B)
+      - gray_kurt & G_kurt: Pearson (fisher=False), bias=False
+      - gray_std uses ddof=0
+      - S_p50 uses HSV saturation normalized to 0..1
+      - a_mean = Lab a* minus 128
+    """
     rgb = np.array(pil_img.convert("RGB"), dtype=np.uint8)
     R = rgb[..., 0].astype(np.float32)
     G = rgb[..., 1].astype(np.float32)
@@ -117,28 +129,111 @@ def compute_features_from_pil(pil_img: Image.Image) -> Dict[str, float]:
     }
     return feats
 
+# --------- PMML helpers: scaling auto-detect & scoring --------- #
+def parse_pmml_expected_scales(pmml_path: Path) -> Dict[str, Any]:
+    """
+    Try to infer expected scales from PMML DataDictionary intervals.
+    Returns dict with flags:
+      - s_scale_factor: 1 or 100
+      - a_add_offset: 0 or 128
+      - hints: text for debugging
+    """
+    out = {"s_scale_factor": 1.0, "a_add_offset": 0.0, "hints": []}
+    try:
+        import xml.etree.ElementTree as ET
+        tree = ET.parse(str(pmml_path))
+        root = tree.getroot()
+
+        ns = {"p": root.tag.split("}")[0].strip("{")}
+
+        # Find S_p50 interval
+        s_node = root.find(".//p:DataDictionary/p:DataField[@name='S_p50']", ns)
+        if s_node is not None:
+            interval = s_node.find("p:Interval", ns)
+            if interval is not None:
+                right = interval.get("rightMargin")
+                if right is not None:
+                    try:
+                        right_v = float(right)
+                        # If S_p50 appears around dozens, SPSS expects 0..100 scaling
+                        if right_v > 1.5:
+                            out["s_scale_factor"] = 100.0
+                            out["hints"].append(f"S_p50 interval max≈{right_v} -> using 0..100 scaling")
+                    except Exception:
+                        pass
+
+        # Find a_mean interval
+        a_node = root.find(".//p:DataDictionary/p:DataField[@name='a_mean']", ns)
+        if a_node is not None:
+            interval = a_node.find("p:Interval", ns)
+            if interval is not None:
+                left = interval.get("leftMargin"); right = interval.get("rightMargin")
+                if left is not None and right is not None:
+                    try:
+                        l_v = float(left); r_v = float(right)
+                        # If centered around ~128-130, Modeler expects raw Lab a* (not minus 128)
+                        if r_v > 100.0:
+                            out["a_add_offset"] = 128.0
+                            out["hints"].append(f"a_mean interval {l_v:.2f}-{r_v:.2f} -> using raw a* (add 128)")
+                    except Exception:
+                        pass
+
+    except Exception as e:
+        out["hints"].append(f"PMML parse warning: {e}")
+
+    return out
+
+def adjust_feats_for_pmml(feats: Dict[str, float], scale_info: Dict[str, Any]) -> Dict[str, float]:
+    """Apply SPSS-expected scaling for PMML scoring."""
+    f = dict(feats)
+    if scale_info.get("a_add_offset", 0.0) == 128.0:
+        f["a_mean"] = feats["a_mean"] + 128.0
+    if scale_info.get("s_scale_factor", 1.0) == 100.0:
+        f["S_p50"] = feats["S_p50"] * 100.0
+    return {k: float(v) for k, v in f.items()}
+
+def pmml_predict(model, X: pd.DataFrame) -> Tuple[float, Dict[str, Any]]:
+    """
+    Score with PyPMML Model. Returns (prediction_value, extra_info)
+    Handles different output column names across PMMLs.
+    """
+    try:
+        df = model.predict(X)
+        # Try common column names
+        for key in ["hb", "predicted_hb", "prediction", "Predicted_hb"]:
+            if key in df.columns:
+                val = df[key].iloc[0]
+                if val is None or (isinstance(val, float) and np.isnan(val)):
+                    raise ValueError("PMML returned None/NaN for prediction")
+                return float(val), {"raw": df.head(1).to_dict(orient="records")[0]}
+        # If no obvious column, try first numeric column
+        for col in df.columns:
+            try:
+                val = float(df[col].iloc[0])
+                return val, {"raw": df.head(1).to_dict(orient="records")[0], "picked_col": col}
+            except Exception:
+                continue
+        raise ValueError("Cannot find numeric prediction in PMML result")
+    except Exception as e:
+        raise RuntimeError(f"PMML scoring error: {e}")
+
+# -------------------- Caching loaders -------------------- #
 @st.cache_resource(show_spinner=False)
-def load_pmml(path_str: str) -> Model:
+def load_joblib(path_str: str):
+    if joblib is None:
+        raise RuntimeError("joblib/scikit-learn not installed. Install scikit-learn and joblib.")
+    return joblib.load(path_str)
+
+@st.cache_resource(show_spinner=False)
+def load_pmml(path_str: str):
+    try:
+        from pypmml import Model
+    except Exception as e:
+        raise RuntimeError(f"PyPMML not available: {e}")
     return Model.load(path_str)
 
-def score_pmml(model: Model, feats: Dict[str, float]) -> Tuple[float, Dict[str, Any]]:
-    df = pd.DataFrame([{k: float(feats[k]) for k in FEATURE_COLUMNS}])
-    scored = model.predict(df)
-    # Try common columns for regression output
-    if "predicted_hb" in scored.columns:
-        pred = float(scored.loc[0, "predicted_hb"])
-    elif "hb" in scored.columns:
-        pred = float(scored.loc[0, "hb"])
-    else:
-        num_cols = [c for c in scored.columns if np.issubdtype(scored[c].dtype, np.number)]
-        if not num_cols:
-            raise RuntimeError(f"Unexpected PMML output columns: {list(scored.columns)}")
-        pred = float(scored.loc[0, num_cols[-1]])
-    extra = {"columns": list(scored.columns)}
-    return pred, extra
-
-# -------------------- UI -------------------- #
-st.title("Anemia Pen — Prototype")
+# ------------------------- UI ------------------------- #
+st.title("Anemia Pen — Prototype (PMML & Joblib)")
 
 with st.sidebar:
     st.header("Settings")
@@ -149,49 +244,72 @@ with st.sidebar:
         help="Stored only in your session. Or set env var ROBOFLOW_API_KEY.",
     )
     model_id = st.text_input("Roboflow Model ID", value=DEFAULT_MODEL_ID)
-    class_name = st.text_input("Target class", value=DEFAULT_CLASS_NAME, help="Class to prefer when multiple detections")
-    conf = st.slider("Confidence threshold (0–100)", min_value=1, max_value=100, value=DEFAULT_CONF_0_100)
-    rmse = st.number_input("Optional RMSE for CI (±1.96×RMSE)", min_value=0.0, value=0.0, step=0.1, help="Leave 0 to hide CI")
+    class_name = st.text_input("Target class", value=DEFAULT_CLASS_NAME)
+    conf = st.slider("Detection confidence (0–100)", min_value=1, max_value=100, value=DEFAULT_CONF_0_100)
+    rmse = st.number_input("Optional RMSE for CI (±1.96×RMSE)", min_value=0.0, value=0.0, step=0.1)
 
     st.markdown("---")
-    st.caption("Model file (SPSS → PMML)")
-    pmml_source = st.radio("Load PMML from…", ["Path", "Upload"], horizontal=True)
-    pmml_path_str = ""
-    pmml_tmp_file: Optional[Path] = None
-    if pmml_source == "Path":
-        pmml_path_str = st.text_input("PMML path", value=str(DEFAULT_PMML_PATH))
+    st.caption("Choose a scoring backend")
+    backend = st.radio("Backend", ["PMML", "Joblib"], horizontal=True)
+
+    model_path_str = ""
+    pmml_scale_info = None
+
+    if backend == "PMML":
+        src = st.radio("Load PMML from…", ["Path", "Upload"], horizontal=True)
+        if src == "Path":
+            model_path_str = st.text_input("PMML path", value=str(DEFAULT_PMML_PATH))
+        else:
+            up = st.file_uploader("Upload .pmml / .xml", type=["pmml", "xml"])
+            if up is not None:
+                tmp = Path("uploaded_model.pmml")
+                with open(tmp, "wb") as f:
+                    f.write(up.read())
+                model_path_str = str(tmp)
+        load_btn = st.button("Load PMML model", use_container_width=True)
+        model_loaded = None
+        if load_btn and model_path_str:
+            try:
+                model_loaded = load_pmml(model_path_str)
+                st.success(f"Loaded PMML: {model_path_str}")
+                # Infer expected scales from PMML
+                pmml_scale_info = parse_pmml_expected_scales(Path(model_path_str))
+                st.info("PMML scale detection: " + "; ".join(pmml_scale_info.get("hints", []) or ["no specific hints"]))
+            except Exception as e:
+                st.error(f"Failed to load PMML: {e}")
     else:
-        up = st.file_uploader("Upload .pmml / .xml", type=["pmml", "xml"])
-        if up is not None:
-            pmml_tmp_file = Path(st.secrets.get("_tmp_pmml_name_", "uploaded_hemo.xml"))
-            # write to a temp file in working dir (Streamlit reload-safe)
-            with open(pmml_tmp_file, "wb") as f:
-                f.write(up.read())
-            pmml_path_str = str(pmml_tmp_file)
+        src = st.radio("Load joblib from…", ["Path", "Upload"], horizontal=True)
+        if src == "Path":
+            model_path_str = st.text_input("Joblib path", value=str(DEFAULT_JOBLIB_PATH))
+        else:
+            up = st.file_uploader("Upload .joblib", type=["joblib"])
+            if up is not None:
+                tmp = Path("uploaded_model.joblib")
+                with open(tmp, "wb") as f:
+                    f.write(up.read())
+                model_path_str = str(tmp)
+        load_btn = st.button("Load joblib model", use_container_width=True)
+        model_loaded = None
+        if load_btn and model_path_str:
+            try:
+                model_loaded = load_joblib(model_path_str)
+                st.success(f"Loaded joblib: {model_path_str}")
+            except Exception as e:
+                st.error(f"Failed to load joblib: {e}")
 
-    load_btn = st.button("Load PMML model", use_container_width=True)
-
-    model_loaded: Optional[Model] = None
-    if load_btn:
-        try:
-            model_loaded = load_pmml(pmml_path_str)
-            st.success(f"PMML loaded: {pmml_path_str}")
-        except Exception as e:
-            st.error(f"Failed to load PMML: {e}")
-
-# If user already pressed the button in a previous run, try to use cache:
-if "model_loaded_flag" not in st.session_state:
-    st.session_state["model_loaded_flag"] = False
+# Persist "loaded" status across reruns
+if "model_ready" not in st.session_state:
+    st.session_state["model_ready"] = False
+if "backend" not in st.session_state:
+    st.session_state["backend"] = backend
 if load_btn:
-    st.session_state["model_loaded_flag"] = (model_loaded is not None)
-
-# Try to use cached model if path string is available and user had loaded before
-cached_model: Optional[Model] = None
-if st.session_state["model_loaded_flag"] and pmml_path_str:
-    try:
-        cached_model = load_pmml(pmml_path_str)
-    except Exception:
-        cached_model = None
+    st.session_state["model_ready"] = model_loaded is not None
+    st.session_state["backend"] = backend
+    if backend == "PMML":
+        st.session_state["pmml_scale_info"] = pmml_scale_info
+        st.session_state["pmml_path"] = model_path_str
+    else:
+        st.session_state["joblib_path"] = model_path_str
 
 uploaded = st.file_uploader("Upload a full-eye photo", type=["jpg", "jpeg", "png", "bmp", "tif", "tiff", "webp"])
 
@@ -211,11 +329,11 @@ if process:
     if not api_key:
         st.error("Missing Roboflow API key.")
         st.stop()
-    if cached_model is None:
-        st.error("PMML model is not loaded. Load it from the sidebar first.")
+    if not st.session_state.get("model_ready", False):
+        st.error("Model is not loaded. Load it from the sidebar first.")
         st.stop()
 
-    # Read & fix orientation
+    # Read & upright
     try:
         pil_full = Image.open(io.BytesIO(uploaded.read()))
         pil_full = exif_upright(pil_full)
@@ -223,7 +341,7 @@ if process:
         st.error(f"Failed to open image: {e}")
         st.stop()
 
-    # Detect via Roboflow (send the upright image)
+    # Detect
     try:
         b64 = to_b64_jpeg(pil_full)
         rf_json = roboflow_detect_b64(b64, model_id=model_id, api_key=api_key, conf_0_100=int(conf))
@@ -236,7 +354,7 @@ if process:
         st.error(f"Roboflow error: {e}")
         st.stop()
 
-    # Draw overlay + crop
+    # Overlay & crop
     try:
         overlay = draw_box_overlay(pil_full, best)
         crop = crop_from_box(pil_full, best)
@@ -258,9 +376,24 @@ if process:
 
     # Score
     try:
-        pred_hb, extra = score_pmml(cached_model, feats)
+        if st.session_state.get("backend") == "PMML":
+            # Prepare PMML model + scaling
+            pmml_model = load_pmml(st.session_state["pmml_path"])
+            scale_info = st.session_state.get("pmml_scale_info") or parse_pmml_expected_scales(Path(st.session_state["pmml_path"]))
+            feats_pmml = adjust_feats_for_pmml(feats, scale_info)
+
+            # Build X for PMML: pass all feature columns present in the DataDictionary
+            # (Safe to include all 14 — PMML will ignore unused ones or transform as needed)
+            X = pd.DataFrame([{k: float(feats_pmml.get(k, np.nan)) for k in FEATURE_COLUMNS}])
+            pred_hb, extra = pmml_predict(pmml_model, X)
+        else:
+            joblib_model = load_joblib(st.session_state["joblib_path"])
+            X = pd.DataFrame([{k: float(feats[k]) for k in FEATURE_COLUMNS}])
+            pred = joblib_model.predict(X)
+            pred_hb = float(np.ravel(pred)[0])
+            extra = {}
     except Exception as e:
-        st.error(f"PMML scoring error: {e}")
+        st.error(f"Model scoring error: {e}")
         st.stop()
 
     # CI (optional)
@@ -278,16 +411,22 @@ if process:
     else:
         st.metric(label="Estimated Hb (g/dL)", value=f"{pred_hb:.2f}")
 
-    # Show parameters (features)
+    # Show parameters
     st.markdown("### Extracted Parameters (14)")
     feat_df = pd.DataFrame([feats], columns=FEATURE_COLUMNS)
     st.dataframe(feat_df, use_container_width=True, height=420)
 
-    # Tiny debug section
+    # Debug
     with st.expander("Advanced / Debug info"):
         st.write("Roboflow best box:", best)
-        st.write("PMML output columns:", extra.get("columns"))
+        if st.session_state.get("backend") == "PMML":
+            st.write("PMML scale info:", scale_info)
+            st.write("Adjusted features sample (for PMML):", {k: feats_pmml[k] for k in ["a_mean", "S_p50"] if k in feats_pmml})
+            st.write("PMML raw output (first row):", extra.get("raw"))
+        else:
+            st.write("Backend: joblib")
+            st.write("Model path:", st.session_state.get("joblib_path"))
 
 # Footer
 st.markdown("---")
-st.caption("DEMO")
+st.caption("Anemia Pen — PMML/Joblib demo")
