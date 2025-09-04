@@ -1,278 +1,293 @@
-# app.py — Anemia Pen (Surrogate-only)
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import io
+import os
+import base64
 import json
 from pathlib import Path
-from typing import Any, Dict, Tuple, Optional
+from typing import Dict, Any, Optional, Tuple, List
 
-import cv2
 import numpy as np
 import pandas as pd
 import requests
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageDraw
+import cv2
 from scipy.stats import kurtosis
 import streamlit as st
-import joblib
+from pypmml import Model
 
-# -------------------- Constants -------------------- #
-ROBOPFLOW_MODEL_ID = "eye-conjunctiva-detector/2"  # your deployed detector
-DEFAULT_CONFIDENCE = 0.25
-TIMEOUT = 25
-
-SURROGATE_PATH = Path("outputs/models/hemo_surrogate.joblib")  # <— ONLY THIS MODEL
-FEATURE_ORDER = [
-    "R_norm_p50",
-    "a_mean",
-    "R_p50",
-    "R_p10",
-    "RG",
-    "S_p50",
-    "gray_p90",
-    "gray_kurt",
-    "gray_std",
-    "gray_mean",
-    "B_mean",
-    "B_p10",
-    "B_p75",
-    "G_kurt",
+# -------------------- Settings -------------------- #
+DEFAULT_PMML_PATH = Path("hemo.xml")                     # your exported SPSS PMML
+DEFAULT_MODEL_ID = "eye-conjunctiva-detector/2"          # Roboflow model id
+DEFAULT_CLASS_NAME = "conjunctiva"
+DEFAULT_CONF_0_100 = 25                                  # 0..100 (≈ 0.25)
+FEATURE_COLUMNS = [
+    "R_norm_p50", "a_mean", "R_p50", "R_p10", "RG", "S_p50",
+    "gray_p90", "gray_kurt", "gray_std", "gray_mean",
+    "B_mean", "B_p10", "B_p75", "G_kurt",
 ]
+# --------------------------------------------------- #
 
-# -------------------- UI -------------------- #
-st.set_page_config(page_title="Anemia Pen", page_icon="🖊️", layout="wide")
-st.title("🖊️ Anemia Pen — Hemoglobin Estimator (Surrogate Model)")
+st.set_page_config(page_title="Anemia Pen (PMML)", layout="wide")
 
-# Sidebar: API key + options
-st.sidebar.header("Settings")
-api_key = st.sidebar.text_input("Roboflow API Key", value=st.secrets.get("ROBOFLOW_API_KEY", ""), type="password")
-conf = st.sidebar.slider("Detection confidence threshold", 0.05, 0.9, DEFAULT_CONFIDENCE, 0.05)
-show_debug = st.sidebar.checkbox("Show debug details", value=False)
+# ---------------- Helper functions ----------------- #
+def exif_upright(pil_img: Image.Image) -> Image.Image:
+    """Physically apply EXIF orientation so pixels are upright."""
+    return ImageOps.exif_transpose(pil_img).convert("RGB")
 
-# -------------------- Utilities -------------------- #
-
-@st.cache_resource(show_spinner=False)
-def load_surrogate():
-    if not SURROGATE_PATH.exists():
-        st.error(f"Surrogate model not found at `{SURROGATE_PATH}`.")
-        st.stop()
-    try:
-        model = joblib.load(SURROGATE_PATH)
-    except Exception as e:
-        st.error(f"Failed to load surrogate model: {e}")
-        st.stop()
-    return model
-
-def pil_fix_orientation(pil_img: Image.Image) -> Image.Image:
-    """Auto-rotate based on EXIF and convert to RGB."""
-    try:
-        pil_img = ImageOps.exif_transpose(pil_img)
-    except Exception:
-        pass
-    if pil_img.mode != "RGB":
-        pil_img = pil_img.convert("RGB")
-    return pil_img
-
-def pil_to_jpeg_bytes(pil_img: Image.Image, quality: int = 95) -> bytes:
+def pil_to_jpeg_bytes(img: Image.Image, quality: int = 90) -> bytes:
     buf = io.BytesIO()
-    pil_img.save(buf, format="JPEG", quality=quality)
+    img.convert("RGB").save(buf, format="JPEG", quality=quality, optimize=True)
     return buf.getvalue()
 
-def roboflow_detect_and_crop(pil_img: Image.Image, api_key: str, conf_thr: float) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
-    """
-    Sends the upright RGB image to Roboflow via multipart/form-data ('file' part),
-    returns (crop_bgr, overlay_bgr, det_info).
-    """
-    if not api_key:
-        raise RuntimeError("Roboflow API key is required.")
+def to_b64_jpeg(img: Image.Image) -> str:
+    return base64.b64encode(pil_to_jpeg_bytes(img, quality=90)).decode("utf-8")
 
-    # JPEG bytes for multipart upload
-    jpg_bytes = pil_to_jpeg_bytes(pil_img)
-    url = f"https://detect.roboflow.com/{ROBOPFLOW_MODEL_ID}?api_key={api_key}&confidence={conf_thr:.2f}"
-    files = {"file": ("image.jpg", jpg_bytes, "image/jpeg")}
+def roboflow_detect_b64(b64_str: str, model_id: str, api_key: str, conf_0_100: int) -> Dict[str, Any]:
+    url = f"https://detect.roboflow.com/{model_id}"
+    params = {"api_key": api_key, "confidence": str(conf_0_100), "format": "json"}
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    resp = requests.post(url, params=params, data=b64_str, headers=headers, timeout=60)
+    resp.raise_for_status()
+    return resp.json()
 
-    # Call RF
-    r = requests.post(url, files=files, timeout=TIMEOUT)
-    if r.status_code >= 500:
-        raise RuntimeError(f"Roboflow server error [{r.status_code}]: {r.text}")
-    if r.status_code != 200:
-        raise RuntimeError(
-            f"Roboflow HTTP {r.status_code}. Body: {r.text[:300]}"
-        )
-
-    data = r.json()
-    preds = data.get("predictions", [])
+def select_best_box(preds: List[Dict[str, Any]], target_class: str) -> Optional[Dict[str, Any]]:
     if not preds:
-        raise RuntimeError("No conjunctiva detected.")
-    # pick best box by confidence
-    best = max(preds, key=lambda p: float(p.get("confidence", 0)))
-    x, y = float(best["x"]), float(best["y"])
-    w, h = float(best["width"]), float(best["height"])
+        return None
+    target = [p for p in preds if str(p.get("class", "")).lower() == target_class.lower()]
+    if target:
+        return max(target, key=lambda p: p.get("confidence", 0.0))
+    return max(preds, key=lambda p: p.get("confidence", 0.0))
 
-    # Make cv2 images
-    rgb = np.array(pil_img)  # HWC, RGB uint8
-    bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+def crop_from_box(pil_img: Image.Image, box: Dict[str, Any]) -> Image.Image:
+    x = float(box["x"]); y = float(box["y"])
+    w = float(box["width"]); h = float(box["height"])
+    left = int(round(x - w / 2.0)); top = int(round(y - h / 2.0))
+    right = int(round(x + w / 2.0)); bottom = int(round(y + h / 2.0))
+    left = max(0, left); top = max(0, top)
+    right = min(pil_img.width, right); bottom = min(pil_img.height, bottom)
+    if right <= left or bottom <= top:
+        return pil_img.copy()
+    return pil_img.crop((left, top, right, bottom))
 
-    # Compute crop coords
-    H, W = rgb.shape[:2]
-    x1 = int(max(0, x - w / 2))
-    y1 = int(max(0, y - h / 2))
-    x2 = int(min(W, x + w / 2))
-    y2 = int(min(H, y + h / 2))
-    crop_bgr = bgr[y1:y2, x1:x2].copy()
+def draw_box_overlay(pil_img: Image.Image, box: Dict[str, Any]) -> Image.Image:
+    img = pil_img.copy()
+    draw = ImageDraw.Draw(img)
+    x = float(box["x"]); y = float(box["y"])
+    w = float(box["width"]); h = float(box["height"])
+    left = int(round(x - w / 2.0)); top = int(round(y - h / 2.0))
+    right = int(round(x + w / 2.0)); bottom = int(round(y + h / 2.0))
+    draw.rectangle([(left, top), (right, bottom)], outline=(255, 0, 0), width=3)
+    txt = f"{box.get('class','?')} {box.get('confidence',0.0):.2f}"
+    draw.text((left + 4, top + 4), txt, fill=(255, 0, 0))
+    return img
 
-    # Overlay for visualization
-    overlay = bgr.copy()
-    cv2.rectangle(overlay, (x1, y1), (x2, y2), (0, 255, 0), 3)
-    label = f"{best.get('class','conjunctiva')} {best.get('confidence',0):.2f}"
-    cv2.putText(overlay, label, (x1, max(30, y1 - 10)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2, cv2.LINE_AA)
+def compute_features_from_pil(pil_img: Image.Image) -> Dict[str, float]:
+    """Compute the 14 features exactly as in Step 2."""
+    rgb = np.array(pil_img.convert("RGB"), dtype=np.uint8)
+    R = rgb[..., 0].astype(np.float32)
+    G = rgb[..., 1].astype(np.float32)
+    B = rgb[..., 2].astype(np.float32)
 
-    det_info = {
-        "x": x, "y": y, "width": w, "height": h,
-        "confidence": float(best.get("confidence", 0)),
-        "class": best.get("class", ""), "class_id": best.get("class_id", None),
+    gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY).astype(np.float32)
+    hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
+    S = hsv[..., 1].astype(np.float32) / 255.0
+    lab = cv2.cvtColor(rgb, cv2.COLOR_RGB2Lab)
+    a = lab[..., 1].astype(np.float32) - 128.0
+
+    denom = R + G + B + 1e-6
+    R_norm = R / denom
+
+    feats = {
+        "R_norm_p50": float(np.percentile(R_norm, 50)),
+        "a_mean": float(np.mean(a)),
+        "R_p50": float(np.percentile(R, 50)),
+        "R_p10": float(np.percentile(R, 10)),
+        "RG": float(np.mean(R) / (np.mean(G) + 1e-6)),
+        "S_p50": float(np.percentile(S, 50)),
+        "gray_p90": float(np.percentile(gray, 90)),
+        "gray_kurt": float(kurtosis(gray.ravel(), fisher=False, bias=False, nan_policy="omit")),
+        "gray_std": float(np.std(gray, ddof=0)),
+        "gray_mean": float(np.mean(gray)),
+        "B_mean": float(np.mean(B)),
+        "B_p10": float(np.percentile(B, 10)),
+        "B_p75": float(np.percentile(B, 75)),
+        "G_kurt": float(kurtosis(G.ravel(), fisher=False, bias=False, nan_policy="omit")),
     }
-    return crop_bgr, overlay, det_info
+    return feats
 
-def percentiles_uint8(channel: np.ndarray, plist=(10, 25, 50, 75, 90)) -> Dict[int, float]:
-    vals = np.percentile(channel.astype(np.float32), plist)
-    return {p: float(vals[i]) for i, p in enumerate(plist)}
+@st.cache_resource(show_spinner=False)
+def load_pmml(path_str: str) -> Model:
+    return Model.load(path_str)
 
-def extract_14_features(crop_bgr: np.ndarray) -> Dict[str, float]:
-    """
-    Returns the 14-feature dict in the exact FEATURE_ORDER.
-    """
-    if crop_bgr.size == 0:
-        raise ValueError("Empty crop for feature extraction.")
-
-    # Basic channels
-    b = crop_bgr[:, :, 0].astype(np.float32)
-    g = crop_bgr[:, :, 1].astype(np.float32)
-    r = crop_bgr[:, :, 2].astype(np.float32)
-
-    gray = cv2.cvtColor(crop_bgr, cv2.COLOR_BGR2GRAY).astype(np.float32)
-    hsv = cv2.cvtColor(crop_bgr, cv2.COLOR_BGR2HSV)
-    lab = cv2.cvtColor(crop_bgr, cv2.COLOR_BGR2LAB)
-
-    # Robust stats
-    R_p = percentiles_uint8(r, (10, 25, 50, 75, 90))
-    G_p = percentiles_uint8(g, (10, 25, 50, 75, 90))
-    B_p = percentiles_uint8(b, (10, 25, 50, 75, 90))
-    GR_p = percentiles_uint8(gray, (10, 25, 50, 75, 90))
-
-    R_mean = float(r.mean())
-    G_mean = float(g.mean())
-    B_mean = float(b.mean())
-
-    R_norm_p50 = float((R_p[50] / (G_p[50] + 1e-6)))  # normalized by green median (avoids divide-by-zero)
-    RG = float(R_mean / (G_mean + 1e-6))
-
-    S = hsv[:, :, 1].astype(np.float32)
-    S_p50 = float(np.percentile(S, 50))
-
-    gray_mean = float(gray.mean())
-    gray_std = float(gray.std(ddof=0))
-    # Fisher’s definition (normal==0). Bias False to match SciPy default behavior used earlier.
-    gray_kurt = float(kurtosis(gray, fisher=True, bias=False))
-    gray_p90 = float(GR_p[90])
-
-    a_mean = float(lab[:, :, 1].mean())  # Lab a* channel mean
-    G_kurt = float(kurtosis(g, fisher=True, bias=False))
-
-    feat = {
-        "R_norm_p50": R_norm_p50,
-        "a_mean": a_mean,
-        "R_p50": float(R_p[50]),
-        "R_p10": float(R_p[10]),
-        "RG": RG,
-        "S_p50": S_p50,
-        "gray_p90": gray_p90,
-        "gray_kurt": gray_kurt,
-        "gray_std": gray_std,
-        "gray_mean": gray_mean,
-        "B_mean": B_mean,
-        "B_p10": float(B_p[10]),
-        "B_p75": float(B_p[75]),
-        "G_kurt": G_kurt,
-    }
-    # Ensure all 14 present:
-    for k in FEATURE_ORDER:
-        if k not in feat:
-            raise KeyError(f"Missing feature: {k}")
-        if not np.isfinite(feat[k]):
-            raise ValueError(f"Non-finite value in {k}: {feat[k]}")
-    return feat
-
-def predict_surrogate(model, feat_dict: Dict[str, float]) -> Tuple[float, Dict[str, Any]]:
-    df = pd.DataFrame([[feat_dict[k] for k in FEATURE_ORDER]], columns=FEATURE_ORDER)
-    y = model.predict(df)
-    pred = float(y[0])
-    debug = {"backend": "joblib_sklearn", "used_columns": FEATURE_ORDER}
-    return pred, debug
-
-def to_pil(bgr: np.ndarray) -> Image.Image:
-    rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
-    return Image.fromarray(rgb)
-
-# -------------------- Main App Flow -------------------- #
-model = load_surrogate()
-st.success(f"Loaded surrogate model: `{SURROGATE_PATH.name}`")
-
-col_l, col_r = st.columns([1, 1])
-
-with col_l:
-    st.subheader("1) Upload an eye photo")
-    up = st.file_uploader("Upload image (JPG/PNG) or use your phone camera", type=["jpg", "jpeg", "png"])
-    if up:
-        try:
-            pil = Image.open(up)
-            pil = pil_fix_orientation(pil)
-            st.image(pil, caption="Original (auto-oriented)", use_container_width=True)
-        except Exception as e:
-            st.error(f"Failed to open image: {e}")
-            st.stop()
+def score_pmml(model: Model, feats: Dict[str, float]) -> Tuple[float, Dict[str, Any]]:
+    df = pd.DataFrame([{k: float(feats[k]) for k in FEATURE_COLUMNS}])
+    scored = model.predict(df)
+    # Try common columns for regression output
+    if "predicted_hb" in scored.columns:
+        pred = float(scored.loc[0, "predicted_hb"])
+    elif "hb" in scored.columns:
+        pred = float(scored.loc[0, "hb"])
     else:
-        st.info("Please upload a photo to proceed.")
-        st.stop()
+        num_cols = [c for c in scored.columns if np.issubdtype(scored[c].dtype, np.number)]
+        if not num_cols:
+            raise RuntimeError(f"Unexpected PMML output columns: {list(scored.columns)}")
+        pred = float(scored.loc[0, num_cols[-1]])
+    extra = {"columns": list(scored.columns)}
+    return pred, extra
 
-with col_r:
-    st.subheader("2) Detect & crop conjunctiva")
-    if not api_key:
-        st.warning("Enter your Roboflow API key in the sidebar.")
-        st.stop()
+# -------------------- UI -------------------- #
+st.title("🖊️ Anemia Pen — Prototype")
 
+with st.sidebar:
+    st.header("Settings")
+    api_key = st.text_input(
+        "Roboflow API Key",
+        value=os.getenv("ROBOFLOW_API_KEY", ""),
+        type="password",
+        help="Stored only in your session. Or set env var ROBOFLOW_API_KEY.",
+    )
+    model_id = st.text_input("Roboflow Model ID", value=DEFAULT_MODEL_ID)
+    class_name = st.text_input("Target class", value=DEFAULT_CLASS_NAME, help="Class to prefer when multiple detections")
+    conf = st.slider("Confidence threshold (0–100)", min_value=1, max_value=100, value=DEFAULT_CONF_0_100)
+    rmse = st.number_input("Optional RMSE for CI (±1.96×RMSE)", min_value=0.0, value=0.0, step=0.1, help="Leave 0 to hide CI")
+
+    st.markdown("---")
+    st.caption("Model file (SPSS → PMML)")
+    pmml_source = st.radio("Load PMML from…", ["Path", "Upload"], horizontal=True)
+    pmml_path_str = ""
+    pmml_tmp_file: Optional[Path] = None
+    if pmml_source == "Path":
+        pmml_path_str = st.text_input("PMML path", value=str(DEFAULT_PMML_PATH))
+    else:
+        up = st.file_uploader("Upload .pmml / .xml", type=["pmml", "xml"])
+        if up is not None:
+            pmml_tmp_file = Path(st.secrets.get("_tmp_pmml_name_", "uploaded_hemo.xml"))
+            # write to a temp file in working dir (Streamlit reload-safe)
+            with open(pmml_tmp_file, "wb") as f:
+                f.write(up.read())
+            pmml_path_str = str(pmml_tmp_file)
+
+    load_btn = st.button("Load PMML model", use_container_width=True)
+
+    model_loaded: Optional[Model] = None
+    if load_btn:
+        try:
+            model_loaded = load_pmml(pmml_path_str)
+            st.success(f"PMML loaded: {pmml_path_str}")
+        except Exception as e:
+            st.error(f"Failed to load PMML: {e}")
+
+# If user already pressed the button in a previous run, try to use cache:
+if "model_loaded_flag" not in st.session_state:
+    st.session_state["model_loaded_flag"] = False
+if load_btn:
+    st.session_state["model_loaded_flag"] = (model_loaded is not None)
+
+# Try to use cached model if path string is available and user had loaded before
+cached_model: Optional[Model] = None
+if st.session_state["model_loaded_flag"] and pmml_path_str:
     try:
-        crop_bgr, overlay_bgr, det_info = roboflow_detect_and_crop(pil, api_key, conf)
-        st.image(to_pil(overlay_bgr), caption="Detection overlay", use_container_width=True)
-        st.image(to_pil(crop_bgr), caption="Cropped conjunctiva", use_container_width=True)
-        if show_debug:
-            st.json({"det_info": det_info})
-    except Exception as e:
-        st.error(f"Detection/Cropping failed: {e}")
+        cached_model = load_pmml(pmml_path_str)
+    except Exception:
+        cached_model = None
+
+uploaded = st.file_uploader("Upload a full-eye photo", type=["jpg", "jpeg", "png", "bmp", "tif", "tiff", "webp"])
+
+colL, colR = st.columns([1, 1])
+with colL:
+    st.subheader("1) Original / Detection")
+with colR:
+    st.subheader("2) Cropped Conjunctiva")
+
+process = st.button("Estimate Hb", type="primary", disabled=(uploaded is None))
+
+# ----------------- Main action ----------------- #
+if process:
+    if uploaded is None:
+        st.warning("Please upload an image.")
+        st.stop()
+    if not api_key:
+        st.error("Missing Roboflow API key.")
+        st.stop()
+    if cached_model is None:
+        st.error("PMML model is not loaded. Load it from the sidebar first.")
         st.stop()
 
-st.subheader("3) Extract features & estimate Hb (surrogate)")
-try:
-    feats = extract_14_features(crop_bgr)
-    if show_debug:
-        st.json({"features": feats})
-except Exception as e:
-    st.error(f"Feature extraction failed: {e}")
-    st.stop()
+    # Read & fix orientation
+    try:
+        pil_full = Image.open(io.BytesIO(uploaded.read()))
+        pil_full = exif_upright(pil_full)
+    except Exception as e:
+        st.error(f"Failed to open image: {e}")
+        st.stop()
 
-try:
-    hb_pred, dbg = predict_surrogate(model, feats)
-except Exception as e:
-    st.error(f"Prediction failed: {e}")
-    st.stop()
+    # Detect via Roboflow (send the upright image)
+    try:
+        b64 = to_b64_jpeg(pil_full)
+        rf_json = roboflow_detect_b64(b64, model_id=model_id, api_key=api_key, conf_0_100=int(conf))
+        preds = rf_json.get("predictions", [])
+        best = select_best_box(preds, target_class=class_name)
+        if best is None:
+            st.warning("No detection found. Try lowering the confidence threshold or using a clearer image.")
+            st.stop()
+    except Exception as e:
+        st.error(f"Roboflow error: {e}")
+        st.stop()
 
-# Show result
-st.metric(label="Estimated Hemoglobin (g/dL)", value=f"{hb_pred:.2f}")
+    # Draw overlay + crop
+    try:
+        overlay = draw_box_overlay(pil_full, best)
+        crop = crop_from_box(pil_full, best)
+    except Exception as e:
+        st.error(f"Cropping error: {e}")
+        st.stop()
 
-# Optional: show inputs
-with st.expander("Extracted parameters (14 features)"):
-    feat_df = pd.DataFrame([feats])
-    # Streamlit <=1.50: st.dataframe does not support use_column_width
-    st.dataframe(feat_df, height=420)
+    with colL:
+        st.image(overlay, caption=f"Detection: {best.get('class','?')} (conf {best.get('confidence',0.0):.2f})", use_container_width=True)
+    with colR:
+        st.image(crop, caption="Cropped conjunctiva", use_container_width=True)
 
-if show_debug:
-    st.subheader("Debug")
-    st.json(dbg)
+    # Features
+    try:
+        feats = compute_features_from_pil(crop)
+    except Exception as e:
+        st.error(f"Feature extraction error: {e}")
+        st.stop()
+
+    # Score
+    try:
+        pred_hb, extra = score_pmml(cached_model, feats)
+    except Exception as e:
+        st.error(f"PMML scoring error: {e}")
+        st.stop()
+
+    # CI (optional)
+    lower = upper = None
+    if rmse and rmse > 0:
+        half = 1.96 * float(rmse)
+        lower = pred_hb - half
+        upper = pred_hb + half
+
+    st.markdown("---")
+    st.subheader("3) Result")
+
+    if lower is not None:
+        st.metric(label="Estimated Hb (g/dL)", value=f"{pred_hb:.2f}", delta=f"95% ≈ [{lower:.2f}, {upper:.2f}]")
+    else:
+        st.metric(label="Estimated Hb (g/dL)", value=f"{pred_hb:.2f}")
+
+    # Show parameters (features)
+    st.markdown("### Extracted Parameters (14)")
+    feat_df = pd.DataFrame([feats], columns=FEATURE_COLUMNS)
+    st.dataframe(feat_df, use_container_width=True, height=420)
+
+    # Tiny debug section
+    with st.expander("Advanced / Debug info"):
+        st.write("Roboflow best box:", best)
+        st.write("PMML output columns:", extra.get("columns"))
+
+# Footer
+st.markdown("---")
+st.caption("DEMO")
