@@ -3,7 +3,9 @@
 
 import io
 import os
+import sys
 import base64
+import tempfile
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 
@@ -21,6 +23,97 @@ try:
 except Exception:
     joblib = None
 
+# -----------------------------------------------------------------------------
+# Compatibility shims for loading .joblib files that contain custom classes
+# saved by the converter script (PMMLProxyEstimator / NativeLinearEstimator).
+# These classes must be importable under the same module path they were saved
+# with (often "main" when the converter was run as a script).
+# -----------------------------------------------------------------------------
+
+class PMMLProxyEstimator:
+    """
+    A scikit-learn-like estimator that delegates prediction to the stored PMML
+    via PyPMML. Ensures identical outputs to the original PMML.
+
+    Saved attributes expected in the pickled object:
+      - pmml_xml: str (the entire PMML as XML text)
+      - feature_names: list[str] (preferred input column order)
+      - output_candidates: list[str] (possible output field names, e.g., 'hb')
+    """
+    def __init__(self, pmml_xml: str, feature_names: List[str], output_candidates: List[str]):
+        self.pmml_xml = pmml_xml
+        self.feature_names = list(feature_names) if feature_names else []
+        self.output_candidates = list(output_candidates) if output_candidates else []
+        self._model = None  # lazy-loaded PyPMML model
+
+    def _ensure_model(self):
+        if self._model is not None:
+            return
+        try:
+            from pypmml import Model  # imported here to avoid hard dependency at import time
+        except Exception as e:
+            raise RuntimeError(f"pypmml is required to use PMMLProxyEstimator: {e}")
+        # PyPMML expects a file path; write the XML to a temp file
+        with tempfile.NamedTemporaryFile("w", suffix=".pmml", delete=False, encoding="utf-8") as tf:
+            tf.write(self.pmml_xml)
+            tmp_path = tf.name
+        self._model = Model.load(tmp_path)
+
+    def predict(self, X: Any) -> np.ndarray:
+        import pandas as pd
+        self._ensure_model()
+        if not isinstance(X, pd.DataFrame):
+            X = pd.DataFrame(X, columns=self.feature_names if self.feature_names else None)
+        # ensure float dtype
+        X = X.copy()
+        for c in X.columns:
+            X[c] = X[c].astype(float)
+
+        df = self._model.predict(X)
+
+        # Prefer known output names
+        for key in (self.output_candidates or []):
+            if key in df.columns:
+                return df[key].astype(float).to_numpy().ravel()
+
+        # Fallback to first numeric column
+        for col in df.columns:
+            try:
+                return df[col].astype(float).to_numpy().ravel()
+            except Exception:
+                continue
+
+        raise RuntimeError("PMML proxy: couldn't find numeric prediction column in model output.")
+
+
+class NativeLinearEstimator:
+    """
+    Minimal linear predictor: y = intercept + Σ coef[i] * x[i]
+    Only used when a plain RegressionModel (no transforms) was parsed natively.
+    """
+    def __init__(self, intercept: float, coefs: Dict[str, float], feature_names: List[str]):
+        self.intercept = float(intercept)
+        self.coefs = dict(coefs)
+        self.feature_names = list(feature_names)
+
+    def predict(self, X: Any) -> np.ndarray:
+        import pandas as pd
+        if not isinstance(X, pd.DataFrame):
+            X = pd.DataFrame(X, columns=self.feature_names if self.feature_names else None)
+        X = X.copy()
+        for c in X.columns:
+            X[c] = X[c].astype(float)
+        y = np.full((len(X),), self.intercept, dtype=float)
+        for name, coef in self.coefs.items():
+            if name not in X.columns:
+                raise ValueError(f"Missing required feature for native linear model: {name}")
+            y += coef * X[name].to_numpy(dtype=float)
+        return y
+
+# Register this module under names that pickles may reference (e.g., "main", "pmml_to_joblib")
+sys.modules.setdefault("main", sys.modules[__name__])
+sys.modules.setdefault("pmml_to_joblib", sys.modules[__name__])
+
 # -------------------- Settings -------------------- #
 DEFAULT_JOBLIB_PATH = Path("outputs/models/hemo_surrogate.joblib")
 DEFAULT_PMML_PATH = Path("outputs/models/hb_modeler.xml")  # change if needed
@@ -35,7 +128,7 @@ FEATURE_COLUMNS = [
     "B_mean", "B_p10", "B_p75", "G_kurt",
 ]
 
-st.set_page_config(page_title="Anemia Pen — PMML & Joblib (Fixed Scaling)", layout="wide")
+st.set_page_config(page_title="Anemia Pen — PMML & Joblib (Fixed Scaling + Proxy Support)", layout="wide")
 
 # ---------------- Helper functions ---------------- #
 def exif_upright(pil_img: Image.Image) -> Image.Image:
@@ -181,7 +274,7 @@ def _is_pmml_proxy(est) -> bool:
     return hasattr(est, "pmml_xml")
 
 # ------------------------- UI ------------------------- #
-st.title("Anemia Pen — PMML & Joblib (Fixed Scaling)")
+st.title("Anemia Pen — PMML & Joblib (Fixed Scaling + PMML-Proxy Support)")
 
 with st.sidebar:
     st.header("Settings")
@@ -399,8 +492,8 @@ if process:
                           "S_p50": feats.get("S_p50", None) * 100.0})
             st.write("PMML raw output (first row):", extra.get("raw"))
         else:
-            est = _extract_estimator(load_joblib(st.session_state["joblib_path"]))
             st.write("Joblib path:", st.session_state.get("joblib_path"))
+            est = _extract_estimator(load_joblib(st.session_state["joblib_path"]))
             st.write("Joblib wraps PMML proxy:", _is_pmml_proxy(est))
             if _is_pmml_proxy(est) and st.session_state.get("force_spss_scaling_joblib_proxy", True):
                 st.write("Adjusted a_mean & S_p50 sent to Joblib-PMML:",
