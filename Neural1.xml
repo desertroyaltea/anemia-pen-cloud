@@ -1,0 +1,2609 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?><PMML version="4.2" xmlns="http://www.dmg.org/PMML-4_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Header copyright="(C) Copyright IBM Corp. 1994, 2016"><Application name="IBM SPSS Modeler Common" version="18.0.0.0"/><Timestamp>Thu Sep 04 13:01:23 2025
+</Timestamp></Header><DataDictionary><DataField dataType="double" displayName="B_mean" name="B_mean" optype="continuous"/><DataField dataType="double" displayName="B_p10" name="B_p10" optype="continuous"/><DataField dataType="double" displayName="B_p75" name="B_p75" optype="continuous"/><DataField dataType="double" displayName="G_kurt" name="G_kurt" optype="continuous"/><DataField dataType="double" displayName="RG" name="RG" optype="continuous"/><DataField dataType="double" displayName="R_norm_p50" name="R_norm_p50" optype="continuous"/><DataField dataType="double" displayName="R_p10" name="R_p10" optype="continuous"/><DataField dataType="double" displayName="R_p50" name="R_p50" optype="continuous"/><DataField dataType="double" displayName="S_p50" name="S_p50" optype="continuous"/><DataField dataType="double" displayName="a_mean" name="a_mean" optype="continuous"/><DataField dataType="double" displayName="gray_kurt" name="gray_kurt" optype="continuous"/><DataField dataType="double" displayName="gray_mean" name="gray_mean" optype="continuous"/><DataField dataType="double" displayName="gray_p90" name="gray_p90" optype="continuous"/><DataField dataType="double" displayName="gray_std" name="gray_std" optype="continuous"/><DataField dataType="double" displayName="hb" name="hb" optype="continuous"/></DataDictionary><MiningModel algorithmName="boosting" functionName="regression"><Extension extender="spss.com" name="modelID" value="13"/><MiningSchema><MiningField importance="0.00239704590894289" name="B_mean"/><MiningField importance="0.13910580839494" name="B_p10"/><MiningField importance="0.0701061473218244" name="B_p75"/><MiningField importance="0.0330959824559546" name="G_kurt"/><MiningField importance="0.042584089628344" name="RG"/><MiningField importance="0.0355029307269024" name="R_norm_p50"/><MiningField importance="0.0655875953515629" name="R_p10"/><MiningField importance="0.0258572656646286" name="R_p50"/><MiningField importance="0.107887600530419" name="S_p50"/><MiningField importance="0.292311316855604" name="a_mean"/><MiningField importance="0.0999075425493323" name="gray_kurt"/><MiningField importance="0.00226957053579594" name="gray_mean"/><MiningField importance="0.030104343186155" name="gray_p90"/><MiningField importance="0.0532827608895945" name="gray_std"/><MiningField name="hb" usageType="predicted"/></MiningSchema><ModelExplanation><PredictiveModelQuality dataUsage="training" meanSquaredError="0.196108510040984" r-squared="0.965012392432864" targetField="hb"><LiftData><ModelLiftGraph><LiftGraph><XCoordinates><Array n="21" type="int">1 4 7 10 13 16 19 22 25 28 31 34 37 40 43 46 49 52 55 58 72</Array></XCoordinates><YCoordinates><Array n="21" type="real">17.4 50.3 47.4 46.2 46.7 45.3 45.3 45.4 42.5 40.7 42.4 42.5 40.9 41.4 39.7 38.7 36.7 35.6 33.4 33 132.7</Array></YCoordinates><BoundaryValues><Array n="21" type="real">17.3784199940058 16.1741025714125 15.7086366222253 15.2255844034521 15.1436697589772 15.0658607191012 14.999586636032 14.637720268606 14.3964961975377 14.3253953788644 14.2166891587934 14.1535092782907 13.9212910011924 13.714987649493 13.0265946936636 12.7333352206582 12.2077474072558 11.478899228574 11.1444966389864 10.7567298927193 7.32038982696561</Array></BoundaryValues><BoundaryValueMeans><Array n="21" type="real">17.3784199940058 16.4506932558876 15.7550010278971 15.3420694272885 15.1604122350634 15.0989749688754 15.0357076550111 14.7592907775832 14.5078832994613 14.3445149753355 14.2594314060767 14.1639357358123 13.9995046829589 13.7570309771519 13.2241300952237 12.8522432993151 12.3532721928226 11.5785542927868 11.2578741076493 10.8003980751307 9.57936656574386</Array></BoundaryValueMeans></LiftGraph></ModelLiftGraph></LiftData></PredictiveModelQuality><PredictiveModelQuality dataUsage="test" meanSquaredError="4.29108379356453" r-squared="0.151653761929204" targetField="hb"><LiftData><ModelLiftGraph><LiftGraph><XCoordinates><Array n="21" type="int">1 4 7 10 13 16 19 22 25 28 31 34 37 40 43 46 49 52 55 58 77</Array></XCoordinates><YCoordinates><Array n="21" type="real">14.9 44.4 45.4 46.1 43.9 41.1 48.2 41.7 41.2 42.7 43.2 42.4 45.3 42.9 36.6 40.8 43 36.4 41.8 31.8 218.2</Array></YCoordinates><BoundaryValues><Array n="21" type="real">17.2309437949505 16.3173064325214 15.8030191622396 15.6035602951512 15.2946592316172 15.1031106925182 14.9504684291733 14.7505093272478 14.6820593211067 14.5973792779415 14.5290647236773 14.3366725729533 14.238981246897 14.1451719962356 13.7516058101243 13.4136633218406 13.0589910395475 12.8857674437434 12.6258434152077 12.1857192782187 6.80544584942782</Array></BoundaryValues><BoundaryValueMeans><Array n="21" type="real">17.2309437949505 16.6318652645474 15.899441654014 15.6511349408151 15.4349025201284 15.1176320737141 15.0240747210302 14.7972403515286 14.7056447683145 14.6135071297333 14.5587238498192 14.4556022035195 14.2911870440845 14.1788182818039 13.9277699268941 13.5717156052097 13.2669185569583 12.9334264440681 12.7254431523784 12.4234606852536 10.4299462056877</Array></BoundaryValueMeans></LiftGraph></ModelLiftGraph></LiftData></PredictiveModelQuality></ModelExplanation><Segmentation multipleModelMethod="selectAll"><Extension extender="spss.com" name="multipleModelMethod" value="weightedMedian"/><Segment id="1" weight="1.22238"><True/><NeuralNetwork activationFunction="tanh" algorithmName="MLP" functionName="regression"><Extension extender="spss.com" name="modelID" value="14"/><MiningSchema>
+<MiningField importance="0.114915368863366" name="B_mean"/>
+<MiningField importance="0.0616092132003183" name="B_p10"/>
+<MiningField importance="0.115132672862984" name="B_p75"/>
+<MiningField importance="0.0710201292873942" name="G_kurt"/>
+<MiningField importance="0.0444879913699486" name="RG"/>
+<MiningField importance="0.0265040024103866" name="R_norm_p50"/>
+<MiningField importance="0.0351186965231573" name="R_p10"/>
+<MiningField importance="0.04448981026625" name="R_p50"/>
+<MiningField importance="0.0603910053800873" name="S_p50"/>
+<MiningField importance="0.0962860279061894" name="a_mean"/>
+<MiningField importance="0.0690484414441901" name="gray_kurt"/>
+<MiningField importance="0.099322836803294" name="gray_mean"/>
+<MiningField importance="0.0854561039221384" name="gray_p90"/>
+<MiningField importance="0.076217699760296" name="gray_std"/>
+<MiningField name="hb" usageType="predicted"/>
+</MiningSchema><LocalTransformations><DerivedField dataType="double" name="B_meanNorm" optype="continuous">
+<NormContinuous field="B_mean">
+<LinearNorm norm="-2.00938572462286" orig="134.049026489258"/>
+<LinearNorm norm="2.01523520541518" orig="176.718185424805"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p10Norm" optype="continuous">
+<NormContinuous field="B_p10">
+<LinearNorm norm="-1.4914931003147" orig="67"/>
+<LinearNorm norm="2.76717530187004" orig="141"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p75Norm" optype="continuous">
+<NormContinuous field="B_p75">
+<LinearNorm norm="-2.22886463555191" orig="161"/>
+<LinearNorm norm="2.16089925653063" orig="222"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="G_kurtNorm" optype="continuous">
+<NormContinuous field="G_kurt">
+<LinearNorm norm="-2.14259348866212" orig="-1.4890398979187"/>
+<LinearNorm norm="3.50100214744608" orig="0.306849718093872"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="RGNorm" optype="continuous">
+<NormContinuous field="RG">
+<LinearNorm norm="-0.83491057943229" orig="0.999872112256119"/>
+<LinearNorm norm="6.85206765758539" orig="1.00340417710158"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_norm_p50Norm" optype="continuous">
+<NormContinuous field="R_norm_p50">
+<LinearNorm norm="-2.31247229878601" orig="0.485714286565781"/>
+<LinearNorm norm="2.98434848734021" orig="0.519999980926514"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p10Norm" optype="continuous">
+<NormContinuous field="R_p10">
+<LinearNorm norm="-2.5684705181012" orig="64"/>
+<LinearNorm norm="1.62045135691363" orig="159"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p50Norm" optype="continuous">
+<NormContinuous field="R_p50">
+<LinearNorm norm="-2.26762502059579" orig="138"/>
+<LinearNorm norm="2.13423531350185" orig="182"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="S_p50Norm" optype="continuous">
+<NormContinuous field="S_p50">
+<LinearNorm norm="-1.93346648981616" orig="26"/>
+<LinearNorm norm="3.37987653563281" orig="76"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="a_meanNorm" optype="continuous">
+<NormContinuous field="a_mean">
+<LinearNorm norm="-1.87916549914007" orig="128.333724975586"/>
+<LinearNorm norm="3.12405541579079" orig="130.422348022461"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_kurtNorm" optype="continuous">
+<NormContinuous field="gray_kurt">
+<LinearNorm norm="-2.11514373272623" orig="-1.50485372543335"/>
+<LinearNorm norm="3.38265746991669" orig="0.706916809082031"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_meanNorm" optype="continuous">
+<NormContinuous field="gray_mean">
+<LinearNorm norm="-2.00535466488099" orig="134.059768676758"/>
+<LinearNorm norm="2.0177706524813" orig="176.723068237305"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_p90Norm" optype="continuous">
+<NormContinuous field="gray_p90">
+<LinearNorm norm="-2.90956237618203" orig="175"/>
+<LinearNorm norm="1.51389978617282" orig="228"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_stdNorm" optype="continuous">
+<NormContinuous field="gray_std">
+<LinearNorm norm="-2.58715018459998" orig="23.6167831420898"/>
+<LinearNorm norm="1.71159626030454" orig="51.0078659057617"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="hbNorm" optype="continuous">
+<NormContinuous field="hb">
+<LinearNorm norm="-2.5644212749936" orig="7"/>
+<LinearNorm norm="1.79777466029764" orig="17.4"/>
+</NormContinuous>
+</DerivedField></LocalTransformations><NeuralInputs>
+<NeuralInput id="0">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="1">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="2">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p75Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="3">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="G_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="4">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="RGNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="5">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_norm_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="6">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="7">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="8">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="S_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="9">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="a_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="10">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="11">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="12">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_p90Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="13">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_stdNorm"/>
+</DerivedField>
+</NeuralInput>
+</NeuralInputs><NeuralLayer numberOfNeurons="3">
+<Neuron bias="1.04002327736591" id="14">
+<Con from="0" weight="-0.934953952470847"/>
+<Con from="1" weight="0.854156573942382"/>
+<Con from="2" weight="-0.597234840065411"/>
+<Con from="3" weight="-0.246072566147989"/>
+<Con from="4" weight="1.03972314703195"/>
+<Con from="5" weight="0.75995284016629"/>
+<Con from="6" weight="-0.247966196771603"/>
+<Con from="7" weight="0.926578587529214"/>
+<Con from="8" weight="-1.56704017740732"/>
+<Con from="9" weight="-0.381124400777332"/>
+<Con from="10" weight="-1.04857584133639"/>
+<Con from="11" weight="-0.399594980821063"/>
+<Con from="12" weight="-0.0373674148559705"/>
+<Con from="13" weight="-1.42230017924485"/>
+</Neuron>
+<Neuron bias="0.683541840090806" id="15">
+<Con from="0" weight="-0.31480479178355"/>
+<Con from="1" weight="-0.384443627888507"/>
+<Con from="2" weight="2.33300929700055"/>
+<Con from="3" weight="-0.731014471210673"/>
+<Con from="4" weight="0.482600850851972"/>
+<Con from="5" weight="0.318756028044792"/>
+<Con from="6" weight="1.631390041915"/>
+<Con from="7" weight="-0.240163806292185"/>
+<Con from="8" weight="0.180843719754197"/>
+<Con from="9" weight="1.65783977995587"/>
+<Con from="10" weight="-1.91024874814696"/>
+<Con from="11" weight="-0.577726541526206"/>
+<Con from="12" weight="1.13710073582227"/>
+<Con from="13" weight="-1.54417590209337"/>
+</Neuron>
+<Neuron bias="0.989545510063449" id="16">
+<Con from="0" weight="1.69859786737046"/>
+<Con from="1" weight="-0.666953099628781"/>
+<Con from="2" weight="-1.37310437630795"/>
+<Con from="3" weight="0.501035011135013"/>
+<Con from="4" weight="0.533879279623057"/>
+<Con from="5" weight="0.250400366570419"/>
+<Con from="6" weight="0.406592337345253"/>
+<Con from="7" weight="-0.456289851564704"/>
+<Con from="8" weight="-0.743176775385434"/>
+<Con from="9" weight="2.0258486687206"/>
+<Con from="10" weight="-1.39506322808859"/>
+<Con from="11" weight="1.23065843199002"/>
+<Con from="12" weight="-1.07743824232176"/>
+<Con from="13" weight="0.3331944316021"/>
+</Neuron>
+</NeuralLayer><NeuralLayer activationFunction="identity" numberOfNeurons="1">
+<Neuron bias="-0.28251951441214" id="17">
+<Con from="14" weight="-0.430430143525031"/>
+<Con from="15" weight="-0.970691420468952"/>
+<Con from="16" weight="1.65628622624706"/>
+</Neuron>
+</NeuralLayer><NeuralOutputs>
+<NeuralOutput outputNeuron="17">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="hbNorm"/>
+</DerivedField>
+</NeuralOutput>
+</NeuralOutputs></NeuralNetwork></Segment><Segment id="2" weight="1.50933"><True/><NeuralNetwork activationFunction="tanh" algorithmName="MLP" functionName="regression"><Extension extender="spss.com" name="modelID" value="4"/><MiningSchema>
+<MiningField importance="0.0565510864949858" name="B_mean"/>
+<MiningField importance="0.0583256851890992" name="B_p10"/>
+<MiningField importance="0.143130734651018" name="B_p75"/>
+<MiningField importance="0.0319167718447478" name="G_kurt"/>
+<MiningField importance="0.0554677185643501" name="RG"/>
+<MiningField importance="0.0512124228297676" name="R_norm_p50"/>
+<MiningField importance="0.0531279744981758" name="R_p10"/>
+<MiningField importance="0.0615645802451027" name="R_p50"/>
+<MiningField importance="0.0401742859955543" name="S_p50"/>
+<MiningField importance="0.109665870110439" name="a_mean"/>
+<MiningField importance="0.067897650719466" name="gray_kurt"/>
+<MiningField importance="0.0832835639552201" name="gray_mean"/>
+<MiningField importance="0.0833703399194701" name="gray_p90"/>
+<MiningField importance="0.104311314982604" name="gray_std"/>
+<MiningField name="hb" usageType="predicted"/>
+</MiningSchema><LocalTransformations><DerivedField dataType="double" name="B_meanNorm" optype="continuous">
+<NormContinuous field="B_mean">
+<LinearNorm norm="-1.89367944660744" orig="134.049026489258"/>
+<LinearNorm norm="1.96074567168702" orig="176.718185424805"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p10Norm" optype="continuous">
+<NormContinuous field="B_p10">
+<LinearNorm norm="-1.4689251758247" orig="67"/>
+<LinearNorm norm="2.81483691327984" orig="141"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p75Norm" optype="continuous">
+<NormContinuous field="B_p75">
+<LinearNorm norm="-2.03138285719276" orig="161"/>
+<LinearNorm norm="2.0734404732837" orig="222"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="G_kurtNorm" optype="continuous">
+<NormContinuous field="G_kurt">
+<LinearNorm norm="-2.36449929828377" orig="-1.4890398979187"/>
+<LinearNorm norm="3.72741362652654" orig="0.306849718093872"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="RGNorm" optype="continuous">
+<NormContinuous field="RG">
+<LinearNorm norm="-1.32662314232266" orig="0.999872112256119"/>
+<LinearNorm norm="2.6504051651782" orig="1.0009703849746"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_norm_p50Norm" optype="continuous">
+<NormContinuous field="R_norm_p50">
+<LinearNorm norm="-2.28711656448908" orig="0.485714286565781"/>
+<LinearNorm norm="2.82920154910211" orig="0.519999980926514"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p10Norm" optype="continuous">
+<NormContinuous field="R_p10">
+<LinearNorm norm="-2.3856229298363" orig="64"/>
+<LinearNorm norm="1.58171498411466" orig="159"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p50Norm" optype="continuous">
+<NormContinuous field="R_p50">
+<LinearNorm norm="-2.17459803897582" orig="138"/>
+<LinearNorm norm="2.00063019585769" orig="182"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="S_p50Norm" optype="continuous">
+<NormContinuous field="S_p50">
+<LinearNorm norm="-2.01714200790755" orig="26"/>
+<LinearNorm norm="3.01406669541844" orig="71"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="a_meanNorm" optype="continuous">
+<NormContinuous field="a_mean">
+<LinearNorm norm="-1.62531768688257" orig="128.433517456055"/>
+<LinearNorm norm="3.13591055822747" orig="130.422348022461"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_kurtNorm" optype="continuous">
+<NormContinuous field="gray_kurt">
+<LinearNorm norm="-2.11952740439478" orig="-1.47100341320038"/>
+<LinearNorm norm="3.51535412043455" orig="0.706916809082031"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_meanNorm" optype="continuous">
+<NormContinuous field="gray_mean">
+<LinearNorm norm="-1.89131222716406" orig="134.059768676758"/>
+<LinearNorm norm="1.9649303042024" orig="176.723068237305"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_p90Norm" optype="continuous">
+<NormContinuous field="gray_p90">
+<LinearNorm norm="-2.69636573959618" orig="175"/>
+<LinearNorm norm="1.38570187359581" orig="226"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_stdNorm" optype="continuous">
+<NormContinuous field="gray_std">
+<LinearNorm norm="-2.41207116218507" orig="24.8686065673828"/>
+<LinearNorm norm="1.67032868452162" orig="50.056884765625"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="hbNorm" optype="continuous">
+<NormContinuous field="hb">
+<LinearNorm norm="-2.58703860211367" orig="7"/>
+<LinearNorm norm="1.90027783351924" orig="17.4"/>
+</NormContinuous>
+</DerivedField></LocalTransformations><NeuralInputs>
+<NeuralInput id="0">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="1">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="2">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p75Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="3">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="G_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="4">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="RGNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="5">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_norm_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="6">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="7">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="8">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="S_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="9">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="a_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="10">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="11">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="12">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_p90Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="13">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_stdNorm"/>
+</DerivedField>
+</NeuralInput>
+</NeuralInputs><NeuralLayer numberOfNeurons="5">
+<Neuron bias="0.238329384006929" id="14">
+<Con from="0" weight="0.482720460700694"/>
+<Con from="1" weight="-0.0422850592085217"/>
+<Con from="2" weight="-0.157517817647959"/>
+<Con from="3" weight="0.0731635831726174"/>
+<Con from="4" weight="-0.606346352623702"/>
+<Con from="5" weight="0.190233936589147"/>
+<Con from="6" weight="1.03996444322713"/>
+<Con from="7" weight="-1.02566384549782"/>
+<Con from="8" weight="0.126768011660031"/>
+<Con from="9" weight="0.720538396580139"/>
+<Con from="10" weight="-0.799731874150359"/>
+<Con from="11" weight="0.140996770958853"/>
+<Con from="12" weight="-0.59047837281012"/>
+<Con from="13" weight="-0.127450441791817"/>
+</Neuron>
+<Neuron bias="0.962445540346374" id="15">
+<Con from="0" weight="-0.280032803326911"/>
+<Con from="1" weight="-0.79064062110049"/>
+<Con from="2" weight="1.54397535854744"/>
+<Con from="3" weight="-0.163259469962961"/>
+<Con from="4" weight="0.67298337137437"/>
+<Con from="5" weight="0.329995985425023"/>
+<Con from="6" weight="0.611713428798777"/>
+<Con from="7" weight="0.551390919352811"/>
+<Con from="8" weight="0.228853896467558"/>
+<Con from="9" weight="0.818532049174029"/>
+<Con from="10" weight="-0.00253737822919185"/>
+<Con from="11" weight="-0.0738155526430099"/>
+<Con from="12" weight="0.919950080214692"/>
+<Con from="13" weight="0.0214416215145286"/>
+</Neuron>
+<Neuron bias="-0.572889006897211" id="16">
+<Con from="0" weight="-0.361984261174222"/>
+<Con from="1" weight="-0.0562134553063552"/>
+<Con from="2" weight="0.642597834940538"/>
+<Con from="3" weight="-0.132654098181161"/>
+<Con from="4" weight="-1.47701843845452"/>
+<Con from="5" weight="0.444879518058424"/>
+<Con from="6" weight="-1.30580649297499"/>
+<Con from="7" weight="0.615232525614614"/>
+<Con from="8" weight="-0.120667055215865"/>
+<Con from="9" weight="-1.2452831879836"/>
+<Con from="10" weight="-0.859531381519451"/>
+<Con from="11" weight="-0.798404605693661"/>
+<Con from="12" weight="-0.476942459339879"/>
+<Con from="13" weight="-2.27900170151746"/>
+</Neuron>
+<Neuron bias="-0.5066712863647" id="17">
+<Con from="0" weight="-0.232275139878764"/>
+<Con from="1" weight="-0.367731578344394"/>
+<Con from="2" weight="0.283697012322941"/>
+<Con from="3" weight="0.0602068932478778"/>
+<Con from="4" weight="0.419083925575286"/>
+<Con from="5" weight="-0.112147552435788"/>
+<Con from="6" weight="0.507722609705796"/>
+<Con from="7" weight="-0.916059812688324"/>
+<Con from="8" weight="0.451661912693232"/>
+<Con from="9" weight="-0.785601721320167"/>
+<Con from="10" weight="-0.225679190612398"/>
+<Con from="11" weight="-0.92985770863055"/>
+<Con from="12" weight="0.338917757156278"/>
+<Con from="13" weight="0.119368799468151"/>
+</Neuron>
+<Neuron bias="-0.125622389358647" id="18">
+<Con from="0" weight="-0.0674929768620971"/>
+<Con from="1" weight="0.0371049105815417"/>
+<Con from="2" weight="-0.760559460542916"/>
+<Con from="3" weight="-0.460677447183122"/>
+<Con from="4" weight="0.573749696622438"/>
+<Con from="5" weight="0.707125211583913"/>
+<Con from="6" weight="-0.786115277213766"/>
+<Con from="7" weight="1.08386022416743"/>
+<Con from="8" weight="-0.0587405775048842"/>
+<Con from="9" weight="-0.213995341868344"/>
+<Con from="10" weight="-1.02038696676917"/>
+<Con from="11" weight="-0.36836425155029"/>
+<Con from="12" weight="-0.571735929981917"/>
+<Con from="13" weight="0.44998912135116"/>
+</Neuron>
+</NeuralLayer><NeuralLayer activationFunction="identity" numberOfNeurons="1">
+<Neuron bias="-0.137474715206024" id="19">
+<Con from="14" weight="1.40076056468021"/>
+<Con from="15" weight="-1.84615905987624"/>
+<Con from="16" weight="-2.26774844443998"/>
+<Con from="17" weight="-1.7095097892591"/>
+<Con from="18" weight="1.32626558212433"/>
+</Neuron>
+</NeuralLayer><NeuralOutputs>
+<NeuralOutput outputNeuron="19">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="hbNorm"/>
+</DerivedField>
+</NeuralOutput>
+</NeuralOutputs></NeuralNetwork></Segment><Segment id="3" weight="1.96931"><True/><NeuralNetwork activationFunction="tanh" algorithmName="MLP" functionName="regression"><Extension extender="spss.com" name="modelID" value="5"/><MiningSchema>
+<MiningField importance="0.0901190720113476" name="B_mean"/>
+<MiningField importance="0.0753889415188186" name="B_p10"/>
+<MiningField importance="0.037116883885769" name="B_p75"/>
+<MiningField importance="0.109350362003198" name="G_kurt"/>
+<MiningField importance="0.0564848625600851" name="RG"/>
+<MiningField importance="0.0506171731817341" name="R_norm_p50"/>
+<MiningField importance="0.0623814602738772" name="R_p10"/>
+<MiningField importance="0.0643055936829273" name="R_p50"/>
+<MiningField importance="0.04444339151385" name="S_p50"/>
+<MiningField importance="0.0438219586846668" name="a_mean"/>
+<MiningField importance="0.15811944336853" name="gray_kurt"/>
+<MiningField importance="0.0162593642430365" name="gray_mean"/>
+<MiningField importance="0.100625051150614" name="gray_p90"/>
+<MiningField importance="0.0909664419215453" name="gray_std"/>
+<MiningField name="hb" usageType="predicted"/>
+</MiningSchema><LocalTransformations><DerivedField dataType="double" name="B_meanNorm" optype="continuous">
+<NormContinuous field="B_mean">
+<LinearNorm norm="-1.94562717789711" orig="134.049026489258"/>
+<LinearNorm norm="2.19419830551257" orig="176.239517211914"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p10Norm" optype="continuous">
+<NormContinuous field="B_p10">
+<LinearNorm norm="-1.35084274800759" orig="70"/>
+<LinearNorm norm="2.86041761748369" orig="135"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p75Norm" optype="continuous">
+<NormContinuous field="B_p75">
+<LinearNorm norm="-2.20096360431238" orig="161"/>
+<LinearNorm norm="2.17942073053445" orig="222"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="G_kurtNorm" optype="continuous">
+<NormContinuous field="G_kurt">
+<LinearNorm norm="-1.89796863902669" orig="-1.4890398979187"/>
+<LinearNorm norm="3.23832474760943" orig="0.306849718093872"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="RGNorm" optype="continuous">
+<NormContinuous field="RG">
+<LinearNorm norm="-0.755106172525984" orig="0.999931054457633"/>
+<LinearNorm norm="5.28504446677471" orig="1.00340417710158"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_norm_p50Norm" optype="continuous">
+<NormContinuous field="R_norm_p50">
+<LinearNorm norm="-2.24587550667373" orig="0.488673150539398"/>
+<LinearNorm norm="2.13028942556173" orig="0.513605415821075"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p10Norm" optype="continuous">
+<NormContinuous field="R_p10">
+<LinearNorm norm="-2.92250936703221" orig="65"/>
+<LinearNorm norm="1.77750569714277" orig="159"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p50Norm" optype="continuous">
+<NormContinuous field="R_p50">
+<LinearNorm norm="-2.04158276796902" orig="138"/>
+<LinearNorm norm="2.21382548288453" orig="180"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="S_p50Norm" optype="continuous">
+<NormContinuous field="S_p50">
+<LinearNorm norm="-1.88721213419277" orig="26"/>
+<LinearNorm norm="2.87246537953427" orig="76"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="a_meanNorm" optype="continuous">
+<NormContinuous field="a_mean">
+<LinearNorm norm="-1.65860876774622" orig="128.433517456055"/>
+<LinearNorm norm="2.69589113633447" orig="130.422348022461"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_kurtNorm" optype="continuous">
+<NormContinuous field="gray_kurt">
+<LinearNorm norm="-2.02655873266572" orig="-1.50485372543335"/>
+<LinearNorm norm="3.37441374048186" orig="0.706916809082031"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_meanNorm" optype="continuous">
+<NormContinuous field="gray_mean">
+<LinearNorm norm="-1.94025689291982" orig="134.059768676758"/>
+<LinearNorm norm="2.18113162737694" orig="176.085632324219"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_p90Norm" optype="continuous">
+<NormContinuous field="gray_p90">
+<LinearNorm norm="-2.71420172454186" orig="175"/>
+<LinearNorm norm="1.43140897864888" orig="228"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_stdNorm" optype="continuous">
+<NormContinuous field="gray_std">
+<LinearNorm norm="-2.38062319059915" orig="24.8686065673828"/>
+<LinearNorm norm="1.58361454597639" orig="51.0078659057617"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="hbNorm" optype="continuous">
+<NormContinuous field="hb">
+<LinearNorm norm="-2.56056347002999" orig="7"/>
+<LinearNorm norm="1.53468343680311" orig="16.9"/>
+</NormContinuous>
+</DerivedField></LocalTransformations><NeuralInputs>
+<NeuralInput id="0">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="1">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="2">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p75Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="3">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="G_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="4">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="RGNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="5">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_norm_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="6">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="7">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="8">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="S_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="9">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="a_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="10">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="11">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="12">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_p90Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="13">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_stdNorm"/>
+</DerivedField>
+</NeuralInput>
+</NeuralInputs><NeuralLayer numberOfNeurons="5">
+<Neuron bias="0.139930667984333" id="14">
+<Con from="0" weight="-0.603970791165337"/>
+<Con from="1" weight="0.861458950620841"/>
+<Con from="2" weight="0.207623272255461"/>
+<Con from="3" weight="0.909067065839079"/>
+<Con from="4" weight="-0.682723938504343"/>
+<Con from="5" weight="-1.46361446694329"/>
+<Con from="6" weight="1.13020202167178"/>
+<Con from="7" weight="-0.579171209416316"/>
+<Con from="8" weight="-0.596632634996796"/>
+<Con from="9" weight="0.0933156625879564"/>
+<Con from="10" weight="0.578690075809316"/>
+<Con from="11" weight="-0.420144942556065"/>
+<Con from="12" weight="-2.04937485717106"/>
+<Con from="13" weight="-1.89942827872433"/>
+</Neuron>
+<Neuron bias="0.122254270768975" id="15">
+<Con from="0" weight="0.296262745416852"/>
+<Con from="1" weight="-1.61890452316799"/>
+<Con from="2" weight="0.557773213807909"/>
+<Con from="3" weight="-0.233477059697482"/>
+<Con from="4" weight="0.171555597842753"/>
+<Con from="5" weight="1.17378926626868"/>
+<Con from="6" weight="-1.0843611916312"/>
+<Con from="7" weight="1.27270847518699"/>
+<Con from="8" weight="0.215817623867263"/>
+<Con from="9" weight="0.171734723819259"/>
+<Con from="10" weight="0.525766084401719"/>
+<Con from="11" weight="0.327137472781625"/>
+<Con from="12" weight="0.994225650920741"/>
+<Con from="13" weight="-0.127758121630488"/>
+</Neuron>
+<Neuron bias="-1.12505339569049" id="16">
+<Con from="0" weight="-0.305661171560744"/>
+<Con from="1" weight="0.782078730264818"/>
+<Con from="2" weight="0.0588467104007937"/>
+<Con from="3" weight="-0.662848726916563"/>
+<Con from="4" weight="0.170877527448865"/>
+<Con from="5" weight="0.30432229142693"/>
+<Con from="6" weight="-0.877967215637584"/>
+<Con from="7" weight="-0.845472389767402"/>
+<Con from="8" weight="-0.141330039817816"/>
+<Con from="9" weight="-0.483129993075982"/>
+<Con from="10" weight="0.277232784426934"/>
+<Con from="11" weight="-0.239962552214537"/>
+<Con from="12" weight="1.13477345428459"/>
+<Con from="13" weight="0.0316624854760954"/>
+</Neuron>
+<Neuron bias="-0.591201042281687" id="17">
+<Con from="0" weight="-0.914266307540955"/>
+<Con from="1" weight="0.676741660422865"/>
+<Con from="2" weight="-0.284888075145299"/>
+<Con from="3" weight="-1.27554152862635"/>
+<Con from="4" weight="-0.440919754159279"/>
+<Con from="5" weight="-0.269762006815702"/>
+<Con from="6" weight="0.867798573110614"/>
+<Con from="7" weight="-0.548810277576171"/>
+<Con from="8" weight="0.360133975209995"/>
+<Con from="9" weight="-0.358636558704634"/>
+<Con from="10" weight="1.13235696232768"/>
+<Con from="11" weight="-0.00254013048701834"/>
+<Con from="12" weight="0.81452149613719"/>
+<Con from="13" weight="-0.217806122145208"/>
+</Neuron>
+<Neuron bias="-0.278217697236608" id="18">
+<Con from="0" weight="0.193100775886288"/>
+<Con from="1" weight="0.355873195642626"/>
+<Con from="2" weight="-0.0560065437016852"/>
+<Con from="3" weight="0.540864788076885"/>
+<Con from="4" weight="0.377889714993971"/>
+<Con from="5" weight="0.0943766189421634"/>
+<Con from="6" weight="0.300683839972383"/>
+<Con from="7" weight="0.301735246324763"/>
+<Con from="8" weight="0.179262051799539"/>
+<Con from="9" weight="-0.0683457101614637"/>
+<Con from="10" weight="0.250162595245816"/>
+<Con from="11" weight="-0.117194369613674"/>
+<Con from="12" weight="0.337194245216608"/>
+<Con from="13" weight="-0.463017278851451"/>
+</Neuron>
+</NeuralLayer><NeuralLayer activationFunction="identity" numberOfNeurons="1">
+<Neuron bias="-1.0958000122299" id="19">
+<Con from="14" weight="-2.15823240329851"/>
+<Con from="15" weight="-2.27031506714906"/>
+<Con from="16" weight="-0.835755120237879"/>
+<Con from="17" weight="-1.93637505596136"/>
+<Con from="18" weight="0.404729428291075"/>
+</Neuron>
+</NeuralLayer><NeuralOutputs>
+<NeuralOutput outputNeuron="19">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="hbNorm"/>
+</DerivedField>
+</NeuralOutput>
+</NeuralOutputs></NeuralNetwork></Segment><Segment id="4" weight="1.66867"><True/><NeuralNetwork activationFunction="tanh" algorithmName="MLP" functionName="regression"><Extension extender="spss.com" name="modelID" value="6"/><MiningSchema>
+<MiningField importance="0.0416930810175537" name="B_mean"/>
+<MiningField importance="0.112486568096007" name="B_p10"/>
+<MiningField importance="0.0548154260525033" name="B_p75"/>
+<MiningField importance="0.0999860146485406" name="G_kurt"/>
+<MiningField importance="0.136411358855109" name="RG"/>
+<MiningField importance="0.064441230062021" name="R_norm_p50"/>
+<MiningField importance="0.0641665487351757" name="R_p10"/>
+<MiningField importance="0.0612221504305898" name="R_p50"/>
+<MiningField importance="0.0743768310656139" name="S_p50"/>
+<MiningField importance="0.0723244327101718" name="a_mean"/>
+<MiningField importance="0.123599084986567" name="gray_kurt"/>
+<MiningField importance="0.0306409489633477" name="gray_mean"/>
+<MiningField importance="0.0125561789306712" name="gray_p90"/>
+<MiningField importance="0.051280145446127" name="gray_std"/>
+<MiningField name="hb" usageType="predicted"/>
+</MiningSchema><LocalTransformations><DerivedField dataType="double" name="B_meanNorm" optype="continuous">
+<NormContinuous field="B_mean">
+<LinearNorm norm="-1.89794816421058" orig="134.049026489258"/>
+<LinearNorm norm="1.97462924814428" orig="176.144500732422"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p10Norm" optype="continuous">
+<NormContinuous field="B_p10">
+<LinearNorm norm="-1.40046493546856" orig="69"/>
+<LinearNorm norm="2.6646014258915" orig="141"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p75Norm" optype="continuous">
+<NormContinuous field="B_p75">
+<LinearNorm norm="-1.98376146004849" orig="161"/>
+<LinearNorm norm="2.11995021206172" orig="222"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="G_kurtNorm" optype="continuous">
+<NormContinuous field="G_kurt">
+<LinearNorm norm="-1.94129934805205" orig="-1.4890398979187"/>
+<LinearNorm norm="2.92132721493486" orig="0.306849718093872"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="RGNorm" optype="continuous">
+<NormContinuous field="RG">
+<LinearNorm norm="-0.709198298328374" orig="0.999876176129251"/>
+<LinearNorm norm="5.59764255728896" orig="1.00340417710158"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_norm_p50Norm" optype="continuous">
+<NormContinuous field="R_norm_p50">
+<LinearNorm norm="-2.32397994244306" orig="0.486702114343643"/>
+<LinearNorm norm="2.3177322958235" orig="0.513605415821075"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p10Norm" optype="continuous">
+<NormContinuous field="R_p10">
+<LinearNorm norm="-2.41809907635691" orig="64"/>
+<LinearNorm norm="1.3869267623454" orig="154"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p50Norm" optype="continuous">
+<NormContinuous field="R_p50">
+<LinearNorm norm="-2.14716937556855" orig="138"/>
+<LinearNorm norm="2.13766862611911" orig="182"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="S_p50Norm" optype="continuous">
+<NormContinuous field="S_p50">
+<LinearNorm norm="-1.59676858237688" orig="27"/>
+<LinearNorm norm="3.05912123183958" orig="76"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="a_meanNorm" optype="continuous">
+<NormContinuous field="a_mean">
+<LinearNorm norm="-1.58637918852872" orig="128.333724975586"/>
+<LinearNorm norm="2.78633572400651" orig="130.422348022461"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_kurtNorm" optype="continuous">
+<NormContinuous field="gray_kurt">
+<LinearNorm norm="-1.87932304281335" orig="-1.50485372543335"/>
+<LinearNorm norm="2.74542868375477" orig="0.706916809082031"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_meanNorm" optype="continuous">
+<NormContinuous field="gray_mean">
+<LinearNorm norm="-1.89316353495725" orig="134.059768676758"/>
+<LinearNorm norm="1.97266034875505" orig="176.113388061523"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_p90Norm" optype="continuous">
+<NormContinuous field="gray_p90">
+<LinearNorm norm="-2.70919197541578" orig="175"/>
+<LinearNorm norm="1.36043476351699" orig="226"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_stdNorm" optype="continuous">
+<NormContinuous field="gray_std">
+<LinearNorm norm="-2.36605941226354" orig="23.6167831420898"/>
+<LinearNorm norm="1.55635374727939" orig="50.3428802490234"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="hbNorm" optype="continuous">
+<NormContinuous field="hb">
+<LinearNorm norm="-1.90816148197394" orig="8"/>
+<LinearNorm norm="1.69323633953806" orig="17.4"/>
+</NormContinuous>
+</DerivedField></LocalTransformations><NeuralInputs>
+<NeuralInput id="0">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="1">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="2">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p75Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="3">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="G_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="4">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="RGNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="5">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_norm_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="6">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="7">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="8">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="S_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="9">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="a_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="10">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="11">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="12">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_p90Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="13">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_stdNorm"/>
+</DerivedField>
+</NeuralInput>
+</NeuralInputs><NeuralLayer numberOfNeurons="3">
+<Neuron bias="-1.85797201868914" id="14">
+<Con from="0" weight="0.313704711514119"/>
+<Con from="1" weight="1.94395572705056"/>
+<Con from="2" weight="-0.729089797138428"/>
+<Con from="3" weight="-1.84545106246928"/>
+<Con from="4" weight="0.121704426423984"/>
+<Con from="5" weight="1.00775697412879"/>
+<Con from="6" weight="-1.10438785049043"/>
+<Con from="7" weight="0.952768968964551"/>
+<Con from="8" weight="1.23563991766323"/>
+<Con from="9" weight="-1.33818769432482"/>
+<Con from="10" weight="1.61186144577542"/>
+<Con from="11" weight="-0.257625925862832"/>
+<Con from="12" weight="-0.0380442554817065"/>
+<Con from="13" weight="0.931476477442143"/>
+</Neuron>
+<Neuron bias="-0.651868056929212" id="15">
+<Con from="0" weight="0.371330269335849"/>
+<Con from="1" weight="1.48002534231228"/>
+<Con from="2" weight="0.720042839506064"/>
+<Con from="3" weight="1.02053822166033"/>
+<Con from="4" weight="1.31312996263869"/>
+<Con from="5" weight="0.186356861197179"/>
+<Con from="6" weight="0.652201806093975"/>
+<Con from="7" weight="0.805713591593338"/>
+<Con from="8" weight="-0.604283983665666"/>
+<Con from="9" weight="-1.30193829093988"/>
+<Con from="10" weight="0.674329386918745"/>
+<Con from="11" weight="0.649067929937128"/>
+<Con from="12" weight="-0.369222942212267"/>
+<Con from="13" weight="-0.202459800257045"/>
+</Neuron>
+<Neuron bias="-0.589720610560655" id="16">
+<Con from="0" weight="0.5948859365495"/>
+<Con from="1" weight="0.831221604166293"/>
+<Con from="2" weight="0.229227025092337"/>
+<Con from="3" weight="0.862045176460737"/>
+<Con from="4" weight="-2.07702116904153"/>
+<Con from="5" weight="-0.573233009690838"/>
+<Con from="6" weight="0.492019475378741"/>
+<Con from="7" weight="-0.182481306702917"/>
+<Con from="8" weight="-0.679041236000746"/>
+<Con from="9" weight="-0.346147567554026"/>
+<Con from="10" weight="0.712905159395407"/>
+<Con from="11" weight="0.120624453037579"/>
+<Con from="12" weight="-0.0569481025932488"/>
+<Con from="13" weight="-0.380553974871698"/>
+</Neuron>
+</NeuralLayer><NeuralLayer activationFunction="identity" numberOfNeurons="1">
+<Neuron bias="-0.490339951249783" id="17">
+<Con from="14" weight="-1.29776594100216"/>
+<Con from="15" weight="1.60132264770545"/>
+<Con from="16" weight="-1.41716955500851"/>
+</Neuron>
+</NeuralLayer><NeuralOutputs>
+<NeuralOutput outputNeuron="17">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="hbNorm"/>
+</DerivedField>
+</NeuralOutput>
+</NeuralOutputs></NeuralNetwork></Segment><Segment id="5" weight="1.82774"><True/><NeuralNetwork activationFunction="tanh" algorithmName="MLP" functionName="regression"><Extension extender="spss.com" name="modelID" value="7"/><MiningSchema>
+<MiningField importance="0.083696212574515" name="B_mean"/>
+<MiningField importance="0.0974527687164775" name="B_p10"/>
+<MiningField importance="0.0959580222128221" name="B_p75"/>
+<MiningField importance="0.0638620088482105" name="G_kurt"/>
+<MiningField importance="0.0366090066789105" name="RG"/>
+<MiningField importance="0.0441144776869594" name="R_norm_p50"/>
+<MiningField importance="0.0544277463399158" name="R_p10"/>
+<MiningField importance="0.0252618889802505" name="R_p50"/>
+<MiningField importance="0.0290523720301021" name="S_p50"/>
+<MiningField importance="0.0367888912939934" name="a_mean"/>
+<MiningField importance="0.115971021606943" name="gray_kurt"/>
+<MiningField importance="0.109872379011867" name="gray_mean"/>
+<MiningField importance="0.113757475375567" name="gray_p90"/>
+<MiningField importance="0.0931757286434663" name="gray_std"/>
+<MiningField name="hb" usageType="predicted"/>
+</MiningSchema><LocalTransformations><DerivedField dataType="double" name="B_meanNorm" optype="continuous">
+<NormContinuous field="B_mean">
+<LinearNorm norm="-2.14317394511288" orig="135.203475952148"/>
+<LinearNorm norm="1.96228768032912" orig="176.718185424805"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p10Norm" optype="continuous">
+<NormContinuous field="B_p10">
+<LinearNorm norm="-1.4800635513324" orig="69"/>
+<LinearNorm norm="2.49453515524381" orig="140"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p75Norm" optype="continuous">
+<NormContinuous field="B_p75">
+<LinearNorm norm="-2.35199322102285" orig="161"/>
+<LinearNorm norm="2.21503709402236" orig="222"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="G_kurtNorm" optype="continuous">
+<NormContinuous field="G_kurt">
+<LinearNorm norm="-2.13846526394193" orig="-1.4890398979187"/>
+<LinearNorm norm="2.37187681249844" orig="0.0232944488525391"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="RGNorm" optype="continuous">
+<NormContinuous field="RG">
+<LinearNorm norm="-1.2941355849548" orig="0.999872112256119"/>
+<LinearNorm norm="2.80819228564633" orig="1.00092130550278"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_norm_p50Norm" optype="continuous">
+<NormContinuous field="R_norm_p50">
+<LinearNorm norm="-1.34354440201763" orig="0.492647051811218"/>
+<LinearNorm norm="3.15266738401702" orig="0.519999980926514"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p10Norm" optype="continuous">
+<NormContinuous field="R_p10">
+<LinearNorm norm="-2.5919180185744" orig="65"/>
+<LinearNorm norm="1.49032638011207" orig="159"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p50Norm" optype="continuous">
+<NormContinuous field="R_p50">
+<LinearNorm norm="-1.71044661549893" orig="146"/>
+<LinearNorm norm="1.96345566802264" orig="180"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="S_p50Norm" optype="continuous">
+<NormContinuous field="S_p50">
+<LinearNorm norm="-1.8452047286413" orig="26"/>
+<LinearNorm norm="3.03216307127734" orig="71"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="a_meanNorm" optype="continuous">
+<NormContinuous field="a_mean">
+<LinearNorm norm="-1.92416201409935" orig="128.333724975586"/>
+<LinearNorm norm="3.41614060214943" orig="130.422348022461"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_kurtNorm" optype="continuous">
+<NormContinuous field="gray_kurt">
+<LinearNorm norm="-2.15521916120257" orig="-1.50485372543335"/>
+<LinearNorm norm="2.80881257732556" orig="0.557283401489258"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_meanNorm" optype="continuous">
+<NormContinuous field="gray_mean">
+<LinearNorm norm="-2.14298398022809" orig="135.196334838867"/>
+<LinearNorm norm="1.96643488240566" orig="176.723068237305"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_p90Norm" optype="continuous">
+<NormContinuous field="gray_p90">
+<LinearNorm norm="-2.34384209974754" orig="184"/>
+<LinearNorm norm="1.30768576834845" orig="225"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_stdNorm" optype="continuous">
+<NormContinuous field="gray_std">
+<LinearNorm norm="-2.40575718603986" orig="23.6167831420898"/>
+<LinearNorm norm="1.76789658737492" orig="51.0078659057617"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="hbNorm" optype="continuous">
+<NormContinuous field="hb">
+<LinearNorm norm="-2.62426989597852" orig="7"/>
+<LinearNorm norm="1.70953600504872" orig="17.4"/>
+</NormContinuous>
+</DerivedField></LocalTransformations><NeuralInputs>
+<NeuralInput id="0">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="1">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="2">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p75Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="3">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="G_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="4">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="RGNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="5">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_norm_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="6">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="7">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="8">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="S_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="9">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="a_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="10">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="11">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="12">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_p90Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="13">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_stdNorm"/>
+</DerivedField>
+</NeuralInput>
+</NeuralInputs><NeuralLayer numberOfNeurons="3">
+<Neuron bias="-1.12620182330578" id="14">
+<Con from="0" weight="1.37963255981376"/>
+<Con from="1" weight="-0.517291579983887"/>
+<Con from="2" weight="-1.14646534565775"/>
+<Con from="3" weight="2.14402742454133"/>
+<Con from="4" weight="-0.430907967340515"/>
+<Con from="5" weight="0.947063672005125"/>
+<Con from="6" weight="0.657841246896203"/>
+<Con from="7" weight="-0.501767679397973"/>
+<Con from="8" weight="0.0684582308765484"/>
+<Con from="9" weight="0.254877821725052"/>
+<Con from="10" weight="-2.10938580812968"/>
+<Con from="11" weight="1.53366778279457"/>
+<Con from="12" weight="-0.702614982826333"/>
+<Con from="13" weight="1.47360622727447"/>
+</Neuron>
+<Neuron bias="0.713320642978544" id="15">
+<Con from="0" weight="-0.475859423455526"/>
+<Con from="1" weight="-2.21409652136274"/>
+<Con from="2" weight="-0.529396640019096"/>
+<Con from="3" weight="0.0834797655545781"/>
+<Con from="4" weight="1.03429392422486"/>
+<Con from="5" weight="-0.600994343049902"/>
+<Con from="6" weight="-0.701956423514517"/>
+<Con from="7" weight="0.017081079270266"/>
+<Con from="8" weight="0.272164392894864"/>
+<Con from="9" weight="-0.513707549860881"/>
+<Con from="10" weight="-0.740543462241753"/>
+<Con from="11" weight="0.0562523873053286"/>
+<Con from="12" weight="-1.41330082118228"/>
+<Con from="13" weight="1.68613203349492"/>
+</Neuron>
+<Neuron bias="1.22898864482194" id="16">
+<Con from="0" weight="-1.43050014126026"/>
+<Con from="1" weight="1.12279228958915"/>
+<Con from="2" weight="0.648866854224705"/>
+<Con from="3" weight="1.3481232679668"/>
+<Con from="4" weight="-1.62739880574654"/>
+<Con from="5" weight="2.25471696120197"/>
+<Con from="6" weight="-1.8454486898727"/>
+<Con from="7" weight="-0.801240318921202"/>
+<Con from="8" weight="1.37225893366459"/>
+<Con from="9" weight="-0.884094167545185"/>
+<Con from="10" weight="0.681082042584263"/>
+<Con from="11" weight="-2.06835926942904"/>
+<Con from="12" weight="3.29825011930122"/>
+<Con from="13" weight="0.212336491447596"/>
+</Neuron>
+</NeuralLayer><NeuralLayer activationFunction="identity" numberOfNeurons="1">
+<Neuron bias="0.639679823488576" id="17">
+<Con from="14" weight="1.63562694139118"/>
+<Con from="15" weight="1.1822342727353"/>
+<Con from="16" weight="-1.07147913065171"/>
+</Neuron>
+</NeuralLayer><NeuralOutputs>
+<NeuralOutput outputNeuron="17">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="hbNorm"/>
+</DerivedField>
+</NeuralOutput>
+</NeuralOutputs></NeuralNetwork></Segment><Segment id="6" weight="1.78259"><True/><NeuralNetwork activationFunction="tanh" algorithmName="MLP" functionName="regression"><Extension extender="spss.com" name="modelID" value="8"/><MiningSchema>
+<MiningField importance="0.058836383373701" name="B_mean"/>
+<MiningField importance="0.13692840320004" name="B_p10"/>
+<MiningField importance="0.0640191772661468" name="B_p75"/>
+<MiningField importance="0.11222340106519" name="G_kurt"/>
+<MiningField importance="0.0676380100747045" name="RG"/>
+<MiningField importance="0.026139931327662" name="R_norm_p50"/>
+<MiningField importance="0.0848116868140518" name="R_p10"/>
+<MiningField importance="0.058431676994868" name="R_p50"/>
+<MiningField importance="0.0371817170492359" name="S_p50"/>
+<MiningField importance="0.0939686301426488" name="a_mean"/>
+<MiningField importance="0.077608133121985" name="gray_kurt"/>
+<MiningField importance="0.0687969238641484" name="gray_mean"/>
+<MiningField importance="0.0481799076966945" name="gray_p90"/>
+<MiningField importance="0.0652360180089226" name="gray_std"/>
+<MiningField name="hb" usageType="predicted"/>
+</MiningSchema><LocalTransformations><DerivedField dataType="double" name="B_meanNorm" optype="continuous">
+<NormContinuous field="B_mean">
+<LinearNorm norm="-1.88433425747768" orig="134.049026489258"/>
+<LinearNorm norm="1.91969045104764" orig="176.239517211914"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p10Norm" optype="continuous">
+<NormContinuous field="B_p10">
+<LinearNorm norm="-1.51360337867954" orig="67"/>
+<LinearNorm norm="2.81685226481531" orig="141"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p75Norm" optype="continuous">
+<NormContinuous field="B_p75">
+<LinearNorm norm="-1.96426219770759" orig="161"/>
+<LinearNorm norm="2.08815076410774" orig="222"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="G_kurtNorm" optype="continuous">
+<NormContinuous field="G_kurt">
+<LinearNorm norm="-1.11042137657954" orig="-1.0992259979248"/>
+<LinearNorm norm="3.14951073319028" orig="0.306849718093872"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="RGNorm" optype="continuous">
+<NormContinuous field="RG">
+<LinearNorm norm="-0.739187576596123" orig="0.999872112256119"/>
+<LinearNorm norm="5.22060460207695" orig="1.00340417710158"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_norm_p50Norm" optype="continuous">
+<NormContinuous field="R_norm_p50">
+<LinearNorm norm="-2.1020246730023" orig="0.485714286565781"/>
+<LinearNorm norm="1.87133874334498" orig="0.513605415821075"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p10Norm" optype="continuous">
+<NormContinuous field="R_p10">
+<LinearNorm norm="-2.62772930480436" orig="66"/>
+<LinearNorm norm="1.69239326463268" orig="159"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p50Norm" optype="continuous">
+<NormContinuous field="R_p50">
+<LinearNorm norm="-2.02951218816504" orig="138"/>
+<LinearNorm norm="1.96570648454686" orig="182"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="S_p50Norm" optype="continuous">
+<NormContinuous field="S_p50">
+<LinearNorm norm="-1.80166630491628" orig="26"/>
+<LinearNorm norm="3.30259504898129" orig="76"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="a_meanNorm" optype="continuous">
+<NormContinuous field="a_mean">
+<LinearNorm norm="-1.81732020558894" orig="128.333724975586"/>
+<LinearNorm norm="3.03787991068145" orig="130.415710449219"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_kurtNorm" optype="continuous">
+<NormContinuous field="gray_kurt">
+<LinearNorm norm="-1.21951838419007" orig="-1.08081567287445"/>
+<LinearNorm norm="2.99359737657661" orig="0.706916809082031"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_meanNorm" optype="continuous">
+<NormContinuous field="gray_mean">
+<LinearNorm norm="-1.88070404750374" orig="134.059768676758"/>
+<LinearNorm norm="1.91182659059023" orig="176.113388061523"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_p90Norm" optype="continuous">
+<NormContinuous field="gray_p90">
+<LinearNorm norm="-2.48093440855133" orig="175"/>
+<LinearNorm norm="1.49383060384178" orig="228"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_stdNorm" optype="continuous">
+<NormContinuous field="gray_std">
+<LinearNorm norm="-2.33683765513443" orig="23.6167831420898"/>
+<LinearNorm norm="1.67732102244809" orig="50.3428802490234"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="hbNorm" optype="continuous">
+<NormContinuous field="hb">
+<LinearNorm norm="-2.30847415380966" orig="8"/>
+<LinearNorm norm="1.67212728741489" orig="17.4"/>
+</NormContinuous>
+</DerivedField></LocalTransformations><NeuralInputs>
+<NeuralInput id="0">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="1">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="2">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p75Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="3">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="G_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="4">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="RGNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="5">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_norm_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="6">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="7">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="8">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="S_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="9">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="a_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="10">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="11">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="12">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_p90Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="13">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_stdNorm"/>
+</DerivedField>
+</NeuralInput>
+</NeuralInputs><NeuralLayer numberOfNeurons="4">
+<Neuron bias="-0.000553724785748826" id="14">
+<Con from="0" weight="-1.02314772219268"/>
+<Con from="1" weight="0.21185461357182"/>
+<Con from="2" weight="-1.25649064286422"/>
+<Con from="3" weight="-0.72084965194288"/>
+<Con from="4" weight="-1.29235541895537"/>
+<Con from="5" weight="0.044057047624191"/>
+<Con from="6" weight="-0.620131231768524"/>
+<Con from="7" weight="-0.715193553540071"/>
+<Con from="8" weight="0.678850776466871"/>
+<Con from="9" weight="-0.364953298973847"/>
+<Con from="10" weight="-0.97213214721072"/>
+<Con from="11" weight="-0.791645554106798"/>
+<Con from="12" weight="-0.108655057146426"/>
+<Con from="13" weight="-0.327717072535738"/>
+</Neuron>
+<Neuron bias="-1.1847903890987" id="15">
+<Con from="0" weight="-0.267743073106284"/>
+<Con from="1" weight="-0.357346904087029"/>
+<Con from="2" weight="0.221292904033374"/>
+<Con from="3" weight="-0.388135645872031"/>
+<Con from="4" weight="0.358243253142604"/>
+<Con from="5" weight="0.517003350265831"/>
+<Con from="6" weight="0.865470449872419"/>
+<Con from="7" weight="-0.998421104122839"/>
+<Con from="8" weight="0.297048689461139"/>
+<Con from="9" weight="-0.125923653517977"/>
+<Con from="10" weight="0.0656645067226131"/>
+<Con from="11" weight="-0.537642417599732"/>
+<Con from="12" weight="-0.8325109744301"/>
+<Con from="13" weight="0.544062237391108"/>
+</Neuron>
+<Neuron bias="0.125234848116347" id="16">
+<Con from="0" weight="-0.156019579440304"/>
+<Con from="1" weight="-0.762166506383242"/>
+<Con from="2" weight="-0.593621177956943"/>
+<Con from="3" weight="0.89243462812723"/>
+<Con from="4" weight="-0.632688170404953"/>
+<Con from="5" weight="0.14153631143259"/>
+<Con from="6" weight="0.176047732910278"/>
+<Con from="7" weight="-0.754653198387281"/>
+<Con from="8" weight="0.145335860420037"/>
+<Con from="9" weight="0.0723057239790282"/>
+<Con from="10" weight="0.0423865009903867"/>
+<Con from="11" weight="-0.388826761824353"/>
+<Con from="12" weight="-0.547563768072414"/>
+<Con from="13" weight="0.381019350138303"/>
+</Neuron>
+<Neuron bias="1.85088110327136" id="17">
+<Con from="0" weight="0.422243004201519"/>
+<Con from="1" weight="-1.70912501854338"/>
+<Con from="2" weight="-0.174021473146473"/>
+<Con from="3" weight="0.134214725303798"/>
+<Con from="4" weight="-0.24612745417084"/>
+<Con from="5" weight="-0.150474350900857"/>
+<Con from="6" weight="1.24968169868022"/>
+<Con from="7" weight="-0.229142530829692"/>
+<Con from="8" weight="0.449224981374311"/>
+<Con from="9" weight="1.45337146148804"/>
+<Con from="10" weight="-1.37125522142207"/>
+<Con from="11" weight="0.675690537560649"/>
+<Con from="12" weight="-0.371213656150372"/>
+<Con from="13" weight="-1.15844658742951"/>
+</Neuron>
+</NeuralLayer><NeuralLayer activationFunction="identity" numberOfNeurons="1">
+<Neuron bias="-1.30767327393839" id="18">
+<Con from="14" weight="-1.21544675561788"/>
+<Con from="15" weight="-1.10992794762849"/>
+<Con from="16" weight="2.08213807180456"/>
+<Con from="17" weight="1.77130485614025"/>
+</Neuron>
+</NeuralLayer><NeuralOutputs>
+<NeuralOutput outputNeuron="18">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="hbNorm"/>
+</DerivedField>
+</NeuralOutput>
+</NeuralOutputs></NeuralNetwork></Segment><Segment id="7" weight="1.82416"><True/><NeuralNetwork activationFunction="tanh" algorithmName="MLP" functionName="regression"><Extension extender="spss.com" name="modelID" value="9"/><MiningSchema>
+<MiningField importance="0.0740522351285311" name="B_mean"/>
+<MiningField importance="0.081703811297469" name="B_p10"/>
+<MiningField importance="0.0453267588533635" name="B_p75"/>
+<MiningField importance="0.0550690272869708" name="G_kurt"/>
+<MiningField importance="0.0642158863866149" name="RG"/>
+<MiningField importance="0.0739261466770323" name="R_norm_p50"/>
+<MiningField importance="0.0466110119768693" name="R_p10"/>
+<MiningField importance="0.0604240482610382" name="R_p50"/>
+<MiningField importance="0.0607860153293366" name="S_p50"/>
+<MiningField importance="0.159934504250825" name="a_mean"/>
+<MiningField importance="0.0754666279882653" name="gray_kurt"/>
+<MiningField importance="0.0262159271353328" name="gray_mean"/>
+<MiningField importance="0.0651697903412973" name="gray_p90"/>
+<MiningField importance="0.111098209087054" name="gray_std"/>
+<MiningField name="hb" usageType="predicted"/>
+</MiningSchema><LocalTransformations><DerivedField dataType="double" name="B_meanNorm" optype="continuous">
+<NormContinuous field="B_mean">
+<LinearNorm norm="-1.71737332509556" orig="134.049026489258"/>
+<LinearNorm norm="1.74075810204616" orig="173.921401977539"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p10Norm" optype="continuous">
+<NormContinuous field="B_p10">
+<LinearNorm norm="-1.63353910736347" orig="67"/>
+<LinearNorm norm="2.55684382022109" orig="126"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p75Norm" optype="continuous">
+<NormContinuous field="B_p75">
+<LinearNorm norm="-1.84458063863421" orig="161"/>
+<LinearNorm norm="1.89141569391198" orig="222"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="G_kurtNorm" optype="continuous">
+<NormContinuous field="G_kurt">
+<LinearNorm norm="-1.9981180440539" orig="-1.4890398979187"/>
+<LinearNorm norm="2.52937614105211" orig="0.0232944488525391"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="RGNorm" optype="continuous">
+<NormContinuous field="RG">
+<LinearNorm norm="-0.577029977537222" orig="0.999876176129251"/>
+<LinearNorm norm="5.2933964440715" orig="1.00340417710158"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_norm_p50Norm" optype="continuous">
+<NormContinuous field="R_norm_p50">
+<LinearNorm norm="-2.26231363688123" orig="0.485714286565781"/>
+<LinearNorm norm="2.3660230920318" orig="0.513605415821075"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p10Norm" optype="continuous">
+<NormContinuous field="R_p10">
+<LinearNorm norm="-2.25357094798515" orig="64"/>
+<LinearNorm norm="1.39313825393692" orig="154"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p50Norm" optype="continuous">
+<NormContinuous field="R_p50">
+<LinearNorm norm="-1.96366454824528" orig="138"/>
+<LinearNorm norm="1.79127150148579" orig="179"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="S_p50Norm" optype="continuous">
+<NormContinuous field="S_p50">
+<LinearNorm norm="-1.50952461165611" orig="31"/>
+<LinearNorm norm="3.11887750424338" orig="76"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="a_meanNorm" optype="continuous">
+<NormContinuous field="a_mean">
+<LinearNorm norm="-1.49135050209378" orig="128.510177612305"/>
+<LinearNorm norm="2.8578933765661" orig="130.422348022461"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_kurtNorm" optype="continuous">
+<NormContinuous field="gray_kurt">
+<LinearNorm norm="-1.99312578757477" orig="-1.50485372543335"/>
+<LinearNorm norm="1.86106667958846" orig="0.0638272762298584"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_meanNorm" optype="continuous">
+<NormContinuous field="gray_mean">
+<LinearNorm norm="-1.71267122142594" orig="134.059768676758"/>
+<LinearNorm norm="1.74399394294445" orig="173.95051574707"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_p90Norm" optype="continuous">
+<NormContinuous field="gray_p90">
+<LinearNorm norm="-2.84325543875967" orig="175"/>
+<LinearNorm norm="1.19478486691407" orig="225"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_stdNorm" optype="continuous">
+<NormContinuous field="gray_std">
+<LinearNorm norm="-2.03393125093113" orig="30.9752712249756"/>
+<LinearNorm norm="1.76079282613282" orig="50.3428802490234"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="hbNorm" optype="continuous">
+<NormContinuous field="hb">
+<LinearNorm norm="-2.24165765955297" orig="7"/>
+<LinearNorm norm="1.45250266715935" orig="16.5"/>
+</NormContinuous>
+</DerivedField></LocalTransformations><NeuralInputs>
+<NeuralInput id="0">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="1">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="2">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p75Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="3">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="G_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="4">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="RGNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="5">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_norm_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="6">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="7">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="8">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="S_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="9">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="a_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="10">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="11">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="12">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_p90Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="13">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_stdNorm"/>
+</DerivedField>
+</NeuralInput>
+</NeuralInputs><NeuralLayer numberOfNeurons="5">
+<Neuron bias="-0.162527995300377" id="14">
+<Con from="0" weight="-0.242461092075061"/>
+<Con from="1" weight="-0.898508929527723"/>
+<Con from="2" weight="-0.237863916289891"/>
+<Con from="3" weight="0.218180270003753"/>
+<Con from="4" weight="-0.183395979630375"/>
+<Con from="5" weight="-0.792774201774327"/>
+<Con from="6" weight="-0.218147453585608"/>
+<Con from="7" weight="-0.0325050100867359"/>
+<Con from="8" weight="0.381769302974217"/>
+<Con from="9" weight="-0.221380904044588"/>
+<Con from="10" weight="-0.134605289350977"/>
+<Con from="11" weight="0.224320252103467"/>
+<Con from="12" weight="0.425406354412859"/>
+<Con from="13" weight="0.196460029628931"/>
+</Neuron>
+<Neuron bias="0.722387845765142" id="15">
+<Con from="0" weight="-0.243717926499345"/>
+<Con from="1" weight="-0.696569392988184"/>
+<Con from="2" weight="0.0559429237923443"/>
+<Con from="3" weight="0.666296829395369"/>
+<Con from="4" weight="-1.0304838279682"/>
+<Con from="5" weight="-1.48073474950158"/>
+<Con from="6" weight="0.573939285535589"/>
+<Con from="7" weight="-1.49892849123349"/>
+<Con from="8" weight="-0.256553419319189"/>
+<Con from="9" weight="1.14845860879989"/>
+<Con from="10" weight="0.440346389189444"/>
+<Con from="11" weight="-0.291403666589226"/>
+<Con from="12" weight="-0.497353102039183"/>
+<Con from="13" weight="0.50374418043174"/>
+</Neuron>
+<Neuron bias="-1.05045490580835" id="16">
+<Con from="0" weight="-0.259330133300296"/>
+<Con from="1" weight="1.33837341078224"/>
+<Con from="2" weight="-0.115959452983012"/>
+<Con from="3" weight="0.699609222487786"/>
+<Con from="4" weight="-0.183019129979895"/>
+<Con from="5" weight="0.77208394296162"/>
+<Con from="6" weight="-0.103007943314807"/>
+<Con from="7" weight="-0.83029421566287"/>
+<Con from="8" weight="0.0294783355880606"/>
+<Con from="9" weight="-1.21452418708014"/>
+<Con from="10" weight="2.00948987548802"/>
+<Con from="11" weight="-0.315533714797979"/>
+<Con from="12" weight="-0.525529806894631"/>
+<Con from="13" weight="-1.59983468497303"/>
+</Neuron>
+<Neuron bias="-0.392913066944757" id="17">
+<Con from="0" weight="-0.907227988430249"/>
+<Con from="1" weight="-0.878803927144819"/>
+<Con from="2" weight="2.20652891297095"/>
+<Con from="3" weight="-1.09394814222727"/>
+<Con from="4" weight="-1.83273860080114"/>
+<Con from="5" weight="1.03383374852892"/>
+<Con from="6" weight="-1.15411545423033"/>
+<Con from="7" weight="0.0346096629864746"/>
+<Con from="8" weight="-0.675721923987268"/>
+<Con from="9" weight="-1.84187039784559"/>
+<Con from="10" weight="1.222022196687"/>
+<Con from="11" weight="-0.252816756092214"/>
+<Con from="12" weight="-0.664083611741614"/>
+<Con from="13" weight="-0.934280935042089"/>
+</Neuron>
+<Neuron bias="0.394639847247262" id="18">
+<Con from="0" weight="-0.389081217359262"/>
+<Con from="1" weight="0.383205860946545"/>
+<Con from="2" weight="0.20034202912066"/>
+<Con from="3" weight="0.565605942029699"/>
+<Con from="4" weight="0.100665328219089"/>
+<Con from="5" weight="-0.157132666187704"/>
+<Con from="6" weight="0.689406151775818"/>
+<Con from="7" weight="-0.479232577145242"/>
+<Con from="8" weight="0.323151354265506"/>
+<Con from="9" weight="0.0436768273111926"/>
+<Con from="10" weight="0.0311273830590609"/>
+<Con from="11" weight="-0.344392748164988"/>
+<Con from="12" weight="0.423197037379955"/>
+<Con from="13" weight="-0.579765697258541"/>
+</Neuron>
+</NeuralLayer><NeuralLayer activationFunction="identity" numberOfNeurons="1">
+<Neuron bias="-0.448693679272798" id="19">
+<Con from="14" weight="-2.3988977854001"/>
+<Con from="15" weight="1.4980233952408"/>
+<Con from="16" weight="-1.070505335766"/>
+<Con from="17" weight="-0.96944537188855"/>
+<Con from="18" weight="-1.02583778789169"/>
+</Neuron>
+</NeuralLayer><NeuralOutputs>
+<NeuralOutput outputNeuron="19">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="hbNorm"/>
+</DerivedField>
+</NeuralOutput>
+</NeuralOutputs></NeuralNetwork></Segment><Segment id="8" weight="1.74306"><True/><NeuralNetwork activationFunction="tanh" algorithmName="MLP" functionName="regression"><Extension extender="spss.com" name="modelID" value="10"/><MiningSchema>
+<MiningField importance="0.100129027696293" name="B_mean"/>
+<MiningField importance="0.0896644876656914" name="B_p10"/>
+<MiningField importance="0.140632908008366" name="B_p75"/>
+<MiningField importance="0.0606332914503251" name="G_kurt"/>
+<MiningField importance="0.0394740035859884" name="RG"/>
+<MiningField importance="0.0610105915285508" name="R_norm_p50"/>
+<MiningField importance="0.0872693806995028" name="R_p10"/>
+<MiningField importance="0.037472381839651" name="R_p50"/>
+<MiningField importance="0.0480173872351505" name="S_p50"/>
+<MiningField importance="0.0266163877807923" name="a_mean"/>
+<MiningField importance="0.0927747311139145" name="gray_kurt"/>
+<MiningField importance="0.0662145997235099" name="gray_mean"/>
+<MiningField importance="0.0607245412637507" name="gray_p90"/>
+<MiningField importance="0.0893662804085134" name="gray_std"/>
+<MiningField name="hb" usageType="predicted"/>
+</MiningSchema><LocalTransformations><DerivedField dataType="double" name="B_meanNorm" optype="continuous">
+<NormContinuous field="B_mean">
+<LinearNorm norm="-2.03003644036736" orig="135.203475952148"/>
+<LinearNorm norm="1.83394397087615" orig="176.718185424805"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p10Norm" optype="continuous">
+<NormContinuous field="B_p10">
+<LinearNorm norm="-1.3900142978169" orig="67"/>
+<LinearNorm norm="2.40516253500208" orig="140"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p75Norm" optype="continuous">
+<NormContinuous field="B_p75">
+<LinearNorm norm="-1.99865433606712" orig="169"/>
+<LinearNorm norm="2.18563862946221" orig="222"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="G_kurtNorm" optype="continuous">
+<NormContinuous field="G_kurt">
+<LinearNorm norm="-2.17240382317921" orig="-1.4890398979187"/>
+<LinearNorm norm="2.45802633878027" orig="-0.0710964202880859"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="RGNorm" optype="continuous">
+<NormContinuous field="RG">
+<LinearNorm norm="-0.674323919557537" orig="0.999872112256119"/>
+<LinearNorm norm="5.43700036002474" orig="1.00340417710158"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_norm_p50Norm" optype="continuous">
+<NormContinuous field="R_norm_p50">
+<LinearNorm norm="-2.28796737310071" orig="0.485714286565781"/>
+<LinearNorm norm="2.72352434612759" orig="0.519999980926514"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p10Norm" optype="continuous">
+<NormContinuous field="R_p10">
+<LinearNorm norm="-2.27415782404762" orig="65"/>
+<LinearNorm norm="1.38333508342561" orig="159"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p50Norm" optype="continuous">
+<NormContinuous field="R_p50">
+<LinearNorm norm="-2.25847181343221" orig="141"/>
+<LinearNorm norm="1.80842396725619" orig="180"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="S_p50Norm" optype="continuous">
+<NormContinuous field="S_p50">
+<LinearNorm norm="-1.76174067112069" orig="26"/>
+<LinearNorm norm="3.14633451235338" orig="76"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="a_meanNorm" optype="continuous">
+<NormContinuous field="a_mean">
+<LinearNorm norm="-1.72033848759361" orig="128.333724975586"/>
+<LinearNorm norm="2.8407348056619" orig="130.422348022461"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_kurtNorm" optype="continuous">
+<NormContinuous field="gray_kurt">
+<LinearNorm norm="-2.09106463170298" orig="-1.50485372543335"/>
+<LinearNorm norm="2.94298195093802" orig="0.557283401489258"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_meanNorm" optype="continuous">
+<NormContinuous field="gray_mean">
+<LinearNorm norm="-2.02747982056782" orig="135.196334838867"/>
+<LinearNorm norm="1.83607315416329" orig="176.723068237305"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_p90Norm" optype="continuous">
+<NormContinuous field="gray_p90">
+<LinearNorm norm="-2.57116021457805" orig="189"/>
+<LinearNorm norm="1.49984345850389" orig="225"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_stdNorm" optype="continuous">
+<NormContinuous field="gray_std">
+<LinearNorm norm="-2.62213325175157" orig="23.6167831420898"/>
+<LinearNorm norm="1.56600918289656" orig="50.3428802490234"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="hbNorm" optype="continuous">
+<NormContinuous field="hb">
+<LinearNorm norm="-2.38228437610522" orig="7"/>
+<LinearNorm norm="1.58854142048666" orig="16.9"/>
+</NormContinuous>
+</DerivedField></LocalTransformations><NeuralInputs>
+<NeuralInput id="0">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="1">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="2">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p75Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="3">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="G_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="4">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="RGNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="5">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_norm_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="6">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="7">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="8">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="S_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="9">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="a_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="10">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="11">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="12">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_p90Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="13">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_stdNorm"/>
+</DerivedField>
+</NeuralInput>
+</NeuralInputs><NeuralLayer numberOfNeurons="3">
+<Neuron bias="1.13481090882466" id="14">
+<Con from="0" weight="-1.67932226285508"/>
+<Con from="1" weight="1.39003312835517"/>
+<Con from="2" weight="1.02435515152849"/>
+<Con from="3" weight="-0.186001600982338"/>
+<Con from="4" weight="0.394674520708611"/>
+<Con from="5" weight="0.586607535861633"/>
+<Con from="6" weight="-0.667983260524819"/>
+<Con from="7" weight="-0.470319597078299"/>
+<Con from="8" weight="0.588654751394508"/>
+<Con from="9" weight="0.121145567609439"/>
+<Con from="10" weight="0.937362807269993"/>
+<Con from="11" weight="-1.034409863745"/>
+<Con from="12" weight="0.0586605685601854"/>
+<Con from="13" weight="-0.863557502172456"/>
+</Neuron>
+<Neuron bias="-0.297115300502153" id="15">
+<Con from="0" weight="-0.100610827437518"/>
+<Con from="1" weight="-0.709789523541626"/>
+<Con from="2" weight="-0.795957505868536"/>
+<Con from="3" weight="1.23081446965262"/>
+<Con from="4" weight="0.122218972392639"/>
+<Con from="5" weight="-0.264604591777529"/>
+<Con from="6" weight="0.710948391151424"/>
+<Con from="7" weight="-0.420508219093051"/>
+<Con from="8" weight="-0.0983464545926505"/>
+<Con from="9" weight="-0.180144364836932"/>
+<Con from="10" weight="0.174518633627647"/>
+<Con from="11" weight="-0.430638801816397"/>
+<Con from="12" weight="-2.0872406870706"/>
+<Con from="13" weight="0.323207306680821"/>
+</Neuron>
+<Neuron bias="1.10876542012135" id="16">
+<Con from="0" weight="-0.231429464073399"/>
+<Con from="1" weight="-0.300714933386525"/>
+<Con from="2" weight="1.16286115956127"/>
+<Con from="3" weight="0.189902189865691"/>
+<Con from="4" weight="-0.771007800668675"/>
+<Con from="5" weight="-1.95199018953745"/>
+<Con from="6" weight="-0.594552657720913"/>
+<Con from="7" weight="0.1139149361148"/>
+<Con from="8" weight="-1.48436957038278"/>
+<Con from="9" weight="-0.583866834452456"/>
+<Con from="10" weight="0.644550617696487"/>
+<Con from="11" weight="-0.118582152199233"/>
+<Con from="12" weight="-0.856082301463581"/>
+<Con from="13" weight="-0.30894640698457"/>
+</Neuron>
+</NeuralLayer><NeuralLayer activationFunction="identity" numberOfNeurons="1">
+<Neuron bias="1.66060166684351" id="17">
+<Con from="14" weight="-2.3455159849661"/>
+<Con from="15" weight="1.44399063318853"/>
+<Con from="16" weight="-1.59350900711945"/>
+</Neuron>
+</NeuralLayer><NeuralOutputs>
+<NeuralOutput outputNeuron="17">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="hbNorm"/>
+</DerivedField>
+</NeuralOutput>
+</NeuralOutputs></NeuralNetwork></Segment><Segment id="9" weight="2.08531"><True/><NeuralNetwork activationFunction="tanh" algorithmName="MLP" functionName="regression"><Extension extender="spss.com" name="modelID" value="11"/><MiningSchema>
+<MiningField importance="0.0800959771075399" name="B_mean"/>
+<MiningField importance="0.0547707796095385" name="B_p10"/>
+<MiningField importance="0.172210621632567" name="B_p75"/>
+<MiningField importance="0.0737833367848324" name="G_kurt"/>
+<MiningField importance="0.0423243351491331" name="RG"/>
+<MiningField importance="0.0246517360802217" name="R_norm_p50"/>
+<MiningField importance="0.0176855362230582" name="R_p10"/>
+<MiningField importance="0.0770835717085432" name="R_p50"/>
+<MiningField importance="0.0492129026034115" name="S_p50"/>
+<MiningField importance="0.121046880793524" name="a_mean"/>
+<MiningField importance="0.0603651990127397" name="gray_kurt"/>
+<MiningField importance="0.0751825557053683" name="gray_mean"/>
+<MiningField importance="0.0705058788103263" name="gray_p90"/>
+<MiningField importance="0.0810806887791958" name="gray_std"/>
+<MiningField name="hb" usageType="predicted"/>
+</MiningSchema><LocalTransformations><DerivedField dataType="double" name="B_meanNorm" optype="continuous">
+<NormContinuous field="B_mean">
+<LinearNorm norm="-2.25079500653129" orig="134.049026489258"/>
+<LinearNorm norm="1.94318220905699" orig="176.144500732422"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p10Norm" optype="continuous">
+<NormContinuous field="B_p10">
+<LinearNorm norm="-1.58732394272359" orig="67"/>
+<LinearNorm norm="2.59943940719289" orig="141"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p75Norm" optype="continuous">
+<NormContinuous field="B_p75">
+<LinearNorm norm="-2.21787419810358" orig="161"/>
+<LinearNorm norm="2.22191772444473" orig="222"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="G_kurtNorm" optype="continuous">
+<NormContinuous field="G_kurt">
+<LinearNorm norm="-2.17424885187235" orig="-1.48503708839417"/>
+<LinearNorm norm="3.19794753194831" orig="0.306849718093872"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="RGNorm" optype="continuous">
+<NormContinuous field="RG">
+<LinearNorm norm="-1.27352180032312" orig="0.999872112256119"/>
+<LinearNorm norm="2.72700480354342" orig="1.00103852845286"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_norm_p50Norm" optype="continuous">
+<NormContinuous field="R_norm_p50">
+<LinearNorm norm="-2.18319901683616" orig="0.485714286565781"/>
+<LinearNorm norm="1.66367850923162" orig="0.510869562625885"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p10Norm" optype="continuous">
+<NormContinuous field="R_p10">
+<LinearNorm norm="-2.57401962002012" orig="73"/>
+<LinearNorm norm="1.5163570622571" orig="154"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p50Norm" optype="continuous">
+<NormContinuous field="R_p50">
+<LinearNorm norm="-2.45399883606606" orig="138"/>
+<LinearNorm norm="2.08174697061838" orig="182"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="S_p50Norm" optype="continuous">
+<NormContinuous field="S_p50">
+<LinearNorm norm="-1.83049568096909" orig="27"/>
+<LinearNorm norm="1.85781651202833" orig="57"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="a_meanNorm" optype="continuous">
+<NormContinuous field="a_mean">
+<LinearNorm norm="-1.99181790118092" orig="128.333724975586"/>
+<LinearNorm norm="2.10140460110631" orig="129.794570922852"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_kurtNorm" optype="continuous">
+<NormContinuous field="gray_kurt">
+<LinearNorm norm="-2.21446311710167" orig="-1.50485372543335"/>
+<LinearNorm norm="2.9932504087617" orig="0.706916809082031"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_meanNorm" optype="continuous">
+<NormContinuous field="gray_mean">
+<LinearNorm norm="-2.24872946935576" orig="134.059768676758"/>
+<LinearNorm norm="1.94270153740147" orig="176.113388061523"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_p90Norm" optype="continuous">
+<NormContinuous field="gray_p90">
+<LinearNorm norm="-2.6419107032675" orig="175"/>
+<LinearNorm norm="1.48310208055775" orig="228"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_stdNorm" optype="continuous">
+<NormContinuous field="gray_std">
+<LinearNorm norm="-2.37919225046085" orig="23.6167831420898"/>
+<LinearNorm norm="1.80042496210841" orig="51.0078659057617"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="hbNorm" optype="continuous">
+<NormContinuous field="hb">
+<LinearNorm norm="-2.38720013987817" orig="7"/>
+<LinearNorm norm="1.43068850758182" orig="17.4"/>
+</NormContinuous>
+</DerivedField></LocalTransformations><NeuralInputs>
+<NeuralInput id="0">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="1">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="2">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p75Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="3">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="G_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="4">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="RGNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="5">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_norm_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="6">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="7">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="8">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="S_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="9">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="a_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="10">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="11">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="12">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_p90Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="13">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_stdNorm"/>
+</DerivedField>
+</NeuralInput>
+</NeuralInputs><NeuralLayer numberOfNeurons="7">
+<Neuron bias="1.1527941037319" id="14">
+<Con from="0" weight="0.726739733761355"/>
+<Con from="1" weight="-0.478968611994661"/>
+<Con from="2" weight="-0.664473928370659"/>
+<Con from="3" weight="-0.258005113740729"/>
+<Con from="4" weight="0.827397351240726"/>
+<Con from="5" weight="0.130165079689415"/>
+<Con from="6" weight="0.122662093234133"/>
+<Con from="7" weight="-0.29152156290048"/>
+<Con from="8" weight="-0.682647743289413"/>
+<Con from="9" weight="1.04488228718353"/>
+<Con from="10" weight="0.0671954821165964"/>
+<Con from="11" weight="0.22410693209274"/>
+<Con from="12" weight="-0.35436520646592"/>
+<Con from="13" weight="0.769404122278346"/>
+</Neuron>
+<Neuron bias="0.813354771435491" id="15">
+<Con from="0" weight="0.463285441504129"/>
+<Con from="1" weight="-0.0754399286796202"/>
+<Con from="2" weight="1.1723868891292"/>
+<Con from="3" weight="-1.38191674161475"/>
+<Con from="4" weight="0.580112670910823"/>
+<Con from="5" weight="0.389065156349489"/>
+<Con from="6" weight="0.169180484725904"/>
+<Con from="7" weight="-0.27145776266367"/>
+<Con from="8" weight="0.170625861820174"/>
+<Con from="9" weight="1.06823472948484"/>
+<Con from="10" weight="-0.469463113931934"/>
+<Con from="11" weight="0.136206073419898"/>
+<Con from="12" weight="0.505039375303984"/>
+<Con from="13" weight="0.191022268816823"/>
+</Neuron>
+<Neuron bias="-0.0141766940131918" id="16">
+<Con from="0" weight="0.138108256711401"/>
+<Con from="1" weight="0.46105880528867"/>
+<Con from="2" weight="-0.283373062372399"/>
+<Con from="3" weight="0.703605552530069"/>
+<Con from="4" weight="0.349019308310794"/>
+<Con from="5" weight="-0.582759675529269"/>
+<Con from="6" weight="0.844087328569179"/>
+<Con from="7" weight="0.301982982453192"/>
+<Con from="8" weight="-0.0500551191821326"/>
+<Con from="9" weight="-0.661884955442141"/>
+<Con from="10" weight="0.995711517477182"/>
+<Con from="11" weight="-0.214352312359964"/>
+<Con from="12" weight="0.150562908228311"/>
+<Con from="13" weight="-0.65823916429731"/>
+</Neuron>
+<Neuron bias="0.316367584456946" id="17">
+<Con from="0" weight="-1.10274300132855"/>
+<Con from="1" weight="0.265004824312293"/>
+<Con from="2" weight="1.09914319654107"/>
+<Con from="3" weight="-1.02873380569671"/>
+<Con from="4" weight="-0.938128475229747"/>
+<Con from="5" weight="0.527318820523346"/>
+<Con from="6" weight="-0.259052216446194"/>
+<Con from="7" weight="-1.10496814159315"/>
+<Con from="8" weight="0.489575811308613"/>
+<Con from="9" weight="0.0255735209270509"/>
+<Con from="10" weight="-0.614675047891457"/>
+<Con from="11" weight="-0.558060039970725"/>
+<Con from="12" weight="-0.252909314746694"/>
+<Con from="13" weight="-1.05145112365981"/>
+</Neuron>
+<Neuron bias="0.557916771776347" id="18">
+<Con from="0" weight="-0.147073780137137"/>
+<Con from="1" weight="-0.627949553035059"/>
+<Con from="2" weight="-0.144904809507093"/>
+<Con from="3" weight="0.443114026995959"/>
+<Con from="4" weight="-0.865246502378594"/>
+<Con from="5" weight="0.0615044465192102"/>
+<Con from="6" weight="0.00506301149158212"/>
+<Con from="7" weight="0.712607362577409"/>
+<Con from="8" weight="-0.14366578016689"/>
+<Con from="9" weight="0.820627073435927"/>
+<Con from="10" weight="-0.295618152307998"/>
+<Con from="11" weight="-0.13407046925015"/>
+<Con from="12" weight="0.232868592447527"/>
+<Con from="13" weight="-0.0980392244067697"/>
+</Neuron>
+<Neuron bias="0.00440667071368878" id="19">
+<Con from="0" weight="-0.684758791232181"/>
+<Con from="1" weight="-0.258938209414599"/>
+<Con from="2" weight="-0.887926650409519"/>
+<Con from="3" weight="-0.308780431057049"/>
+<Con from="4" weight="0.331400159290608"/>
+<Con from="5" weight="-0.0199680554883142"/>
+<Con from="6" weight="-0.31275722635286"/>
+<Con from="7" weight="0.735947225387316"/>
+<Con from="8" weight="0.268715136798432"/>
+<Con from="9" weight="0.7955018612606"/>
+<Con from="10" weight="-0.665904082813554"/>
+<Con from="11" weight="0.318544292496414"/>
+<Con from="12" weight="-0.470077491045483"/>
+<Con from="13" weight="-0.471807868630566"/>
+</Neuron>
+<Neuron bias="-0.24686988025482" id="20">
+<Con from="0" weight="0.757812250200473"/>
+<Con from="1" weight="0.683777100309552"/>
+<Con from="2" weight="-0.495702848746108"/>
+<Con from="3" weight="-0.0153006893507238"/>
+<Con from="4" weight="-0.500445793626607"/>
+<Con from="5" weight="0.303168091880602"/>
+<Con from="6" weight="0.327653836528047"/>
+<Con from="7" weight="-0.131808972047986"/>
+<Con from="8" weight="0.0434669271186153"/>
+<Con from="9" weight="0.515862563307806"/>
+<Con from="10" weight="-0.529869318846895"/>
+<Con from="11" weight="0.355815886177355"/>
+<Con from="12" weight="-0.794945261963338"/>
+<Con from="13" weight="0.071675165474831"/>
+</Neuron>
+</NeuralLayer><NeuralLayer activationFunction="identity" numberOfNeurons="1">
+<Neuron bias="-0.376905711799985" id="21">
+<Con from="14" weight="1.35949216339246"/>
+<Con from="15" weight="-1.24927445406696"/>
+<Con from="16" weight="-1.06677192929584"/>
+<Con from="17" weight="-1.72304717708392"/>
+<Con from="18" weight="0.72073749389653"/>
+<Con from="19" weight="1.15682848027266"/>
+<Con from="20" weight="1.04302727779907"/>
+</Neuron>
+</NeuralLayer><NeuralOutputs>
+<NeuralOutput outputNeuron="21">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="hbNorm"/>
+</DerivedField>
+</NeuralOutput>
+</NeuralOutputs></NeuralNetwork></Segment><Segment id="10" weight="1.6086"><True/><NeuralNetwork activationFunction="tanh" algorithmName="MLP" functionName="regression"><Extension extender="spss.com" name="modelID" value="12"/><MiningSchema>
+<MiningField importance="0.1168651810333" name="B_mean"/>
+<MiningField importance="0.0554165560392572" name="B_p10"/>
+<MiningField importance="0.0873024653981128" name="B_p75"/>
+<MiningField importance="0.090107507378971" name="G_kurt"/>
+<MiningField importance="0.0190511002769459" name="RG"/>
+<MiningField importance="0.0148748468717579" name="R_norm_p50"/>
+<MiningField importance="0.0517542387280827" name="R_p10"/>
+<MiningField importance="0.0615483404293305" name="R_p50"/>
+<MiningField importance="0.0343461210098802" name="S_p50"/>
+<MiningField importance="0.05380304862148" name="a_mean"/>
+<MiningField importance="0.0720572893338222" name="gray_kurt"/>
+<MiningField importance="0.119019157841199" name="gray_mean"/>
+<MiningField importance="0.13691899610036" name="gray_p90"/>
+<MiningField importance="0.0869351509375015" name="gray_std"/>
+<MiningField name="hb" usageType="predicted"/>
+</MiningSchema><LocalTransformations><DerivedField dataType="double" name="B_meanNorm" optype="continuous">
+<NormContinuous field="B_mean">
+<LinearNorm norm="-1.99047094470484" orig="134.049026489258"/>
+<LinearNorm norm="1.72833294480793" orig="176.718185424805"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p10Norm" optype="continuous">
+<NormContinuous field="B_p10">
+<LinearNorm norm="-1.58255097018257" orig="67"/>
+<LinearNorm norm="2.61568801864137" orig="141"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p75Norm" optype="continuous">
+<NormContinuous field="B_p75">
+<LinearNorm norm="-1.98461945242139" orig="161"/>
+<LinearNorm norm="1.72533852395993" orig="222"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="G_kurtNorm" optype="continuous">
+<NormContinuous field="G_kurt">
+<LinearNorm norm="-2.02418692248405" orig="-1.4890398979187"/>
+<LinearNorm norm="2.40866356673809" orig="0.0232944488525391"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="RGNorm" optype="continuous">
+<NormContinuous field="RG">
+<LinearNorm norm="-1.11159252703465" orig="0.999872112256119"/>
+<LinearNorm norm="2.78515045166523" orig="1.00103852845286"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_norm_p50Norm" optype="continuous">
+<NormContinuous field="R_norm_p50">
+<LinearNorm norm="-2.14313554580863" orig="0.485714286565781"/>
+<LinearNorm norm="2.70001578003289" orig="0.519999980926514"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p10Norm" optype="continuous">
+<NormContinuous field="R_p10">
+<LinearNorm norm="-2.50234423016857" orig="65"/>
+<LinearNorm norm="1.16303017166454" orig="152"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p50Norm" optype="continuous">
+<NormContinuous field="R_p50">
+<LinearNorm norm="-2.27718940292629" orig="138"/>
+<LinearNorm norm="1.88852250264572" orig="182"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="S_p50Norm" optype="continuous">
+<NormContinuous field="S_p50">
+<LinearNorm norm="-1.81518802000293" orig="27"/>
+<LinearNorm norm="3.03304579700171" orig="71"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="a_meanNorm" optype="continuous">
+<NormContinuous field="a_mean">
+<LinearNorm norm="-1.56458084417437" orig="128.457397460938"/>
+<LinearNorm norm="3.32837767791034" orig="130.422348022461"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_kurtNorm" optype="continuous">
+<NormContinuous field="gray_kurt">
+<LinearNorm norm="-2.17561594514738" orig="-1.50485372543335"/>
+<LinearNorm norm="2.14930246638483" orig="0.171485185623169"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_meanNorm" optype="continuous">
+<NormContinuous field="gray_mean">
+<LinearNorm norm="-1.98843025858011" orig="134.059768676758"/>
+<LinearNorm norm="1.73047016817472" orig="176.723068237305"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_p90Norm" optype="continuous">
+<NormContinuous field="gray_p90">
+<LinearNorm norm="-2.81041003486788" orig="175"/>
+<LinearNorm norm="1.4104444097436" orig="228"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_stdNorm" optype="continuous">
+<NormContinuous field="gray_std">
+<LinearNorm norm="-2.02405253332727" orig="27.016393661499"/>
+<LinearNorm norm="1.84493204170022" orig="51.0078659057617"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="hbNorm" optype="continuous">
+<NormContinuous field="hb">
+<LinearNorm norm="-2.42751678380881" orig="7"/>
+<LinearNorm norm="1.59324865190466" orig="17.4"/>
+</NormContinuous>
+</DerivedField></LocalTransformations><NeuralInputs>
+<NeuralInput id="0">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="1">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="2">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p75Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="3">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="G_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="4">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="RGNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="5">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_norm_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="6">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="7">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="8">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="S_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="9">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="a_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="10">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="11">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="12">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_p90Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="13">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_stdNorm"/>
+</DerivedField>
+</NeuralInput>
+</NeuralInputs><NeuralLayer numberOfNeurons="2">
+<Neuron bias="-0.631151673005323" id="14">
+<Con from="0" weight="0.524168804036417"/>
+<Con from="1" weight="0.900990024974403"/>
+<Con from="2" weight="-0.785826049881206"/>
+<Con from="3" weight="0.105499600691807"/>
+<Con from="4" weight="0.229204043771323"/>
+<Con from="5" weight="0.56558518551767"/>
+<Con from="6" weight="-2.06052452388824"/>
+<Con from="7" weight="0.625684620605206"/>
+<Con from="8" weight="0.888012221282814"/>
+<Con from="9" weight="-1.62526287184597"/>
+<Con from="10" weight="2.31674419141154"/>
+<Con from="11" weight="-0.0698367932719404"/>
+<Con from="12" weight="-1.56938343402787"/>
+<Con from="13" weight="1.01092284485284"/>
+</Neuron>
+<Neuron bias="-0.790302832351929" id="15">
+<Con from="0" weight="-1.00095163095015"/>
+<Con from="1" weight="0.60302750529264"/>
+<Con from="2" weight="0.582971766866618"/>
+<Con from="3" weight="-0.808918761430482"/>
+<Con from="4" weight="-0.0857048728437628"/>
+<Con from="5" weight="-0.00049314469450917"/>
+<Con from="6" weight="-0.211827248037133"/>
+<Con from="7" weight="0.706989055687636"/>
+<Con from="8" weight="-0.0127571015437868"/>
+<Con from="9" weight="-0.778195018890652"/>
+<Con from="10" weight="1.38659531512061"/>
+<Con from="11" weight="-1.54588332413311"/>
+<Con from="12" weight="0.795635033199874"/>
+<Con from="13" weight="-0.463886961177011"/>
+</Neuron>
+</NeuralLayer><NeuralLayer activationFunction="identity" numberOfNeurons="1">
+<Neuron bias="-0.680951019329137" id="16">
+<Con from="14" weight="1.95753313413811"/>
+<Con from="15" weight="-3.19681029726346"/>
+</Neuron>
+</NeuralLayer><NeuralOutputs>
+<NeuralOutput outputNeuron="16">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="hbNorm"/>
+</DerivedField>
+</NeuralOutput>
+</NeuralOutputs></NeuralNetwork></Segment></Segmentation></MiningModel><NeuralNetwork activationFunction="tanh" algorithmName="MLP" functionName="regression"><Extension extender="spss.com" name="modelID" value="3"/><MiningSchema><MiningField importance="0.00568321064002707" name="B_mean"/><MiningField importance="0.147758684834286" name="B_p10"/><MiningField importance="0.0531956670373263" name="B_p75"/><MiningField importance="0.0255855359159594" name="G_kurt"/><MiningField importance="0.0403160058670564" name="RG"/><MiningField importance="0.043193669413291" name="R_norm_p50"/><MiningField importance="0.0655891361367739" name="R_p10"/><MiningField importance="0.0453985468909227" name="R_p50"/><MiningField importance="0.112373114110475" name="S_p50"/><MiningField importance="0.307601084256811" name="a_mean"/><MiningField importance="0.0829667679265133" name="gray_kurt"/><MiningField importance="0.00578899180379063" name="gray_mean"/><MiningField importance="0.0183780748130099" name="gray_p90"/><MiningField importance="0.0461715103537578" name="gray_std"/><MiningField name="hb" usageType="predicted"/></MiningSchema><ModelExplanation><PredictiveModelQuality dataUsage="training" meanSquaredError="1.25402620646853" r-squared="0.776269898834803" targetField="hb"><LiftData><ModelLiftGraph><LiftGraph><XCoordinates><Array n="21" type="int">1 4 7 10 13 16 19 22 25 28 31 34 37 40 43 46 49 52 55 58 72</Array></XCoordinates><YCoordinates><Array n="21" type="real">16.9 46 45.9 48.4 43.9 42.5 45.8 43.7 44.5 46.2 42.2 41.4 39.3 40.7 36.9 42.7 38.4 38.8 34.8 28.1 137.1</Array></YCoordinates><BoundaryValues><Array n="21" type="real">17.0180387261365 16.0576672616084 15.2180587773993 15.0991145127116 15.0687402469386 15.0328980228196 14.8888528997618 14.7748030744313 14.5616526485451 14.3494139262179 14.119641371714 13.5509130794821 13.4727862974593 13.2072368189848 13.1384373253025 12.8363383269299 12.1798468602755 11.8936348639955 11.3819033922617 10.520330226753 8.63149899046158</Array></BoundaryValues><BoundaryValueMeans><Array n="21" type="real">17.0180387261365 16.4418964778296 15.2815003891982 15.109767176435 15.078022389555 15.0491630027186 14.9383869134406 14.8120667105277 14.6717349200296 14.4307986407 14.2364310008893 13.9011512907672 13.516425559617 13.2780275925092 13.1654072745335 12.9807951170455 12.3292201872723 11.9449639639991 11.6413248544098 10.618035648798 9.84677276836947</Array></BoundaryValueMeans></LiftGraph></ModelLiftGraph></LiftData></PredictiveModelQuality><PredictiveModelQuality dataUsage="test" meanSquaredError="4.60780517097034" r-squared="0.0890380214857807" targetField="hb"><LiftData><ModelLiftGraph><LiftGraph><XCoordinates><Array n="21" type="int">1 4 7 10 13 16 19 22 25 28 31 34 37 40 43 46 49 52 55 58 77</Array></XCoordinates><YCoordinates><Array n="21" type="real">16.8 43.4 38.3 44.2 45.9 38.7 43.8 39.2 44.5 45 43 47.6 43.5 45 38.6 41.5 42.3 45 40.3 40 205.4</Array></YCoordinates><BoundaryValues><Array n="21" type="real">18.5631919854425 17.3774638017698 15.2899026919386 15.0914165492836 15.0796785367518 15.0402378139687 14.920019407362 14.8724042635186 14.6724954996503 14.5613900293226 14.1974598147524 13.7713993753351 13.4260795673624 13.3952170195021 13.0733665309566 13.0467794096102 12.9407232978979 12.6372179682513 12.4944099770222 12.3101680507085 7.08275052962323</Array></BoundaryValues><BoundaryValueMeans><Array n="21" type="real">18.5631919854425 17.5049454282185 16.0250137645017 15.0938786669866 15.082153500382 15.052372948866 14.9916400961057 14.8823976599502 14.7562415940023 14.5629457088132 14.3054002783809 13.8170261403834 13.4935530839277 13.4038747550124 13.1443936924348 13.0550218286417 12.9697422838 12.7826905577327 12.5770645363984 12.3712429351922 10.4659576188177</Array></BoundaryValueMeans></LiftGraph></ModelLiftGraph></LiftData></PredictiveModelQuality></ModelExplanation><LocalTransformations><DerivedField dataType="double" name="B_meanNorm" optype="continuous">
+<NormContinuous field="B_mean">
+<LinearNorm norm="-2.00938572462286" orig="134.049026489258"/>
+<LinearNorm norm="2.01523520541518" orig="176.718185424805"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p10Norm" optype="continuous">
+<NormContinuous field="B_p10">
+<LinearNorm norm="-1.4914931003147" orig="67"/>
+<LinearNorm norm="2.76717530187004" orig="141"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="B_p75Norm" optype="continuous">
+<NormContinuous field="B_p75">
+<LinearNorm norm="-2.22886463555191" orig="161"/>
+<LinearNorm norm="2.16089925653063" orig="222"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="G_kurtNorm" optype="continuous">
+<NormContinuous field="G_kurt">
+<LinearNorm norm="-2.14259348866212" orig="-1.4890398979187"/>
+<LinearNorm norm="3.50100214744608" orig="0.306849718093872"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="RGNorm" optype="continuous">
+<NormContinuous field="RG">
+<LinearNorm norm="-0.83491057943229" orig="0.999872112256119"/>
+<LinearNorm norm="6.85206765758539" orig="1.00340417710158"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_norm_p50Norm" optype="continuous">
+<NormContinuous field="R_norm_p50">
+<LinearNorm norm="-2.31247229878601" orig="0.485714286565781"/>
+<LinearNorm norm="2.98434848734021" orig="0.519999980926514"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p10Norm" optype="continuous">
+<NormContinuous field="R_p10">
+<LinearNorm norm="-2.5684705181012" orig="64"/>
+<LinearNorm norm="1.62045135691363" orig="159"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="R_p50Norm" optype="continuous">
+<NormContinuous field="R_p50">
+<LinearNorm norm="-2.26762502059579" orig="138"/>
+<LinearNorm norm="2.13423531350185" orig="182"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="S_p50Norm" optype="continuous">
+<NormContinuous field="S_p50">
+<LinearNorm norm="-1.93346648981616" orig="26"/>
+<LinearNorm norm="3.37987653563281" orig="76"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="a_meanNorm" optype="continuous">
+<NormContinuous field="a_mean">
+<LinearNorm norm="-1.87916549914007" orig="128.333724975586"/>
+<LinearNorm norm="3.12405541579079" orig="130.422348022461"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_kurtNorm" optype="continuous">
+<NormContinuous field="gray_kurt">
+<LinearNorm norm="-2.11514373272623" orig="-1.50485372543335"/>
+<LinearNorm norm="3.38265746991669" orig="0.706916809082031"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_meanNorm" optype="continuous">
+<NormContinuous field="gray_mean">
+<LinearNorm norm="-2.00535466488099" orig="134.059768676758"/>
+<LinearNorm norm="2.0177706524813" orig="176.723068237305"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_p90Norm" optype="continuous">
+<NormContinuous field="gray_p90">
+<LinearNorm norm="-2.90956237618203" orig="175"/>
+<LinearNorm norm="1.51389978617282" orig="228"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="gray_stdNorm" optype="continuous">
+<NormContinuous field="gray_std">
+<LinearNorm norm="-2.58715018459998" orig="23.6167831420898"/>
+<LinearNorm norm="1.71159626030454" orig="51.0078659057617"/>
+</NormContinuous>
+</DerivedField><DerivedField dataType="double" name="hbNorm" optype="continuous">
+<NormContinuous field="hb">
+<LinearNorm norm="-2.5644212749936" orig="7"/>
+<LinearNorm norm="1.79777466029764" orig="17.4"/>
+</NormContinuous>
+</DerivedField></LocalTransformations><NeuralInputs>
+<NeuralInput id="0">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="1">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="2">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="B_p75Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="3">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="G_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="4">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="RGNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="5">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_norm_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="6">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p10Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="7">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="R_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="8">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="S_p50Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="9">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="a_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="10">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_kurtNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="11">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_meanNorm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="12">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_p90Norm"/>
+</DerivedField>
+</NeuralInput>
+<NeuralInput id="13">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="gray_stdNorm"/>
+</DerivedField>
+</NeuralInput>
+</NeuralInputs><NeuralLayer numberOfNeurons="3">
+<Neuron bias="1.04002327736591" id="14">
+<Con from="0" weight="-0.934953952470847"/>
+<Con from="1" weight="0.854156573942382"/>
+<Con from="2" weight="-0.597234840065411"/>
+<Con from="3" weight="-0.246072566147989"/>
+<Con from="4" weight="1.03972314703195"/>
+<Con from="5" weight="0.75995284016629"/>
+<Con from="6" weight="-0.247966196771603"/>
+<Con from="7" weight="0.926578587529214"/>
+<Con from="8" weight="-1.56704017740732"/>
+<Con from="9" weight="-0.381124400777332"/>
+<Con from="10" weight="-1.04857584133639"/>
+<Con from="11" weight="-0.399594980821063"/>
+<Con from="12" weight="-0.0373674148559705"/>
+<Con from="13" weight="-1.42230017924485"/>
+</Neuron>
+<Neuron bias="0.683541840090806" id="15">
+<Con from="0" weight="-0.31480479178355"/>
+<Con from="1" weight="-0.384443627888507"/>
+<Con from="2" weight="2.33300929700055"/>
+<Con from="3" weight="-0.731014471210673"/>
+<Con from="4" weight="0.482600850851972"/>
+<Con from="5" weight="0.318756028044792"/>
+<Con from="6" weight="1.631390041915"/>
+<Con from="7" weight="-0.240163806292185"/>
+<Con from="8" weight="0.180843719754197"/>
+<Con from="9" weight="1.65783977995587"/>
+<Con from="10" weight="-1.91024874814696"/>
+<Con from="11" weight="-0.577726541526206"/>
+<Con from="12" weight="1.13710073582227"/>
+<Con from="13" weight="-1.54417590209337"/>
+</Neuron>
+<Neuron bias="0.989545510063449" id="16">
+<Con from="0" weight="1.69859786737046"/>
+<Con from="1" weight="-0.666953099628781"/>
+<Con from="2" weight="-1.37310437630795"/>
+<Con from="3" weight="0.501035011135013"/>
+<Con from="4" weight="0.533879279623057"/>
+<Con from="5" weight="0.250400366570419"/>
+<Con from="6" weight="0.406592337345253"/>
+<Con from="7" weight="-0.456289851564704"/>
+<Con from="8" weight="-0.743176775385434"/>
+<Con from="9" weight="2.0258486687206"/>
+<Con from="10" weight="-1.39506322808859"/>
+<Con from="11" weight="1.23065843199002"/>
+<Con from="12" weight="-1.07743824232176"/>
+<Con from="13" weight="0.3331944316021"/>
+</Neuron>
+</NeuralLayer><NeuralLayer activationFunction="identity" numberOfNeurons="1">
+<Neuron bias="-0.28251951441214" id="17">
+<Con from="14" weight="-0.430430143525031"/>
+<Con from="15" weight="-0.970691420468952"/>
+<Con from="16" weight="1.65628622624706"/>
+</Neuron>
+</NeuralLayer><NeuralOutputs>
+<NeuralOutput outputNeuron="17">
+<DerivedField dataType="double" optype="continuous">
+<FieldRef field="hbNorm"/>
+</DerivedField>
+</NeuralOutput>
+</NeuralOutputs></NeuralNetwork><Extension extender="spss.com" name="activeModelID" value="13"/></PMML>

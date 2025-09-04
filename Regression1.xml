@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><PMML xmlns="http://www.dmg.org/PMML-4_2" version="4.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<Header copyright="(C) Copyright IBM Corp. 1994, 2015">
+<Application name="IBM SPSS Modeler" version="18"/>
+</Header>
+<DataDictionary numberOfFields="14">
+<DataField dataType="double" name="R_norm_p50" optype="continuous">
+<Extension extender="spss" name="storageType" value="numeric"/>
+</DataField>
+<DataField dataType="double" name="a_mean" optype="continuous">
+<Extension extender="spss" name="storageType" value="numeric"/>
+</DataField>
+<DataField dataType="double" name="R_p50" optype="continuous">
+<Extension extender="spss" name="storageType" value="numeric"/>
+</DataField>
+<DataField dataType="double" name="R_p10" optype="continuous">
+<Extension extender="spss" name="storageType" value="numeric"/>
+</DataField>
+<DataField dataType="double" name="RG" optype="continuous">
+<Extension extender="spss" name="storageType" value="numeric"/>
+</DataField>
+<DataField dataType="double" name="S_p50" optype="continuous">
+<Extension extender="spss" name="storageType" value="numeric"/>
+</DataField>
+<DataField dataType="double" name="gray_p90" optype="continuous">
+<Extension extender="spss" name="storageType" value="numeric"/>
+</DataField>
+<DataField dataType="double" name="gray_kurt" optype="continuous">
+<Extension extender="spss" name="storageType" value="numeric"/>
+</DataField>
+<DataField dataType="double" name="gray_std" optype="continuous">
+<Extension extender="spss" name="storageType" value="numeric"/>
+</DataField>
+<DataField dataType="double" name="gray_mean" optype="continuous">
+<Extension extender="spss" name="storageType" value="numeric"/>
+</DataField>
+<DataField dataType="double" name="B_p10" optype="continuous">
+<Extension extender="spss" name="storageType" value="numeric"/>
+</DataField>
+<DataField dataType="double" name="B_p75" optype="continuous">
+<Extension extender="spss" name="storageType" value="numeric"/>
+</DataField>
+<DataField dataType="double" name="G_kurt" optype="continuous">
+<Extension extender="spss" name="storageType" value="numeric"/>
+</DataField>
+<DataField dataType="double" name="hb" optype="continuous">
+<Extension extender="spss" name="storageType" value="numeric"/>
+</DataField>
+</DataDictionary>
+<GeneralRegressionModel functionName="regression" modelName="Regression 1" modelType="regression" targetVariableName="hb">
+<MiningSchema>
+<MiningField name="R_norm_p50" usageType="active"/>
+<MiningField name="a_mean" usageType="active"/>
+<MiningField name="R_p50" usageType="active"/>
+<MiningField name="R_p10" usageType="active"/>
+<MiningField name="RG" usageType="active"/>
+<MiningField name="S_p50" usageType="active"/>
+<MiningField name="gray_p90" usageType="active"/>
+<MiningField name="gray_kurt" usageType="active"/>
+<MiningField name="gray_std" usageType="active"/>
+<MiningField name="gray_mean" usageType="active"/>
+<MiningField name="B_p10" usageType="active"/>
+<MiningField name="B_p75" usageType="active"/>
+<MiningField name="G_kurt" usageType="active"/>
+<MiningField name="hb" usageType="predicted"/>
+</MiningSchema>
+<ParameterList>
+<Parameter label="(Constant)" name="(Constant)"/>
+<Parameter label="R_norm_p50" name="R_norm_p50"/>
+<Parameter label="a_mean" name="a_mean"/>
+<Parameter label="R_p50" name="R_p50"/>
+<Parameter label="R_p10" name="R_p10"/>
+<Parameter label="RG" name="RG"/>
+<Parameter label="S_p50" name="S_p50"/>
+<Parameter label="gray_p90" name="gray_p90"/>
+<Parameter label="gray_kurt" name="gray_kurt"/>
+<Parameter label="gray_std" name="gray_std"/>
+<Parameter label="gray_mean" name="gray_mean"/>
+<Parameter label="B_p10" name="B_p10"/>
+<Parameter label="B_p75" name="B_p75"/>
+<Parameter label="G_kurt" name="G_kurt"/>
+</ParameterList>
+<FactorList/>
+<CovariateList>
+<Predictor name="R_norm_p50"/>
+<Predictor name="a_mean"/>
+<Predictor name="R_p50"/>
+<Predictor name="R_p10"/>
+<Predictor name="RG"/>
+<Predictor name="S_p50"/>
+<Predictor name="gray_p90"/>
+<Predictor name="gray_kurt"/>
+<Predictor name="gray_std"/>
+<Predictor name="gray_mean"/>
+<Predictor name="B_p10"/>
+<Predictor name="B_p75"/>
+<Predictor name="G_kurt"/>
+</CovariateList>
+<PPMatrix>
+<PPCell parameterName="R_norm_p50" predictorName="R_norm_p50" value="1"/>
+<PPCell parameterName="a_mean" predictorName="a_mean" value="1"/>
+<PPCell parameterName="R_p50" predictorName="R_p50" value="1"/>
+<PPCell parameterName="R_p10" predictorName="R_p10" value="1"/>
+<PPCell parameterName="RG" predictorName="RG" value="1"/>
+<PPCell parameterName="S_p50" predictorName="S_p50" value="1"/>
+<PPCell parameterName="gray_p90" predictorName="gray_p90" value="1"/>
+<PPCell parameterName="gray_kurt" predictorName="gray_kurt" value="1"/>
+<PPCell parameterName="gray_std" predictorName="gray_std" value="1"/>
+<PPCell parameterName="gray_mean" predictorName="gray_mean" value="1"/>
+<PPCell parameterName="B_p10" predictorName="B_p10" value="1"/>
+<PPCell parameterName="B_p75" predictorName="B_p75" value="1"/>
+<PPCell parameterName="G_kurt" predictorName="G_kurt" value="1"/>
+</PPMatrix>
+<ParamMatrix>
+<PCell beta="-1128.26998437374" df="1" parameterName="(Constant)" targetCategory=""/>
+<PCell beta="46.0470816319958" parameterName="R_norm_p50" targetCategory=""/>
+<PCell beta="5.58860789327827" parameterName="a_mean" targetCategory=""/>
+<PCell beta="-0.229056019731415" parameterName="R_p50" targetCategory=""/>
+<PCell beta="-0.0466131827798897" parameterName="R_p10" targetCategory=""/>
+<PCell beta="407.881109783778" parameterName="RG" targetCategory=""/>
+<PCell beta="-0.143629815806077" parameterName="S_p50" targetCategory=""/>
+<PCell beta="-0.17020675486614" parameterName="gray_p90" targetCategory=""/>
+<PCell beta="-5.08961375700848" parameterName="gray_kurt" targetCategory=""/>
+<PCell beta="0.127058554536653" parameterName="gray_std" targetCategory=""/>
+<PCell beta="0.60940020897821" parameterName="gray_mean" targetCategory=""/>
+<PCell beta="-0.0712282791696538" parameterName="B_p10" targetCategory=""/>
+<PCell beta="-0.0996675771741754" parameterName="B_p75" targetCategory=""/>
+<PCell beta="4.9641359441354" parameterName="G_kurt" targetCategory=""/>
+</ParamMatrix>
+</GeneralRegressionModel>
+</PMML>
