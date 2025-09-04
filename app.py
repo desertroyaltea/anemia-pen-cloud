@@ -15,7 +15,7 @@ import cv2
 from scipy.stats import kurtosis
 import streamlit as st
 
-# Optional imports (we guard them at runtime)
+# Optional imports
 try:
     import joblib
 except Exception:
@@ -23,7 +23,7 @@ except Exception:
 
 # -------------------- Settings -------------------- #
 DEFAULT_JOBLIB_PATH = Path("outputs/models/hemo_surrogate.joblib")
-DEFAULT_PMML_PATH = Path("outputs/models/hemo_model.pmml")
+DEFAULT_PMML_PATH = Path("outputs/models/hb_modeler.xml")  # change if needed
 
 DEFAULT_MODEL_ID = "eye-conjunctiva-detector/2"   # Roboflow model id
 DEFAULT_CLASS_NAME = "conjunctiva"
@@ -35,7 +35,7 @@ FEATURE_COLUMNS = [
     "B_mean", "B_p10", "B_p75", "G_kurt",
 ]
 
-st.set_page_config(page_title="Anemia Pen — PMML/Joblib", layout="wide")
+st.set_page_config(page_title="Anemia Pen — PMML & Joblib (Fixed Scaling)", layout="wide")
 
 # ---------------- Helper functions ---------------- #
 def exif_upright(pil_img: Image.Image) -> Image.Image:
@@ -129,69 +129,7 @@ def compute_features_from_pil(pil_img: Image.Image) -> Dict[str, float]:
     }
     return feats
 
-# --------- PMML helpers: scaling auto-detect & scoring --------- #
-def parse_pmml_expected_scales(pmml_path: Path) -> Dict[str, Any]:
-    """
-    Try to infer expected scales from PMML DataDictionary intervals.
-    Returns dict with flags:
-      - s_scale_factor: 1 or 100
-      - a_add_offset: 0 or 128
-      - hints: text for debugging
-    """
-    out = {"s_scale_factor": 1.0, "a_add_offset": 0.0, "hints": []}
-    try:
-        import xml.etree.ElementTree as ET
-        tree = ET.parse(str(pmml_path))
-        root = tree.getroot()
-
-        ns = {"p": root.tag.split("}")[0].strip("{")}
-
-        # Find S_p50 interval
-        s_node = root.find(".//p:DataDictionary/p:DataField[@name='S_p50']", ns)
-        if s_node is not None:
-            interval = s_node.find("p:Interval", ns)
-            if interval is not None:
-                right = interval.get("rightMargin")
-                if right is not None:
-                    try:
-                        right_v = float(right)
-                        # If S_p50 appears around dozens, SPSS expects 0..100 scaling
-                        if right_v > 1.5:
-                            out["s_scale_factor"] = 100.0
-                            out["hints"].append(f"S_p50 interval max≈{right_v} -> using 0..100 scaling")
-                    except Exception:
-                        pass
-
-        # Find a_mean interval
-        a_node = root.find(".//p:DataDictionary/p:DataField[@name='a_mean']", ns)
-        if a_node is not None:
-            interval = a_node.find("p:Interval", ns)
-            if interval is not None:
-                left = interval.get("leftMargin"); right = interval.get("rightMargin")
-                if left is not None and right is not None:
-                    try:
-                        l_v = float(left); r_v = float(right)
-                        # If centered around ~128-130, Modeler expects raw Lab a* (not minus 128)
-                        if r_v > 100.0:
-                            out["a_add_offset"] = 128.0
-                            out["hints"].append(f"a_mean interval {l_v:.2f}-{r_v:.2f} -> using raw a* (add 128)")
-                    except Exception:
-                        pass
-
-    except Exception as e:
-        out["hints"].append(f"PMML parse warning: {e}")
-
-    return out
-
-def adjust_feats_for_pmml(feats: Dict[str, float], scale_info: Dict[str, Any]) -> Dict[str, float]:
-    """Apply SPSS-expected scaling for PMML scoring."""
-    f = dict(feats)
-    if scale_info.get("a_add_offset", 0.0) == 128.0:
-        f["a_mean"] = feats["a_mean"] + 128.0
-    if scale_info.get("s_scale_factor", 1.0) == 100.0:
-        f["S_p50"] = feats["S_p50"] * 100.0
-    return {k: float(v) for k, v in f.items()}
-
+# --------- PMML helpers --------- #
 def pmml_predict(model, X: pd.DataFrame) -> Tuple[float, Dict[str, Any]]:
     """
     Score with PyPMML Model. Returns (prediction_value, extra_info)
@@ -199,14 +137,14 @@ def pmml_predict(model, X: pd.DataFrame) -> Tuple[float, Dict[str, Any]]:
     """
     try:
         df = model.predict(X)
-        # Try common column names
-        for key in ["hb", "predicted_hb", "prediction", "Predicted_hb"]:
+        # Prefer realistic target columns
+        for key in ["hb", "predicted_hb", "Prediction", "Predicted_hb"]:
             if key in df.columns:
                 val = df[key].iloc[0]
                 if val is None or (isinstance(val, float) and np.isnan(val)):
                     raise ValueError("PMML returned None/NaN for prediction")
                 return float(val), {"raw": df.head(1).to_dict(orient="records")[0]}
-        # If no obvious column, try first numeric column
+        # Fallback: first numeric column
         for col in df.columns:
             try:
                 val = float(df[col].iloc[0])
@@ -233,7 +171,7 @@ def load_pmml(path_str: str):
     return Model.load(path_str)
 
 # ------------------------- UI ------------------------- #
-st.title("Anemia Pen — Prototype (PMML & Joblib)")
+st.title("Anemia Pen — PMML & Joblib (Fixed Scaling)")
 
 with st.sidebar:
     st.header("Settings")
@@ -252,8 +190,14 @@ with st.sidebar:
     st.caption("Choose a scoring backend")
     backend = st.radio("Backend", ["PMML", "Joblib"], horizontal=True)
 
+    # Forced SPSS scaling toggle (applies only to PMML)
+    force_spss_scaling = st.checkbox(
+        "Force SPSS scaling for PMML (a*+128, S×100)",
+        value=True,
+        help="Fixes constant predictions from SPSS exports"
+    )
+
     model_path_str = ""
-    pmml_scale_info = None
 
     if backend == "PMML":
         src = st.radio("Load PMML from…", ["Path", "Upload"], horizontal=True)
@@ -272,9 +216,6 @@ with st.sidebar:
             try:
                 model_loaded = load_pmml(model_path_str)
                 st.success(f"Loaded PMML: {model_path_str}")
-                # Infer expected scales from PMML
-                pmml_scale_info = parse_pmml_expected_scales(Path(model_path_str))
-                st.info("PMML scale detection: " + "; ".join(pmml_scale_info.get("hints", []) or ["no specific hints"]))
             except Exception as e:
                 st.error(f"Failed to load PMML: {e}")
     else:
@@ -297,7 +238,7 @@ with st.sidebar:
             except Exception as e:
                 st.error(f"Failed to load joblib: {e}")
 
-# Persist "loaded" status across reruns
+# Persist across reruns
 if "model_ready" not in st.session_state:
     st.session_state["model_ready"] = False
 if "backend" not in st.session_state:
@@ -305,8 +246,8 @@ if "backend" not in st.session_state:
 if load_btn:
     st.session_state["model_ready"] = model_loaded is not None
     st.session_state["backend"] = backend
+    st.session_state["force_spss_scaling"] = force_spss_scaling
     if backend == "PMML":
-        st.session_state["pmml_scale_info"] = pmml_scale_info
         st.session_state["pmml_path"] = model_path_str
     else:
         st.session_state["joblib_path"] = model_path_str
@@ -377,15 +318,18 @@ if process:
     # Score
     try:
         if st.session_state.get("backend") == "PMML":
-            # Prepare PMML model + scaling
+            from pypmml import Model  # ensure import error surfaces nicely
             pmml_model = load_pmml(st.session_state["pmml_path"])
-            scale_info = st.session_state.get("pmml_scale_info") or parse_pmml_expected_scales(Path(st.session_state["pmml_path"]))
-            feats_pmml = adjust_feats_for_pmml(feats, scale_info)
 
-            # Build X for PMML: pass all feature columns present in the DataDictionary
-            # (Safe to include all 14 — PMML will ignore unused ones or transform as needed)
+            feats_pmml = feats.copy()
+            if st.session_state.get("force_spss_scaling", True):
+                # Force SPSS scales: raw Lab a* (~128..130) and S on 0..100
+                feats_pmml["a_mean"] = feats_pmml["a_mean"] + 128.0
+                feats_pmml["S_p50"]  = feats_pmml["S_p50"]  * 100.0
+
             X = pd.DataFrame([{k: float(feats_pmml.get(k, np.nan)) for k in FEATURE_COLUMNS}])
             pred_hb, extra = pmml_predict(pmml_model, X)
+
         else:
             joblib_model = load_joblib(st.session_state["joblib_path"])
             X = pd.DataFrame([{k: float(feats[k]) for k in FEATURE_COLUMNS}])
@@ -419,14 +363,17 @@ if process:
     # Debug
     with st.expander("Advanced / Debug info"):
         st.write("Roboflow best box:", best)
+        st.write("Backend:", st.session_state.get("backend"))
         if st.session_state.get("backend") == "PMML":
-            st.write("PMML scale info:", scale_info)
-            st.write("Adjusted features sample (for PMML):", {k: feats_pmml[k] for k in ["a_mean", "S_p50"] if k in feats_pmml})
+            st.write("Forced SPSS scaling:", st.session_state.get("force_spss_scaling", True))
+            if st.session_state.get("force_spss_scaling", True):
+                st.write("Adjusted a_mean & S_p50 sent to PMML:",
+                         {"a_mean": feats.get("a_mean", None) + 128.0,
+                          "S_p50": feats.get("S_p50", None) * 100.0})
             st.write("PMML raw output (first row):", extra.get("raw"))
         else:
-            st.write("Backend: joblib")
             st.write("Model path:", st.session_state.get("joblib_path"))
 
 # Footer
 st.markdown("---")
-st.caption("Anemia Pen — PMML/Joblib demo")
+st.caption("Anemia Pen — PMML/Joblib demo (with fixed scaling)")
