@@ -1,0 +1,7 @@
+[INFO] Logging to: outputs\models\hb_modeler.log
+[INFO] Active inputs (from MiningSchema): ['a_mean', 'S_p50', 'gray_p90']
+[INFO] Target detected: hb
+[INFO] Output candidates: ['predicted_hb', 'Prediction', 'hb', 'Predicted_hb']
+[INFO] Chosen mode: proxy
+[INFO] Saving joblib to: outputs\models\hb_modeler.joblib
+[INFO] Done.

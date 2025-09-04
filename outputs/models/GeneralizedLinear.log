@@ -1,0 +1,7 @@
+[INFO] Logging to: outputs\models\GeneralizedLinear.log
+[INFO] Active inputs (from MiningSchema): ['R_norm_p50', 'a_mean', 'R_p50', 'R_p10', 'RG', 'S_p50', 'gray_p90', 'gray_kurt', 'gray_std', 'gray_mean', 'B_mean', 'B_p10', 'B_p75', 'G_kurt']
+[INFO] Target detected: hb
+[INFO] Output candidates: ['hb', 'Prediction', 'Predicted_hb', 'predicted_hb']
+[INFO] Chosen mode: proxy
+[INFO] Saving joblib to: outputs\models\GeneralizedLinear.joblib
+[INFO] Done.

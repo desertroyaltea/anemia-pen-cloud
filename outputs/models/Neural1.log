@@ -1,0 +1,7 @@
+[INFO] Logging to: outputs\models\Neural1.log
+[INFO] Active inputs (from MiningSchema): ['B_mean', 'B_p10', 'B_p75', 'G_kurt', 'RG', 'R_norm_p50', 'R_p10', 'R_p50', 'S_p50', 'a_mean', 'gray_kurt', 'gray_mean', 'gray_p90', 'gray_std']
+[INFO] Target detected: hb
+[INFO] Output candidates: ['Predicted_hb', 'predicted_hb', 'hb', 'Prediction']
+[INFO] Chosen mode: proxy
+[INFO] Saving joblib to: outputs\models\Neural1.joblib
+[INFO] Done.
