@@ -15,7 +15,7 @@ import cv2
 from scipy.stats import kurtosis
 import streamlit as st
 
-# Optional imports
+# Optional imports (gracefully handled)
 try:
     import joblib
 except Exception:
@@ -132,7 +132,7 @@ def compute_features_from_pil(pil_img: Image.Image) -> Dict[str, float]:
 # --------- PMML helpers --------- #
 def pmml_predict(model, X: pd.DataFrame) -> Tuple[float, Dict[str, Any]]:
     """
-    Score with PyPMML Model. Returns (prediction_value, extra_info)
+    Score with PyPMML Model. Returns (prediction_value, extra_info).
     Handles different output column names across PMMLs.
     """
     try:
@@ -170,6 +170,16 @@ def load_pmml(path_str: str):
         raise RuntimeError(f"PyPMML not available: {e}")
     return Model.load(path_str)
 
+def _extract_estimator(jobj):
+    """Handles both raw estimators and bundles {'estimator': est} created by our converter."""
+    if isinstance(jobj, dict) and "estimator" in jobj:
+        return jobj["estimator"]
+    return jobj
+
+def _is_pmml_proxy(est) -> bool:
+    """Detect our PMMLProxyEstimator produced by pmml_to_joblib.py."""
+    return hasattr(est, "pmml_xml")
+
 # ------------------------- UI ------------------------- #
 st.title("Anemia Pen — PMML & Joblib (Fixed Scaling)")
 
@@ -190,11 +200,14 @@ with st.sidebar:
     st.caption("Choose a scoring backend")
     backend = st.radio("Backend", ["PMML", "Joblib"], horizontal=True)
 
-    # Forced SPSS scaling toggle (applies only to PMML)
-    force_spss_scaling = st.checkbox(
-        "Force SPSS scaling for PMML (a*+128, S×100)",
-        value=True,
+    # Forced scaling toggles
+    force_spss_scaling_pmml = st.checkbox(
+        "Force SPSS scaling for PMML (a* + 128, S × 100)", value=True,
         help="Fixes constant predictions from SPSS exports"
+    )
+    force_spss_scaling_joblib_proxy = st.checkbox(
+        "If joblib wraps a PMML, apply the same SPSS scaling", value=True,
+        help="Applies (a*+128, S×100) to inputs when the joblib is a PMML proxy"
     )
 
     model_path_str = ""
@@ -234,7 +247,11 @@ with st.sidebar:
         if load_btn and model_path_str:
             try:
                 model_loaded = load_joblib(model_path_str)
-                st.success(f"Loaded joblib: {model_path_str}")
+                est = _extract_estimator(model_loaded)
+                if _is_pmml_proxy(est):
+                    st.info("Loaded joblib wraps a PMML model (PMML proxy).")
+                else:
+                    st.success(f"Loaded joblib: {model_path_str}")
             except Exception as e:
                 st.error(f"Failed to load joblib: {e}")
 
@@ -246,7 +263,8 @@ if "backend" not in st.session_state:
 if load_btn:
     st.session_state["model_ready"] = model_loaded is not None
     st.session_state["backend"] = backend
-    st.session_state["force_spss_scaling"] = force_spss_scaling
+    st.session_state["force_spss_scaling_pmml"] = force_spss_scaling_pmml
+    st.session_state["force_spss_scaling_joblib_proxy"] = force_spss_scaling_joblib_proxy
     if backend == "PMML":
         st.session_state["pmml_path"] = model_path_str
     else:
@@ -318,12 +336,12 @@ if process:
     # Score
     try:
         if st.session_state.get("backend") == "PMML":
-            from pypmml import Model  # ensure import error surfaces nicely
+            from pypmml import Model  # surface import errors clearly
             pmml_model = load_pmml(st.session_state["pmml_path"])
 
+            # ---- PMML expects raw Lab a* and S on 0..100 ----
             feats_pmml = feats.copy()
-            if st.session_state.get("force_spss_scaling", True):
-                # Force SPSS scales: raw Lab a* (~128..130) and S on 0..100
+            if st.session_state.get("force_spss_scaling_pmml", True):
                 feats_pmml["a_mean"] = feats_pmml["a_mean"] + 128.0
                 feats_pmml["S_p50"]  = feats_pmml["S_p50"]  * 100.0
 
@@ -332,8 +350,17 @@ if process:
 
         else:
             joblib_model = load_joblib(st.session_state["joblib_path"])
+            est = _extract_estimator(joblib_model)
+
+            # Build from raw features first
             X = pd.DataFrame([{k: float(feats[k]) for k in FEATURE_COLUMNS}])
-            pred = joblib_model.predict(X)
+
+            # If this joblib wraps a PMML model, apply the same SPSS scaling
+            if _is_pmml_proxy(est) and st.session_state.get("force_spss_scaling_joblib_proxy", True):
+                X["a_mean"] = X["a_mean"] + 128.0
+                X["S_p50"]  = X["S_p50"]  * 100.0
+
+            pred = est.predict(X)
             pred_hb = float(np.ravel(pred)[0])
             extra = {}
     except Exception as e:
@@ -365,15 +392,21 @@ if process:
         st.write("Roboflow best box:", best)
         st.write("Backend:", st.session_state.get("backend"))
         if st.session_state.get("backend") == "PMML":
-            st.write("Forced SPSS scaling:", st.session_state.get("force_spss_scaling", True))
-            if st.session_state.get("force_spss_scaling", True):
+            st.write("Forced SPSS scaling (PMML):", st.session_state.get("force_spss_scaling_pmml", True))
+            if st.session_state.get("force_spss_scaling_pmml", True):
                 st.write("Adjusted a_mean & S_p50 sent to PMML:",
                          {"a_mean": feats.get("a_mean", None) + 128.0,
                           "S_p50": feats.get("S_p50", None) * 100.0})
             st.write("PMML raw output (first row):", extra.get("raw"))
         else:
-            st.write("Model path:", st.session_state.get("joblib_path"))
+            est = _extract_estimator(load_joblib(st.session_state["joblib_path"]))
+            st.write("Joblib path:", st.session_state.get("joblib_path"))
+            st.write("Joblib wraps PMML proxy:", _is_pmml_proxy(est))
+            if _is_pmml_proxy(est) and st.session_state.get("force_spss_scaling_joblib_proxy", True):
+                st.write("Adjusted a_mean & S_p50 sent to Joblib-PMML:",
+                         {"a_mean": feats.get("a_mean", None) + 128.0,
+                          "S_p50": feats.get("S_p50", None) * 100.0})
 
 # Footer
 st.markdown("---")
-st.caption("Anemia Pen — PMML/Joblib demo (with fixed scaling)")
+st.caption("Anemia Pen — PMML/Joblib demo (with fixed scaling & PMML-proxy support)")
