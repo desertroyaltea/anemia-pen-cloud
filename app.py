@@ -45,10 +45,10 @@ def crop_and_resize_eye(image, target_size=(128, 128)):
     img_bytes.seek(0)
     
     try:
-        # Call the Roboflow API with the image passed as a keyword argument.
+        # Call the Roboflow API with the image passed as a positional argument.
         # This is the most reliable way for the library to handle headers.
         result = CLIENT.infer(
-            image=img_bytes,
+            img_bytes.read(),
             model_id="eye-conjunctiva-detector/2",
         )
         detections = result.get('predictions', [])
