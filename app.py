@@ -36,14 +36,16 @@ hb_model = None
 models_loaded = True
 
 try:
-    anemia_model = joblib.load('anemia_classification_model.model', mmap_mode=None)
+    with open('anemia_classification_model.model', 'rb') as f:
+        anemia_model = joblib.load(f)
     st.success("Anemia classification model loaded successfully.")
 except Exception as e:
     st.error(f"Error loading anemia model: {e}")
     models_loaded = False
 
 try:
-    hb_model = joblib.load('hb_regression_model.model', mmap_mode=None)
+    with open('hb_regression_model.model', 'rb') as f:
+        hb_model = joblib.load(f)
     st.success("Hb regression model loaded successfully.")
 except Exception as e:
     st.error(f"Error loading Hb model: {e}")
