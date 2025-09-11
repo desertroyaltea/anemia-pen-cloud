@@ -31,12 +31,22 @@ FEATURE_COLUMNS = [
 st.set_page_config(page_title="Anemia Screening & Hb Estimation", layout="wide")
 
 # --- Model Loading ---
+anemia_model = None
+hb_model = None
+models_loaded = True
+
 try:
     anemia_model = joblib.load('anemia_classification_model.model', mmap_mode=None)
-    hb_model = joblib.load('hb_regression_model.model', mmap_mode=None)
-    models_loaded = True
+    st.success("Anemia classification model loaded successfully.")
 except Exception as e:
-    st.error(f"Error loading models: {e}. The app will use mock predictions.")
+    st.error(f"Error loading anemia model: {e}")
+    models_loaded = False
+
+try:
+    hb_model = joblib.load('hb_regression_model.model', mmap_mode=None)
+    st.success("Hb regression model loaded successfully.")
+except Exception as e:
+    st.error(f"Error loading Hb model: {e}")
     models_loaded = False
 
 
@@ -244,7 +254,3 @@ if process:
     # Tiny debug section
     with st.expander("Advanced / Debug info"):
         st.write("Roboflow best box:", best)
-
-# Footer
-st.markdown("---")
-st.caption("DEMO")
