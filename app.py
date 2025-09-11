@@ -57,9 +57,9 @@ def calculate_haralick_features(gray_image):
 
 def calculate_tamura_features(gray_image):
     """Calculates Tamura texture features using the pyfeats library."""
-    # The correct function in pyfeats is td()
+    # The correct function in pyfeats is tamura_features()
     # It returns: coarseness, contrast, directionality, line-likeness, regularity, roughness
-    features_labels, feats = pyfeats.td(gray_image)
+    feats, labels = pyfeats.tamura_features(gray_image)
     features = {}
     features['TamuraContrast'] = feats[1] # Index 1 is Contrast
     # The KNIME model may not have used Directionality, but if it did, this is how you'd add it:
