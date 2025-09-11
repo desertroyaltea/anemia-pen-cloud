@@ -6,7 +6,7 @@ import knime
 from inference_sdk import InferenceHTTPClient
 import requests
 from io import BytesIO
-from skimage.feature import graycomatrix, graycoprops, haralick, tamura_feature
+from skimage.feature import graycomatrix, graycoprops
 import mahotas
 
 # --- KNIME & ROBOFLOW CONFIGURATION ---
