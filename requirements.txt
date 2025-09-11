@@ -1,0 +1,8 @@
+streamlit
+knime
+inference-sdk
+Pillow
+numpy
+pandas
+scikit-image
+mahotas
