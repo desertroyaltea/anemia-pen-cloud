@@ -4,4 +4,3 @@ numpy
 joblib
 scikit-learn
 inference-sdk
-libgl1
