@@ -17,15 +17,16 @@ CLIENT = InferenceHTTPClient(
 )
 ROBOFLOW_MODEL_ID = "eye-conjunctiva-detector/2"
 
-# --- SIMPLIFIED FEATURE EXTRACTION FUNCTIONS ---
+# --- CORRECTED FEATURE EXTRACTION FUNCTIONS ---
 
 def calculate_first_order_statistics(image_array):
-    """Calculates basic statistics for an image."""
+    """Calculates basic statistics using KNIME's exact naming convention."""
     features = {}
-    features['Min'] = np.min(image_array)
-    features['Max'] = np.max(image_array)
+    # These names must exactly match the output of the KNIME Image Features node
+    features['Minimum'] = np.min(image_array)
+    features['Maximum'] = np.max(image_array)
     features['Mean'] = np.mean(image_array)
-    features['Std Dev'] = np.std(image_array)
+    features['Std. Dev.'] = np.std(image_array) # Corrected name
     features['Variance'] = np.var(image_array)
     features['Skewness'] = pd.Series(image_array.flatten()).skew()
     features['Kurtosis'] = pd.Series(image_array.flatten()).kurtosis()
@@ -37,7 +38,7 @@ def calculate_histogram(image_array, bins=64):
     return hist
 
 def extract_all_features(image):
-    """Main function to extract all required features from a PIL image."""
+    """Main function to extract features with KNIME's exact naming convention."""
     img_array_color = np.array(image.convert('RGB'))
     img_array_gray = np.array(image.convert('L'))
 
@@ -48,14 +49,14 @@ def extract_all_features(image):
     for i, channel in enumerate(channels):
         hist = calculate_histogram(img_array_color[:, :, i])
         for j, val in enumerate(hist):
-            hist_features[f'Hist_{channel}_bin_{j}'] = val
+            # This naming format matches KNIME's histogram output
+            hist_features[f'[{channel}] Histogram bin {j}'] = val
 
     all_features = {**first_order_stats, **hist_features}
     
     feature_df = pd.DataFrame([all_features])
     
-    # --- THIS IS THE CRITICAL FIX ---
-    # Sort the columns alphabetically to match the KNIME model's input order.
+    # Sort the columns alphabetically to match the KNIME model's input order
     feature_df = feature_df.reindex(sorted(feature_df.columns), axis=1)
     
     return feature_df
@@ -114,7 +115,13 @@ if uploaded_file is not None:
                         wf.execute()
                         prediction_table = wf.data_table_outputs[0]
                     
-                    anemia_probability = prediction_table.iloc[0]['P (Status=1)']
+                    # Ensure the probability column name is correct
+                    prob_col_name = 'P (Status=1)'
+                    if prob_col_name not in prediction_table.columns:
+                        # Fallback for different naming conventions
+                        prob_col_name = [col for col in prediction_table.columns if 'P (' in col and '=1' in col][0]
+
+                    anemia_probability = prediction_table.iloc[0][prob_col_name]
                     final_prediction = 1 if anemia_probability > 0.5 else 0
                     
                     if final_prediction == 1:
