@@ -11,7 +11,7 @@ from io import BytesIO
 # Note: The Roboflow client requires an active internet connection.
 # This client is used to get bounding boxes for the conjunctiva.
 # We will use the requests library directly to ensure proper headers.
-API_URL = "https://serverless.roboflow.com/model/eye-conjunctiva-detector/2"
+API_URL = "https://detect.roboflow.com/eye-conjunctiva-detector/2"
 API_KEY = "jMhyBQxeQvj69nttV0mN"
 
 # --- Model Loading ---
