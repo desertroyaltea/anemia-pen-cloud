@@ -45,8 +45,11 @@ def crop_and_resize_eye(image, target_size=(128, 128)):
     img_bytes.seek(0)
     
     try:
-        # Call the Roboflow API
-        result = CLIENT.infer(img_bytes.read(), model_id="eye-conjunctiva-detector/2")
+        # Call the Roboflow API with an explicit payload
+        result = CLIENT.infer(
+            image=img_bytes,
+            model_id="eye-conjunctiva-detector/2",
+        )
         detections = result.get('predictions', [])
 
         if not detections:
