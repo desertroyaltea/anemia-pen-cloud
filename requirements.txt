@@ -7,3 +7,4 @@ pandas
 scikit-image
 mahotas
 opencv-python-headless
+pyfeats

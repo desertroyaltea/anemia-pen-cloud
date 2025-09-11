@@ -8,6 +8,7 @@ import requests
 from io import BytesIO
 from skimage.feature import graycomatrix, graycoprops
 import mahotas
+import pyfeats as pf
 
 # --- KNIME & ROBOFLOW CONFIGURATION ---
 # Make sure these model files are in the same folder as your app.py
@@ -56,14 +57,16 @@ def calculate_haralick_features(gray_image):
     return {name: val for name, val in zip(feature_names, features)}
 
 def calculate_tamura_features(gray_image):
-    """Calculates Tamura texture features."""
-    if gray_image.dtype != np.uint8:
-        gray_image = (gray_image / 256).astype(np.uint8)
-
+    """Calculates Tamura texture features using the pyfeats library."""
+    # pyfeats returns features in order: coarseness, contrast, directionality, etc.
+    feats, _ = pf.tamura_features(gray_image)
     features = {}
-    features['TamuraContrast'] = mahotas.features.tamura(gray_image, 0)
-    features['TamuraDirectionality'] = mahotas.features.tamura(gray_image, 1)
-    # Add other Tamura features if your KNIME model used them
+    features['TamuraContrast'] = feats[1] 
+    # The second feature returned is Contrast
+    
+    # The KNIME model may not have used Directionality, but if it did, this is how you'd add it:
+    # features['TamuraDirectionality'] = feats[2] 
+    
     return features
 
 def extract_all_features(image):
