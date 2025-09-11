@@ -37,17 +37,20 @@ def crop_and_resize_eye(image, target_size=(128, 128)):
     """
     st.info("Searching for conjunctiva using Roboflow...")
     
-    # Convert PIL Image to bytes for Roboflow API
+    # Convert PIL Image to bytes
     img_bytes = io.BytesIO()
     image.save(img_bytes, format='JPEG')
     img_bytes.seek(0)
     
+    # Encode the image data to base64
+    base64_image = base64.b64encode(img_bytes.read()).decode('utf-8')
+    
     try:
-        # Make a direct request to the Roboflow API with explicit headers
+        # Make a direct request to the Roboflow API with a JSON payload
         response = requests.post(
             f"{API_URL}?api_key={API_KEY}",
-            data=img_bytes.read(),
-            headers={"Content-Type": "image/jpeg"}
+            json={"image": {"type": "base64", "value": base64_image}},
+            headers={"Content-Type": "application/json"}
         )
         response.raise_for_status() # Raise an exception for bad status codes
         result = response.json()
