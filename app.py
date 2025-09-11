@@ -31,7 +31,8 @@ def crop_eye(image):
         # Make a direct request to the Roboflow API with a JSON payload
         response = requests.post(
             f"{API_URL}?api_key={API_KEY}",
-            json={"image": {"type": "base64", "value": base64_image}}
+            json={"image": {"type": "base64", "value": base64_image}},
+            headers={"Content-Type": "application/json"} # Explicitly set Content-Type header
         )
         response.raise_for_status() # Raise an exception for bad status codes
         result = response.json()
