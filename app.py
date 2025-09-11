@@ -4,14 +4,9 @@ import numpy as np
 import pandas as pd
 import knime
 from inference_sdk import InferenceHTTPClient
-import requests
 from io import BytesIO
-from skimage.feature import graycomatrix, graycoprops
-import mahotas
-from pyfeats.textural import tamura_features # CORRECTED IMPORT
 
 # --- KNIME & ROBOFLOW CONFIGURATION ---
-# Make sure these model files are in the same folder as your app.py
 REGRESSION_MODEL_PATH = 'hb_regression_model.zip'
 CLASSIFICATION_MODEL_PATH = 'anemia_classification_model.zip'
 
@@ -22,8 +17,7 @@ CLIENT = InferenceHTTPClient(
 )
 ROBOFLOW_MODEL_ID = "eye-conjunctiva-detector/2"
 
-# --- FEATURE EXTRACTION FUNCTIONS ---
-# These functions replicate what the "Image Features" node did in KNIME.
+# --- SIMPLIFIED FEATURE EXTRACTION FUNCTIONS ---
 
 def calculate_first_order_statistics(image_array):
     """Calculates basic statistics for an image."""
@@ -39,39 +33,18 @@ def calculate_first_order_statistics(image_array):
 
 def calculate_histogram(image_array, bins=64):
     """Calculates the histogram of an image."""
-    hist, _ = np.histogram(image_array.flatten(), bins=bins, range=(0, 256))
+    hist, _ = np.histogram(image_array.flatten(), bins=bins, range=(0, 255))
     return hist
-
-def calculate_haralick_features(gray_image):
-    """Calculates Haralick texture features."""
-    if gray_image.dtype != np.uint8:
-        gray_image = (gray_image / 256).astype(np.uint8)
-    
-    features = mahotas.features.haralick(gray_image).mean(axis=0)
-    feature_names = [
-        'ASM', 'Contrast', 'Correlation', 'Variance', 'IFDM', 'SumAverage',
-        'SumVariance', 'SumEntropy', 'Entropy', 'DifferenceVariance',
-        'DifferenceEntropy', 'ICM1', 'ICM2'
-    ]
-    return {name: val for name, val in zip(feature_names, features)}
-
-def calculate_tamura_features(gray_image):
-    """Calculates Tamura texture features using the pyfeats library."""
-    # It returns: coarseness, contrast, directionality, line-likeness, regularity, roughness
-    feats, labels = tamura_features(gray_image) # CORRECTED FUNCTION CALL
-    features = {}
-    features['TamuraContrast'] = feats[1] # Index 1 is Contrast
-    # The KNIME model may not have used Directionality, but if it did, this is how you'd add it:
-    # features['TamuraDirectionality'] = feats[2] # Index 2 is Directionality
-    return features
 
 def extract_all_features(image):
     """Main function to extract all required features from a PIL image."""
     img_array_color = np.array(image.convert('RGB'))
     img_array_gray = np.array(image.convert('L'))
 
+    # 1. First Order Statistics on grayscale
     first_order_stats = calculate_first_order_statistics(img_array_gray)
 
+    # 2. Histograms for each color channel
     hist_features = {}
     channels = ['Red', 'Green', 'Blue']
     for i, channel in enumerate(channels):
@@ -79,20 +52,17 @@ def extract_all_features(image):
         for j, val in enumerate(hist):
             hist_features[f'Hist_{channel}_bin_{j}'] = val
 
-    haralick_features = calculate_haralick_features(img_array_gray)
-    tamura_features = calculate_tamura_features(img_array_gray)
-
-    all_features = {**first_order_stats, **hist_features, **haralick_features, **tamura_features}
+    # Combine all features into one dictionary
+    all_features = {**first_order_stats, **hist_features}
     
+    # Convert to a pandas DataFrame for the KNIME model
     feature_df = pd.DataFrame([all_features])
     return feature_df
-
 
 # --- STREAMLIT APP LAYOUT ---
 
 st.set_page_config(layout="wide")
 st.title("👁️ Anemia Screening via Conjunctiva Image")
-
 st.write("Upload an image of an eye with the lower conjunctiva visible. The app will automatically detect and crop the area, then analyze it using our trained models.")
 
 uploaded_file = st.file_uploader("Choose an eye image...", type=["jpg", "jpeg", "png"])
@@ -102,10 +72,7 @@ if uploaded_file is not None:
         original_image = Image.open(uploaded_file).convert("RGB")
         st.image(original_image, caption='Original Uploaded Image', width=300)
 
-        # --- ROBOFLOW INFERENCE ---
         st.info("Detecting conjunctiva using Roboflow...")
-        
-        # Call Roboflow API
         result = CLIENT.infer(original_image, model_id=ROBOFLOW_MODEL_ID)
         
         if result['predictions']:
@@ -122,11 +89,8 @@ if uploaded_file is not None:
             
             st.success("Conjunctiva detected and cropped successfully!")
             
-            col1, col2 = st.columns(2)
-            with col1:
-                st.image(resized_image, caption='Cropped & Resized Conjunctiva (128x128)')
+            st.image(resized_image, caption='Cropped & Resized Conjunctiva (128x128)')
             
-            # --- MODEL PREDICTION ---
             with st.spinner('Extracting image features...'):
                 features_df = extract_all_features(resized_image)
             
@@ -141,7 +105,6 @@ if uploaded_file is not None:
                     
                     hb_prediction = prediction_table.iloc[0]['Prediction (hb)']
                     st.metric(label="Predicted Hemoglobin Level", value=f"{hb_prediction:.2f} g/dL")
-                    st.info("This is an estimation based on the visual features of the conjunctiva.")
 
             if st.button("Screen for Anemia"):
                 with st.spinner('Running classification model...'):
@@ -155,17 +118,14 @@ if uploaded_file is not None:
                     
                     if final_prediction == 1:
                         st.error(f"Anemia Detected (Probability: {anemia_probability:.1%})")
-                        st.warning("This screening suggests a high likelihood of anemia. Please consult a healthcare professional for a formal diagnosis.")
                     else:
                         st.success(f"No Anemia Detected (Probability of Anemia: {anemia_probability:.1%})")
-                        st.info("This screening suggests a low likelihood of anemia.")
 
             with st.expander("View Extracted Image Features"):
                 st.dataframe(features_df)
 
         else:
-            st.error("No conjunctiva was detected in the image. Please try another image with the eye clearly visible.")
+            st.error("No conjunctiva was detected in the image.")
 
     except Exception as e:
         st.error(f"An error occurred: {e}")
-        st.info("Please ensure the uploaded file is a valid image and try again.")
