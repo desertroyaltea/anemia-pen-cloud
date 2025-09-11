@@ -3,31 +3,12 @@ from PIL import Image
 import numpy as np
 import joblib
 import io
-import base64
 import requests
 from io import BytesIO
 
 # --- Roboflow Client Configuration ---
-# Note: The Roboflow client requires an active internet connection.
-# This client is used to get bounding boxes for the conjunctiva.
-# We will use the requests library directly to ensure proper headers.
 API_URL = "https://detect.roboflow.com/eye-conjunctiva-detector/2"
 API_KEY = "jMhyBQxeQvj69nttV0mN"
-
-# --- Model Loading ---
-# NOTE: This is a placeholder. These models were trained on tabular data
-# and cannot directly process images. This section demonstrates how you would
-# load the models if they were compatible.
-# The `mmap_mode` is set to None to handle potential protocol mismatches
-# between Python versions and environments (e.g., KNIME and Streamlit Cloud).
-try:
-    classification_model = joblib.load('anemia_classification_model.model', mmap_mode=None)
-    regression_model = joblib.load('hb_regression_model.model', mmap_mode=None)
-    models_loaded = True
-except Exception as e:
-    st.warning(f"Error loading models: {e}. The app will use mock predictions.")
-    models_loaded = False
-
 
 # --- Helper Function for Image Processing ---
 def crop_and_resize_eye(image, target_size=(128, 128)):
@@ -83,16 +64,10 @@ def crop_and_resize_eye(image, target_size=(128, 128)):
 
 
 # --- Streamlit App Interface ---
-st.set_page_config(page_title="Anemia Screening & Hb Estimation", layout="centered")
+st.set_page_config(page_title="Image Cropper", layout="centered")
 
-st.title("👁️‍🗨️ Anemia Screening and Hb Estimation")
-st.markdown("Upload a full eye image to screen for anemia or estimate hemoglobin (Hb) levels.")
-
-# User's choice
-option = st.selectbox(
-    "Choose your task:",
-    ("Screen for Anemia", "Estimate Hb")
-)
+st.title("Image Cropper and Conjunctiva Extractor")
+st.markdown("Upload a full eye image to get the cropped conjunctiva region.")
 
 # File uploader
 uploaded_file = st.file_uploader("Upload an eye image...", type=["jpg", "jpeg", "png"])
@@ -108,28 +83,3 @@ if uploaded_file:
     if processed_image:
         st.subheader("Processed Conjunctiva Image")
         st.image(processed_image, caption="Cropped and Resized Conjunctiva", use_column_width=True)
-        
-        # Perform prediction based on user's choice
-        st.subheader("Prediction")
-        
-        if option == "Screen for Anemia":
-            if models_loaded:
-                # Placeholder for real model inference
-                # In a real app, you would pass the processed_image to your model.
-                # For this demonstration, we use a mock prediction.
-                prediction = classification_model.predict(np.random.rand(1, 128*128*3))
-                result = "Possible Anemia" if prediction[0] == 1 else "No Anemia"
-                st.write(f"**Result:** {result}")
-            else:
-                # Mock prediction if model failed to load
-                st.warning("Using mock prediction due to model loading error.")
-                st.write(f"**Result:** Based on the conjunctiva, you are likely **Not Anemic**.")
-
-        elif option == "Estimate Hb":
-            if models_loaded:
-                # Placeholder for real model inference
-                prediction = regression_model.predict(np.random.rand(1, 128*128*3))
-                st.write(f"**Estimated Hb Level:** {prediction[0]:.2f} g/dL")
-            else:
-                st.warning("Using mock prediction due to model loading error.")
-                st.write(f"**Estimated Hb Level:** 13.5 g/dL (mock value)")
