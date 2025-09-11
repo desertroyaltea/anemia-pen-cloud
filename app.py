@@ -16,7 +16,12 @@ import cv2
 from scipy.stats import kurtosis
 import streamlit as st
 import joblib
+
+# NEW: extra stdlib for robust loading
 import pickle
+import gzip
+import zipfile
+import tempfile
 
 # -------------------- Settings -------------------- #
 DEFAULT_MODEL_ID = "eye-conjunctiva-detector/2"
@@ -31,75 +36,123 @@ FEATURE_COLUMNS = [
 
 st.set_page_config(page_title="Anemia Screening & Hb Estimation", layout="wide")
 
-def load_model_with_fallback(primary_path: str) -> Tuple[Optional[Any], str]:
-    """
-    Attempt to load a model saved via pickle/joblib. If that fails with an
-    UnpicklingError (e.g., KNIME .model format), fall back to a compatible
-    local .joblib model if available.
+# ---------------- Robust model loader ---------------- #
+def _read_magic(path: Path, n: int = 4) -> bytes:
+    with open(path, "rb") as f:
+        return f.read(n)
 
-    Returns (model, message). If model is None, message contains the error.
-    """
-    # 1) Try regular joblib load on the primary path
-    try:
-        return joblib.load(primary_path), f"Loaded: {primary_path}"
-    except (pickle.UnpicklingError, EOFError, AttributeError, ValueError, TypeError) as e:
-        # Likely not a Python pickle (e.g., KNIME .model). Try fallbacks below.
-        primary_err = e
-    except Exception as e:
-        primary_err = e
+def _try_joblib(path: Path):
+    return joblib.load(path)
 
-    # 2) Based on filename, pick best local .joblib fallback
-    fname = os.path.basename(primary_path).lower()
-    candidates: List[str] = []
-    if "anemia" in fname and "regression" not in fname:
-        # Classification fallback order (tuned > screening > base)
-        candidates = [
-            "anemia_classifier_tuned.joblib",
-            "anemia_classifier_screening.joblib",
-            "anemia_classifier.joblib",
-        ]
-    else:
-        # Hb regression fallback order (tuned > base)
-        candidates = [
-            "hb_regressor_tuned.joblib",
-            "hb_regressor.joblib",
-        ]
+def _try_pickle(path: Path, encoding: Optional[str] = None):
+    with open(path, "rb") as f:
+        # encoding='latin1' often fixes KNIME/py2 artifacts
+        if encoding:
+            return pickle.load(f, encoding=encoding)
+        return pickle.load(f)
 
-    for c in candidates:
-        if os.path.exists(c):
+def _try_gzip_pickle(path: Path):
+    with gzip.open(path, "rb") as f:
+        try:
+            return joblib.load(f)
+        except Exception:
+            f.seek(0)
+            return pickle.load(f, encoding="latin1")
+
+def _try_zip_container(path: Path):
+    # Some KNIME exports are zip containers with a pickled object inside
+    with zipfile.ZipFile(path, "r") as zf:
+        # Prefer common pickle names
+        candidates = [name for name in zf.namelist()
+                      if name.lower().endswith((".joblib", ".pkl", ".pickle"))]
+        if not candidates:
+            # If nothing obvious, try any single file
+            if len(zf.namelist()) == 1:
+                candidates = [zf.namelist()[0]]
+            else:
+                raise ValueError("ZIP contains no recognizable pickle/joblib.")
+        # Take the first candidate
+        name = candidates[0]
+        with zf.open(name, "r") as f:
+            data = f.read()
+        # Write to temp file so joblib/pickle can open it as usual
+        with tempfile.NamedTemporaryFile(suffix=Path(name).suffix, delete=False) as tmp:
+            tmp.write(data)
+            tmp_path = Path(tmp.name)
+        try:
             try:
-                m = joblib.load(c)
-                return m, f"Primary load failed ({type(primary_err).__name__}); fell back to {c}"
+                return joblib.load(tmp_path)
             except Exception:
-                continue
+                return pickle.load(open(tmp_path, "rb"), encoding="latin1")
+        finally:
+            try:
+                tmp_path.unlink(missing_ok=True)
+            except Exception:
+                pass
 
-    # 3) Nothing worked
-    return None, f"Failed to load {primary_path}: {primary_err} and no usable fallback found."
+def load_model_safely(path: str):
+    """
+    Loads a KNIME-exported RandomForest model (.model) robustly.
+    Tries: joblib -> pickle -> gzip+joblib/pickle -> zip container with inner pickle.
+    """
+    p = Path(path)
+    if not p.exists():
+        raise FileNotFoundError(f"Model file not found: {path}")
 
+    magic = _read_magic(p, n=4)
 
-# --- Model Loading (with robust fallbacks) ---
-anemia_model: Optional[Any]
-hb_model: Optional[Any]
+    # Fast path: plain joblib/pickle
+    try:
+        return _try_joblib(p)
+    except Exception:
+        pass
+    try:
+        return _try_pickle(p)
+    except Exception:
+        pass
+    try:
+        return _try_pickle(p, encoding="latin1")
+    except Exception:
+        pass
+
+    # GZIP?
+    if magic.startswith(b"\x1f\x8b"):
+        try:
+            return _try_gzip_pickle(p)
+        except Exception as e:
+            raise RuntimeError(f"GZIP model could not be unpickled: {e}") from e
+
+    # ZIP?
+    if magic[:2] == b"PK":
+        try:
+            return _try_zip_container(p)
+        except Exception as e:
+            raise RuntimeError(f"ZIP-wrapped model could not be loaded: {e}") from e
+
+    # If we got here, give a helpful error
+    raise RuntimeError(
+        "Unsupported .model format for Python unpickling. "
+        "If this is a KNIME learner saved in a non-Python format, export it as a "
+        "Python pickle/joblib (or PMML/ONNX and load via a compatible runtime)."
+    )
+
+# --- Model Loading ---
+anemia_model = None
+hb_model = None
 models_loaded = True
 
-anemia_model, anemia_msg = load_model_with_fallback("anemia_classification_model.model")
-if anemia_model is not None:
-    if anemia_msg.startswith("Loaded: "):
-        st.success("Anemia classification model loaded successfully.")
-    else:
-        st.info(anemia_msg)
-else:
-    st.error(anemia_msg)
+try:
+    anemia_model = load_model_safely("anemia_classification_model.model")
+    st.success("Anemia classification model loaded successfully.")
+except Exception as e:
+    st.error(f"Error loading anemia model: {e}")
     models_loaded = False
 
-hb_model, hb_msg = load_model_with_fallback("hb_regression_model.model")
-if hb_model is not None:
-    if hb_msg.startswith("Loaded: "):
-        st.success("Hb regression model loaded successfully.")
-    else:
-        st.info(hb_msg)
-else:
-    st.error(hb_msg)
+try:
+    hb_model = load_model_safely("hb_regression_model.model")
+    st.success("Hb regression model loaded successfully.")
+except Exception as e:
+    st.error(f"Error loading Hb model: {e}")
     models_loaded = False
 
 
