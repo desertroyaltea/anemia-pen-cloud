@@ -4,6 +4,7 @@ import numpy as np
 import joblib
 import io
 import requests
+import base64
 from io import BytesIO
 
 # --- Roboflow Client Configuration ---
@@ -22,13 +23,15 @@ def crop_eye(image):
     img_bytes = io.BytesIO()
     image.save(img_bytes, format='JPEG')
     img_bytes.seek(0)
+
+    # Encode the image data to base64
+    base64_image = base64.b64encode(img_bytes.read()).decode('utf-8')
     
     try:
-        # Make a direct request to the Roboflow API with explicit headers
+        # Make a direct request to the Roboflow API with a JSON payload
         response = requests.post(
             f"{API_URL}?api_key={API_KEY}",
-            data=img_bytes.read(),
-            headers={"Content-Type": "image/jpeg"}
+            json={"image": {"type": "base64", "value": base64_image}}
         )
         response.raise_for_status() # Raise an exception for bad status codes
         result = response.json()
