@@ -11,10 +11,10 @@ API_URL = "https://detect.roboflow.com/eye-conjunctiva-detector/2"
 API_KEY = "jMhyBQxeQvj69nttV0mN"
 
 # --- Helper Function for Image Processing ---
-def crop_and_resize_eye(image, target_size=(128, 128)):
+def crop_eye(image):
     """
     Crops the eye region from the image using the Roboflow API
-    and resizes the cropped image to the target size.
+    and returns the cropped image without resizing.
     """
     st.info("Searching for conjunctiva using Roboflow...")
     
@@ -50,9 +50,7 @@ def crop_and_resize_eye(image, target_size=(128, 128)):
         bottom = y + height / 2
         cropped_image = image.crop((left, top, right, bottom))
         
-        # Resize the cropped image
-        resized_image = cropped_image.resize(target_size, Image.Resampling.LANCZOS)
-        return resized_image
+        return cropped_image
     
     except requests.exceptions.RequestException as e:
         st.error(f"Failed to connect to Roboflow API. Please check your internet connection or API key. Error: {e}")
@@ -78,8 +76,8 @@ if uploaded_file:
     
     # Process the image
     image = Image.open(uploaded_file).convert("RGB")
-    processed_image = crop_and_resize_eye(image)
+    processed_image = crop_eye(image)
     
     if processed_image:
         st.subheader("Processed Conjunctiva Image")
-        st.image(processed_image, caption="Cropped and Resized Conjunctiva", use_column_width=True)
+        st.image(processed_image, caption="Cropped Conjunctiva", use_column_width=True)
