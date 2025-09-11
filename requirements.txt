@@ -1,10 +1,6 @@
 streamlit
-knime
-inference-sdk
 Pillow
 numpy
-pandas
-scikit-image
-mahotas
-opencv-python-headless
-pyfeats
+joblib
+scikit-learn
+inference-sdk
