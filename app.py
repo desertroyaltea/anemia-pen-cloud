@@ -41,10 +41,8 @@ def extract_all_features(image):
     img_array_color = np.array(image.convert('RGB'))
     img_array_gray = np.array(image.convert('L'))
 
-    # 1. First Order Statistics on grayscale
     first_order_stats = calculate_first_order_statistics(img_array_gray)
 
-    # 2. Histograms for each color channel
     hist_features = {}
     channels = ['Red', 'Green', 'Blue']
     for i, channel in enumerate(channels):
@@ -52,11 +50,14 @@ def extract_all_features(image):
         for j, val in enumerate(hist):
             hist_features[f'Hist_{channel}_bin_{j}'] = val
 
-    # Combine all features into one dictionary
     all_features = {**first_order_stats, **hist_features}
     
-    # Convert to a pandas DataFrame for the KNIME model
     feature_df = pd.DataFrame([all_features])
+    
+    # --- THIS IS THE CRITICAL FIX ---
+    # Sort the columns alphabetically to match the KNIME model's input order.
+    feature_df = feature_df.reindex(sorted(feature_df.columns), axis=1)
+    
     return feature_df
 
 # --- STREAMLIT APP LAYOUT ---
