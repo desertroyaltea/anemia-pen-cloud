@@ -5,6 +5,10 @@ import pandas as pd
 import knime
 from inference_sdk import InferenceHTTPClient
 from io import BytesIO
+import logging
+
+# --- Setup Logging ---
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # --- KNIME & ROBOFLOW CONFIGURATION ---
 REGRESSION_MODEL_PATH = 'hb_regression_model.zip'
@@ -17,10 +21,8 @@ CLIENT = InferenceHTTPClient(
 )
 ROBOFLOW_MODEL_ID = "eye-conjunctiva-detector/2"
 
-# --- FINAL, MATCHED FEATURE EXTRACTION FUNCTIONS ---
-
+# --- FEATURE EXTRACTION FUNCTIONS ---
 def calculate_first_order_statistics(image_array):
-    """Calculates the simplified set of statistics with KNIME's exact naming."""
     features = {}
     features['Min'] = np.min(image_array)
     features['Max'] = np.max(image_array)
@@ -34,28 +36,18 @@ def calculate_first_order_statistics(image_array):
     return features
 
 def calculate_grayscale_histogram(image_array, bins=64):
-    """Calculates the grayscale histogram with names that match KNIME."""
     hist, _ = np.histogram(image_array.flatten(), bins=bins, range=(0, 255))
     hist_features = {f'h_{i}': val for i, val in enumerate(hist)}
     return hist_features
 
 def extract_all_features(image):
-    """Main function to extract the simplified and matched feature set."""
     img_array_gray = np.array(image.convert('L'))
-
     first_order_stats = calculate_first_order_statistics(img_array_gray)
     histogram_features = calculate_grayscale_histogram(img_array_gray)
-
     all_features = {**first_order_stats, **histogram_features}
-    
     feature_df = pd.DataFrame([all_features])
-    
-    # Sort columns alphabetically to match the KNIME model's input order
     feature_df = feature_df.reindex(sorted(feature_df.columns), axis=1)
-    
-    # --- FINAL FIX: Force all data types to float to prevent mismatches ---
     feature_df = feature_df.astype(np.float64)
-    
     return feature_df
 
 # --- STREAMLIT APP LAYOUT ---
@@ -76,7 +68,6 @@ if uploaded_file is not None:
         if result['predictions']:
             pred = result['predictions'][0]
             x, y, width, height = pred['x'], pred['y'], pred['width'], pred['height']
-            
             x1, y1 = int(x - width / 2), int(y - height / 2)
             x2, y2 = int(x + width / 2), int(y + height / 2)
             
@@ -88,6 +79,16 @@ if uploaded_file is not None:
             
             with st.spinner('Extracting image features...'):
                 features_df = extract_all_features(resized_image)
+
+            # --- LOGGING FOR INVESTIGATION ---
+            logging.info("--- Python DataFrame Details ---")
+            logging.info(f"DataFrame Shape: {features_df.shape}")
+            logging.info("DataFrame Columns:")
+            for col in features_df.columns:
+                logging.info(f"  - {col}")
+            logging.info("DataFrame Data Types:")
+            logging.info(features_df.dtypes)
+            logging.info("---------------------------------")
             
             st.subheader("Choose an Analysis")
             
@@ -117,12 +118,7 @@ if uploaded_file is not None:
                             st.success(f"No Anemia Detected (Probability of Anemia: {anemia_probability:.1%})")
                     else:
                         st.error("Could not find the probability column in the model output.")
-
-            with st.expander("View Extracted Image Features"):
-                st.dataframe(features_df)
-
         else:
             st.error("No conjunctiva was detected in the image.")
-
     except Exception as e:
         st.error(f"An error occurred: {e}")
