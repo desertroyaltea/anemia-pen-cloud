@@ -4,17 +4,15 @@ import numpy as np
 import joblib
 import io
 import base64
-from inference_sdk import InferenceHTTPClient
 import requests
 from io import BytesIO
 
 # --- Roboflow Client Configuration ---
 # Note: The Roboflow client requires an active internet connection.
 # This client is used to get bounding boxes for the conjunctiva.
-CLIENT = InferenceHTTPClient(
-    api_url="https://serverless.roboflow.com",
-    api_key="jMhyBQxeQvj69nttV0mN"
-)
+# We will use the requests library directly to ensure proper headers.
+API_URL = "https://serverless.roboflow.com/model/eye-conjunctiva-detector/2"
+API_KEY = "jMhyBQxeQvj69nttV0mN"
 
 # --- Model Loading ---
 # NOTE: This is a placeholder. These models were trained on tabular data
@@ -45,12 +43,15 @@ def crop_and_resize_eye(image, target_size=(128, 128)):
     img_bytes.seek(0)
     
     try:
-        # Call the Roboflow API with the image passed as a positional argument.
-        # This is the most reliable way for the library to handle headers.
-        result = CLIENT.infer(
-            img_bytes.read(),
-            model_id="eye-conjunctiva-detector/2",
+        # Make a direct request to the Roboflow API with explicit headers
+        response = requests.post(
+            f"{API_URL}?api_key={API_KEY}",
+            data=img_bytes.read(),
+            headers={"Content-Type": "image/jpeg"}
         )
+        response.raise_for_status() # Raise an exception for bad status codes
+        result = response.json()
+        
         detections = result.get('predictions', [])
 
         if not detections:
@@ -74,6 +75,7 @@ def crop_and_resize_eye(image, target_size=(128, 128)):
     
     except requests.exceptions.RequestException as e:
         st.error(f"Failed to connect to Roboflow API. Please check your internet connection or API key. Error: {e}")
+        st.error(e)
         return None
     except Exception as e:
         st.error(f"An error occurred during image processing: {e}")
@@ -129,6 +131,5 @@ if uploaded_file:
                 prediction = regression_model.predict(np.random.rand(1, 128*128*3))
                 st.write(f"**Estimated Hb Level:** {prediction[0]:.2f} g/dL")
             else:
-                # Mock prediction if model failed to load
                 st.warning("Using mock prediction due to model loading error.")
                 st.write(f"**Estimated Hb Level:** 13.5 g/dL (mock value)")
