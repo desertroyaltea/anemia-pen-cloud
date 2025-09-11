@@ -16,6 +16,7 @@ import cv2
 from scipy.stats import kurtosis
 import streamlit as st
 import joblib
+import pickle
 
 # -------------------- Settings -------------------- #
 DEFAULT_MODEL_ID = "eye-conjunctiva-detector/2"
@@ -30,25 +31,75 @@ FEATURE_COLUMNS = [
 
 st.set_page_config(page_title="Anemia Screening & Hb Estimation", layout="wide")
 
-# --- Model Loading ---
-anemia_model = None
-hb_model = None
+def load_model_with_fallback(primary_path: str) -> Tuple[Optional[Any], str]:
+    """
+    Attempt to load a model saved via pickle/joblib. If that fails with an
+    UnpicklingError (e.g., KNIME .model format), fall back to a compatible
+    local .joblib model if available.
+
+    Returns (model, message). If model is None, message contains the error.
+    """
+    # 1) Try regular joblib load on the primary path
+    try:
+        return joblib.load(primary_path), f"Loaded: {primary_path}"
+    except (pickle.UnpicklingError, EOFError, AttributeError, ValueError, TypeError) as e:
+        # Likely not a Python pickle (e.g., KNIME .model). Try fallbacks below.
+        primary_err = e
+    except Exception as e:
+        primary_err = e
+
+    # 2) Based on filename, pick best local .joblib fallback
+    fname = os.path.basename(primary_path).lower()
+    candidates: List[str] = []
+    if "anemia" in fname and "regression" not in fname:
+        # Classification fallback order (tuned > screening > base)
+        candidates = [
+            "anemia_classifier_tuned.joblib",
+            "anemia_classifier_screening.joblib",
+            "anemia_classifier.joblib",
+        ]
+    else:
+        # Hb regression fallback order (tuned > base)
+        candidates = [
+            "hb_regressor_tuned.joblib",
+            "hb_regressor.joblib",
+        ]
+
+    for c in candidates:
+        if os.path.exists(c):
+            try:
+                m = joblib.load(c)
+                return m, f"Primary load failed ({type(primary_err).__name__}); fell back to {c}"
+            except Exception:
+                continue
+
+    # 3) Nothing worked
+    return None, f"Failed to load {primary_path}: {primary_err} and no usable fallback found."
+
+
+# --- Model Loading (with robust fallbacks) ---
+anemia_model: Optional[Any]
+hb_model: Optional[Any]
 models_loaded = True
 
-try:
-    with open('anemia_classification_model.model', 'rb') as f:
-        anemia_model = joblib.load(f)
-    st.success("Anemia classification model loaded successfully.")
-except Exception as e:
-    st.error(f"Error loading anemia model: {e}")
+anemia_model, anemia_msg = load_model_with_fallback("anemia_classification_model.model")
+if anemia_model is not None:
+    if anemia_msg.startswith("Loaded: "):
+        st.success("Anemia classification model loaded successfully.")
+    else:
+        st.info(anemia_msg)
+else:
+    st.error(anemia_msg)
     models_loaded = False
 
-try:
-    with open('hb_regression_model.model', 'rb') as f:
-        hb_model = joblib.load(f)
-    st.success("Hb regression model loaded successfully.")
-except Exception as e:
-    st.error(f"Error loading Hb model: {e}")
+hb_model, hb_msg = load_model_with_fallback("hb_regression_model.model")
+if hb_model is not None:
+    if hb_msg.startswith("Loaded: "):
+        st.success("Hb regression model loaded successfully.")
+    else:
+        st.info(hb_msg)
+else:
+    st.error(hb_msg)
     models_loaded = False
 
 
