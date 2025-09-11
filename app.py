@@ -13,56 +13,49 @@ CLASSIFICATION_MODEL_PATH = 'anemia_classification_model.zip'
 # Roboflow API configuration
 CLIENT = InferenceHTTPClient(
     api_url="https://serverless.roboflow.com",
-    api_key="jMhyBQxeQvj69nttV0mN" # Your Roboflow API key
+    api_key="jMhyBQxeQvj69nttV0mN" 
 )
 ROBOFLOW_MODEL_ID = "eye-conjunctiva-detector/2"
 
-# --- CORRECTED FEATURE EXTRACTION FUNCTIONS ---
+# --- FINAL, MATCHED FEATURE EXTRACTION FUNCTIONS ---
 
 def calculate_first_order_statistics(image_array):
-    """Calculates basic statistics using KNIME's exact naming convention."""
+    """Calculates the simplified set of statistics with KNIME's exact naming."""
     features = {}
-    # These names must exactly match the output of the KNIME Image Features node
-    features['Minimum'] = np.min(image_array)
-    features['Maximum'] = np.max(image_array)
+    features['Min'] = np.min(image_array)
+    features['Max'] = np.max(image_array)
     features['Mean'] = np.mean(image_array)
-    features['Std. Dev.'] = np.std(image_array) # Corrected name
+    features['Std Dev'] = np.std(image_array) # Exact name from your CSV
     features['Variance'] = np.var(image_array)
     features['Skewness'] = pd.Series(image_array.flatten()).skew()
     features['Kurtosis'] = pd.Series(image_array.flatten()).kurtosis()
+    features['Sum'] = np.sum(image_array)
+    features['Squares of Sum'] = np.sum(image_array)**2
     return features
 
-def calculate_histogram(image_array, bins=64):
-    """Calculates the histogram of an image."""
+def calculate_grayscale_histogram(image_array, bins=64):
+    """Calculates the grayscale histogram with names that match KNIME."""
     hist, _ = np.histogram(image_array.flatten(), bins=bins, range=(0, 255))
-    return hist
+    hist_features = {f'h_{i}': val for i, val in enumerate(hist)}
+    return hist_features
 
 def extract_all_features(image):
-    """Main function to extract features with KNIME's exact naming convention."""
-    img_array_color = np.array(image.convert('RGB'))
+    """Main function to extract the simplified and matched feature set."""
     img_array_gray = np.array(image.convert('L'))
 
     first_order_stats = calculate_first_order_statistics(img_array_gray)
+    histogram_features = calculate_grayscale_histogram(img_array_gray)
 
-    hist_features = {}
-    channels = ['Red', 'Green', 'Blue']
-    for i, channel in enumerate(channels):
-        hist = calculate_histogram(img_array_color[:, :, i])
-        for j, val in enumerate(hist):
-            # This naming format matches KNIME's histogram output
-            hist_features[f'[{channel}] Histogram bin {j}'] = val
-
-    all_features = {**first_order_stats, **hist_features}
+    all_features = {**first_order_stats, **histogram_features}
     
     feature_df = pd.DataFrame([all_features])
     
-    # Sort the columns alphabetically to match the KNIME model's input order
+    # Sort columns alphabetically to match the KNIME model's input order
     feature_df = feature_df.reindex(sorted(feature_df.columns), axis=1)
     
     return feature_df
 
 # --- STREAMLIT APP LAYOUT ---
-
 st.set_page_config(layout="wide")
 st.title("👁️ Anemia Screening via Conjunctiva Image")
 st.write("Upload an image of an eye with the lower conjunctiva visible. The app will automatically detect and crop the area, then analyze it using our trained models.")
@@ -81,16 +74,13 @@ if uploaded_file is not None:
             pred = result['predictions'][0]
             x, y, width, height = pred['x'], pred['y'], pred['width'], pred['height']
             
-            x1 = int(x - width / 2)
-            y1 = int(y - height / 2)
-            x2 = int(x + width / 2)
-            y2 = int(y + height / 2)
+            x1, y1 = int(x - width / 2), int(y - height / 2)
+            x2, y2 = int(x + width / 2), int(y + height / 2)
             
             cropped_image = original_image.crop((x1, y1, x2, y2))
             resized_image = cropped_image.resize((128, 128))
             
             st.success("Conjunctiva detected and cropped successfully!")
-            
             st.image(resized_image, caption='Cropped & Resized Conjunctiva (128x128)')
             
             with st.spinner('Extracting image features...'):
@@ -104,7 +94,6 @@ if uploaded_file is not None:
                         wf.data_table_inputs[0] = features_df
                         wf.execute()
                         prediction_table = wf.data_table_outputs[0]
-                    
                     hb_prediction = prediction_table.iloc[0]['Prediction (hb)']
                     st.metric(label="Predicted Hemoglobin Level", value=f"{hb_prediction:.2f} g/dL")
 
@@ -115,19 +104,16 @@ if uploaded_file is not None:
                         wf.execute()
                         prediction_table = wf.data_table_outputs[0]
                     
-                    # Ensure the probability column name is correct
-                    prob_col_name = 'P (Status=1)'
-                    if prob_col_name not in prediction_table.columns:
-                        # Fallback for different naming conventions
-                        prob_col_name = [col for col in prediction_table.columns if 'P (' in col and '=1' in col][0]
-
-                    anemia_probability = prediction_table.iloc[0][prob_col_name]
-                    final_prediction = 1 if anemia_probability > 0.5 else 0
-                    
-                    if final_prediction == 1:
-                        st.error(f"Anemia Detected (Probability: {anemia_probability:.1%})")
+                    prob_col_name = next((col for col in prediction_table.columns if 'P (' in col and '=1' in col), None)
+                    if prob_col_name:
+                        anemia_probability = prediction_table.iloc[0][prob_col_name]
+                        final_prediction = 1 if anemia_probability > 0.5 else 0
+                        if final_prediction == 1:
+                            st.error(f"Anemia Detected (Probability: {anemia_probability:.1%})")
+                        else:
+                            st.success(f"No Anemia Detected (Probability of Anemia: {anemia_probability:.1%})")
                     else:
-                        st.success(f"No Anemia Detected (Probability of Anemia: {anemia_probability:.1%})")
+                        st.error("Could not find the probability column in the model output.")
 
             with st.expander("View Extracted Image Features"):
                 st.dataframe(features_df)
