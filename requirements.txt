@@ -6,3 +6,4 @@ numpy
 pandas
 scikit-image
 mahotas
+opencv-python-headless
