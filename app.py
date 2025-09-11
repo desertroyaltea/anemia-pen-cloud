@@ -25,7 +25,7 @@ def calculate_first_order_statistics(image_array):
     features['Min'] = np.min(image_array)
     features['Max'] = np.max(image_array)
     features['Mean'] = np.mean(image_array)
-    features['Std Dev'] = np.std(image_array) # Exact name from your CSV
+    features['Std Dev'] = np.std(image_array)
     features['Variance'] = np.var(image_array)
     features['Skewness'] = pd.Series(image_array.flatten()).skew()
     features['Kurtosis'] = pd.Series(image_array.flatten()).kurtosis()
@@ -52,6 +52,9 @@ def extract_all_features(image):
     
     # Sort columns alphabetically to match the KNIME model's input order
     feature_df = feature_df.reindex(sorted(feature_df.columns), axis=1)
+    
+    # --- FINAL FIX: Force all data types to float to prevent mismatches ---
+    feature_df = feature_df.astype(np.float64)
     
     return feature_df
 
