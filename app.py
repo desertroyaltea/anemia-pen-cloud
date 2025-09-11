@@ -115,13 +115,10 @@ if uploaded_file is not None:
         # --- ROBOFLOW INFERENCE ---
         st.info("Detecting conjunctiva using Roboflow...")
 
-        # Convert PIL image to bytes for the API
-        buffered = BytesIO()
-        original_image.save(buffered, format="JPEG")
-        img_str = buffered.getvalue()
+
 
         # Call Roboflow API
-        result = CLIENT.infer(img_str, model_id=ROBOFLOW_MODEL_ID)
+        result = CLIENT.infer(original_image, model_id=ROBOFLOW_MODEL_ID)
 
         if result['predictions']:
             # Get the first prediction's bounding box
