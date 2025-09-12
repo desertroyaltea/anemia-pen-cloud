@@ -4,3 +4,4 @@ numpy
 joblib
 scikit-learn
 inference-sdk
+scikit-image
