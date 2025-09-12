@@ -1,34 +1,38 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import io, os, base64, json
+import os
+import io
+import json
+import base64
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple, List
 
+import streamlit as st
 import numpy as np
 import pandas as pd
+from PIL import Image, ImageOps
 import requests
-from PIL import Image, ImageOps, ImageDraw
+import joblib
+
+# Imaging / features
 import cv2
 from scipy.stats import kurtosis
 from scipy.ndimage import convolve
-import streamlit as st
-import joblib
-import pickle
-
-# NEW: vesselness tools
 from skimage import exposure, filters, morphology, measure
 from skimage.morphology import skeletonize
 
-# -------------------- Settings -------------------- #
-DEFAULT_MODEL_ID = "eye-conjunctiva-detector/2"
-DEFAULT_CLASS_NAME = "conjunctiva"
-DEFAULT_CONF_0_100 = 25
-# --------------------------------------------------- #
+# ---------- CONSTANTS ---------- #
+RUN_DIR = Path("models") / "run_20250912_152931"
+ANEMIA_MODEL_PATH = RUN_DIR / "anemia_rf.joblib"
+HB_MODEL_PATH     = RUN_DIR / "hb_rf.joblib"
+CLF_FEATS_PATH    = RUN_DIR / "clf_features.json"
+REG_FEATS_PATH    = RUN_DIR / "reg_features.json"
 
-st.set_page_config(page_title="Anemia Screening & Hb Estimation", layout="wide")
+DEFAULT_MODEL_ID  = "eye-conjunctiva-detector/2"
+DEFAULT_CLASS     = "conjunctiva"
+DEFAULT_CONF      = 25  # 0-100
 
-# ---------- Utilities ----------
+# ---------- UTILITIES ---------- #
 def exif_upright(pil_img: Image.Image) -> Image.Image:
     return ImageOps.exif_transpose(pil_img).convert("RGB")
 
@@ -40,15 +44,15 @@ def pil_to_jpeg_bytes(img: Image.Image, quality: int = 90) -> bytes:
 def to_b64_jpeg(img: Image.Image) -> str:
     return base64.b64encode(pil_to_jpeg_bytes(img, quality=90)).decode("utf-8")
 
-def roboflow_detect_b64(b64_str: str, model_id: str, api_key: str, conf_0_100: int) -> Dict[str, Any]:
+def roboflow_detect_b64(b64_str: str, model_id: str, api_key: str, conf_0_100: int, timeout: float = 60.0) -> dict:
     url = f"https://detect.roboflow.com/{model_id}"
     params = {"api_key": api_key, "confidence": str(conf_0_100), "format": "json"}
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
-    resp = requests.post(url, params=params, data=b64_str, headers=headers, timeout=60)
+    resp = requests.post(url, params=params, data=b64_str, headers=headers, timeout=timeout)
     resp.raise_for_status()
     return resp.json()
 
-def select_best_box(preds: List[Dict[str, Any]], target_class: str) -> Optional[Dict[str, Any]]:
+def select_best_box(preds, target_class: str):
     if not preds:
         return None
     target = [p for p in preds if str(p.get("class", "")).lower() == target_class.lower()]
@@ -56,7 +60,7 @@ def select_best_box(preds: List[Dict[str, Any]], target_class: str) -> Optional[
         return max(target, key=lambda p: p.get("confidence", 0.0))
     return max(preds, key=lambda p: p.get("confidence", 0.0))
 
-def crop_from_box(pil_img: Image.Image, box: Dict[str, Any]) -> Image.Image:
+def crop_from_box(pil_img: Image.Image, box: dict) -> Image.Image:
     x = float(box["x"]); y = float(box["y"])
     w = float(box["width"]); h = float(box["height"])
     left = int(round(x - w / 2.0)); top = int(round(y - h / 2.0))
@@ -67,23 +71,36 @@ def crop_from_box(pil_img: Image.Image, box: Dict[str, Any]) -> Image.Image:
         return pil_img.copy()
     return pil_img.crop((left, top, right, bottom))
 
-def draw_box_overlay(pil_img: Image.Image, box: Dict[str, Any]) -> Image.Image:
-    img = pil_img.copy()
-    draw = ImageDraw.Draw(img)
-    x = float(box["x"]); y = float(box["y"])
-    w = float(box["width"]); h = float(box["height"])
-    left = int(round(x - w / 2.0)); top = int(round(y - h / 2.0))
-    right = int(round(x + w / 2.0)); bottom = int(round(y + h / 2.0))
-    draw.rectangle([(left, top), (right, bottom)], outline=(255, 0, 0), width=3)
-    txt = f"{box.get('class','?')} {box.get('confidence',0.0):.2f}"
-    draw.text((left + 4, top + 4), txt, fill=(255, 0, 0))
-    return img
+# ---------- GLARE HELPERS ---------- #
+def detect_glare_mask(rgb: np.ndarray) -> np.ndarray:
+    """
+    Heuristic glare mask: high V (HSV) + low S, and near-maximum grayscale.
+    Returns binary mask {0,1} uint8.
+    """
+    hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV).astype(np.float32)
+    S = hsv[..., 1] / 255.0
+    V = hsv[..., 2] / 255.0
+    mask_hsv = (V > 0.90) & (S < 0.25)
 
-# ---------- Feature extraction ----------
-def compute_baseline_features(pil_img: Image.Image) -> Dict[str, float]:
-    """
-    14 baseline features (color/gray stats)
-    """
+    gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY).astype(np.float32) / 255.0
+    hi = float(np.quantile(gray, 0.995))  # top 0.5% brightest
+    mask_gray = gray >= hi
+
+    mask = (mask_hsv | mask_gray).astype(np.uint8)
+    kernel = np.ones((3, 3), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=1)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=1)
+    return mask
+
+def inpaint_glare(rgb: np.ndarray, mask: np.ndarray) -> np.ndarray:
+    """OpenCV Telea inpainting over glare mask."""
+    bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+    mask_u8 = (mask.astype(np.uint8) * 255)
+    out = cv2.inpaint(bgr, mask_u8, inpaintRadius=3, flags=cv2.INPAINT_TELEA)
+    return cv2.cvtColor(out, cv2.COLOR_BGR2RGB)
+
+# ---------- FEATURE EXTRACTION ---------- #
+def compute_baseline_features(pil_img: Image.Image) -> dict:
     rgb = np.array(pil_img.convert("RGB"), dtype=np.uint8)
     R = rgb[..., 0].astype(np.float32)
     G = rgb[..., 1].astype(np.float32)
@@ -99,39 +116,37 @@ def compute_baseline_features(pil_img: Image.Image) -> Dict[str, float]:
     R_norm = R / denom
 
     feats = {
+        "R_p50": float(np.percentile(R, 50)),
         "R_norm_p50": float(np.percentile(R_norm, 50)),
         "a_mean": float(np.mean(a)),
-        "R_p50": float(np.percentile(R, 50)),
         "R_p10": float(np.percentile(R, 10)),
-        "RG": float(np.mean(R) / (np.mean(G) + 1e-6)),
-        "S_p50": float(np.percentile(S, 50)),
-        "gray_p90": float(np.percentile(gray, 90)),
-        "gray_kurt": float(kurtosis(gray.ravel(), fisher=False, bias=False, nan_policy="omit")),
-        "gray_std": float(np.std(gray, ddof=0)),
         "gray_mean": float(np.mean(gray)),
-        "B_mean": float(np.mean(B)),
+        "RG": float(np.mean(R) / (np.mean(G) + 1e-6)),
+        "gray_kurt": float(kurtosis(gray.ravel(), fisher=False, bias=False, nan_policy="omit")),
+        "gray_p90": float(np.percentile(gray, 90)),
+        "S_p50": float(np.percentile(S, 50)),
         "B_p10": float(np.percentile(B, 10)),
+        "B_mean": float(np.mean(B)),
+        "gray_std": float(np.std(gray, ddof=0)),
         "B_p75": float(np.percentile(B, 75)),
-        "G_kurt": float(kurtosis(G.ravel(), fisher=False, bias=False, nan_policy="omit")),
+        "G_kurt": float(kurtosis(rgb[...,1].ravel(), fisher=False, bias=False, nan_policy="omit")),
     }
     return feats
 
 def vascularity_features_from_conjunctiva(rgb_u8: np.ndarray,
-                                          black_ridges: bool=True,
-                                          min_size:int=50,
-                                          area_threshold:int=50) -> Dict[str, float]:
+                                          black_ridges: bool = True,
+                                          min_size: int = 50,
+                                          area_threshold: int = 50) -> dict:
     """
-    Classical vesselness + skeletonization; no manual labels required.
+    Vesselness on CLAHE-equalized green channel + skeleton metrics.
+    NumPy 2.0-safe normalization.
     """
-    g = rgb_u8[...,1].astype(np.uint8)
-    g_eq = exposure.equalize_adapthist(g, clip_limit=0.01)  # CLAHE in [0,1]
+    g = rgb_u8[..., 1].astype(np.uint8)
+    g_eq = exposure.equalize_adapthist(g, clip_limit=0.01)  # CLAHE [0,1]
     vmap = filters.frangi(
-        g_eq,
-        sigmas=np.arange(1, 6, 1),
-        alpha=0.5, beta=0.5,
-        black_ridges=black_ridges
+        g_eq, sigmas=np.arange(1, 6, 1),
+        alpha=0.5, beta=0.5, black_ridges=black_ridges
     )
-    # NumPy 2.0 safe normalization
     vmap = (vmap - vmap.min()) / (np.ptp(vmap) + 1e-8)
 
     thr = filters.threshold_otsu(vmap)
@@ -142,20 +157,19 @@ def vascularity_features_from_conjunctiva(rgb_u8: np.ndarray,
     skel = skeletonize(mask)
 
     H, W = mask.shape
-    area = float(H*W)
+    area = float(H * W)
 
     vessel_area_fraction = float(mask.sum()) / area
-    mean_vesselness      = float(vmap.mean())
-    p90_vesselness       = float(np.percentile(vmap, 90))
+    mean_vesselness = float(vmap.mean())
+    p90_vesselness = float(np.percentile(vmap, 90))
 
-    skeleton_length      = float(skel.sum())
-    skeleton_len_per_area= skeleton_length / area
+    skeleton_length = float(skel.sum())
+    skeleton_len_per_area = skeleton_length / area
 
-    neigh = convolve(skel.astype(np.uint8), np.ones((3,3), dtype=np.uint8), mode='constant', cval=0)
+    neigh = convolve(skel.astype(np.uint8), np.ones((3, 3), dtype=np.uint8), mode='constant', cval=0)
     branches = ((skel) & (neigh >= 4))
     branchpoint_density = float(branches.sum()) / area
 
-    # simple tortuosity proxy
     lbl = measure.label(skel, connectivity=2)
     torts = []
     for region in measure.regionprops(lbl):
@@ -177,207 +191,163 @@ def vascularity_features_from_conjunctiva(rgb_u8: np.ndarray,
         "tortuosity_mean": tortuosity_mean,
     }
 
-def compute_all_features(pil_img: Image.Image) -> Dict[str, float]:
-    base = compute_baseline_features(pil_img)
-    rgb = np.array(pil_img.convert("RGB"), dtype=np.uint8)
-    vas  = vascularity_features_from_conjunctiva(rgb, black_ridges=True, min_size=50, area_threshold=50)
-    all_feats = {**base, **vas}
-    return all_feats
-
-# ---------- Model loading ----------
-def find_latest_run_dir(models_root: Path) -> Optional[Path]:
-    if not models_root.exists():
-        return None
-    run_dirs = sorted([p for p in models_root.iterdir() if p.is_dir() and p.name.startswith("run_")])
-    return run_dirs[-1] if run_dirs else None
-
-def load_model_bundle() -> Tuple[Optional[Any], Optional[Any], List[str], List[str], str]:
-    """
-    Returns:
-      anemia_model, hb_model, clf_cols, reg_cols, status_message
-    Strategy:
-      - Prefer newest models/run_*/ (joblib + feature jsons)
-      - Fall back to legacy .model files only if nothing else exists
-    """
-    models_root = Path("models")
-    run_dir = find_latest_run_dir(models_root)
-    if run_dir:
-        clf_path = run_dir / "anemia_rf.joblib"
-        reg_path = run_dir / "hb_rf.joblib"
-        clf_cols_path = run_dir / "clf_features.json"
-        reg_cols_path = run_dir / "reg_features.json"
-        try:
-            clf = joblib.load(clf_path)
-            reg = joblib.load(reg_path)
-            clf_cols = json.loads(clf_cols_path.read_text()) if clf_cols_path.exists() else []
-            reg_cols = json.loads(reg_cols_path.read_text()) if reg_cols_path.exists() else []
-            msg = f"Loaded models from {run_dir}"
-            return clf, reg, clf_cols, reg_cols, msg
-        except Exception as e:
-            # fall through to legacy loader
-            msg = f"Failed to load {run_dir} bundle: {e}. Trying legacy paths…"
+def extract_all_features_from_crop(crop_img: Image.Image) -> dict:
+    rgb = np.array(crop_img.convert("RGB"), dtype=np.uint8)
+    glare_mask = detect_glare_mask(rgb)
+    if glare_mask.sum() > 0:
+        rgb_proc = inpaint_glare(rgb, glare_mask)
     else:
-        msg = "No models/run_* folder found. Trying legacy paths…"
+        rgb_proc = rgb
 
-    # Legacy KNIME/other (these usually fail); try anyway then fallback to .joblib in CWD
-    def _try(primary_path: str, fallbacks: List[str]) -> Tuple[Optional[Any], str]:
-        try:
-            return joblib.load(primary_path), f"Loaded: {primary_path}"
-        except Exception as e:
-            for c in fallbacks:
-                if Path(c).exists():
-                    try:
-                        return joblib.load(c), f"Primary load failed ({type(e).__name__}); fell back to {c}"
-                    except Exception:
-                        continue
-            return None, f"Failed to load {primary_path}: {e}"
+    base = compute_baseline_features(Image.fromarray(rgb_proc))
+    vas  = vascularity_features_from_conjunctiva(rgb_proc, black_ridges=True, min_size=50, area_threshold=50)
+    out = {"glare_frac": float(glare_mask.mean())}
+    out.update(base); out.update(vas)
+    return out
 
-    anemia_model, anemia_msg = _try(
-        "anemia_classification_model.model",
-        ["anemia_rf.joblib", "anemia_classifier.joblib"]
-    )
-    hb_model, hb_msg = _try(
-        "hb_regression_model.model",
-        ["hb_rf.joblib", "hb_regressor.joblib"]
-    )
+# ---------- MODEL LOADING (cached) ---------- #
+@st.cache_resource(show_spinner=False)
+def load_artifacts(run_dir: Path):
+    if not run_dir.exists():
+        raise FileNotFoundError(f"Run folder not found: {run_dir}")
+    clf = joblib.load(run_dir / "anemia_rf.joblib")
+    rgr = joblib.load(run_dir / "hb_rf.joblib")
+    with open(run_dir / "clf_features.json", "r", encoding="utf-8") as f:
+        clf_features = json.load(f)
+    with open(run_dir / "reg_features.json", "r", encoding="utf-8") as f:
+        reg_features = json.load(f)
+    return clf, rgr, clf_features, reg_features
 
-    # If we got both, require feature lists (else assume baseline 14)
-    clf_cols = []
-    reg_cols = []
-    if anemia_model is not None and Path("clf_features.json").exists():
-        clf_cols = json.loads(Path("clf_features.json").read_text())
-    if hb_model is not None and Path("reg_features.json").exists():
-        reg_cols = json.loads(Path("reg_features.json").read_text())
+# ---------- STREAMLIT UI ---------- #
+st.set_page_config(page_title="Conjunctiva Anemia Screener + Hb Estimator", layout="centered")
 
-    status = "; ".join([msg, anemia_msg, hb_msg])
-    return anemia_model, hb_model, clf_cols, reg_cols, status
-
-def align_features(row_dict: Dict[str, float], required_cols: List[str]) -> pd.DataFrame:
-    """
-    Build a 1-row DataFrame with exactly 'required_cols' in this order.
-    Missing features are filled with 0. Extra keys are ignored.
-    """
-    data = {c: float(row_dict.get(c, 0.0)) for c in required_cols}
-    return pd.DataFrame([data], columns=required_cols)
-
-# ---------- UI ----------
-st.title("Anemia Screening & Hb Estimation")
+st.title("Conjunctiva Anemia Screening & Hb Estimation")
+st.caption("Uses latest trained models from **models/run_20250912_152931** with glare handling and vascularity features.")
 
 with st.sidebar:
     st.header("Settings")
-    api_key = st.text_input(
-        "Roboflow API Key",
-        value=os.getenv("ROBOFLOW_API_KEY", ""),
-        type="password",
-        help="Stored only in your session. Or set env var ROBOFLOW_API_KEY.",
-    )
-    model_id = st.text_input("Roboflow Model ID", value=DEFAULT_MODEL_ID)
-    class_name = st.text_input("Target class", value=DEFAULT_CLASS_NAME, help="Class to prefer when multiple detections")
-    conf = st.slider("Confidence threshold (0–100)", min_value=1, max_value=100, value=DEFAULT_CONF_0_100)
+    mode = st.radio("Task", ["Screen for Anemia", "Estimate Hb"], index=0)
 
-    st.markdown("---")
-    task_option = st.radio("Choose your task:", ("Estimate Hb", "Screen for Anemia"), horizontal=False)
+    # Inputs required by models
+    age = st.number_input("Age (years)", min_value=0, max_value=120, value=None, step=1, format="%d")
+    gender_choice = st.selectbox("Gender (for Hb model)", ["Prefer not to say", "Female", "Male"], index=0)
 
-uploaded = st.file_uploader("Upload a full-eye photo", type=["jpg", "jpeg", "png", "bmp", "tif", "tiff", "webp"])
+    # Classification display options
+    thresh = st.slider("Anemia decision threshold (P[anemia])", 0.10, 0.90, 0.50, 0.01)
 
-colL, colR = st.columns([1, 1])
-with colL: st.subheader("1) Original / Detection")
-with colR: st.subheader("2) Cropped Conjunctiva")
+    st.divider()
+    st.subheader("Roboflow")
+    rf_api_key = st.text_input("API Key", value=os.getenv("ROBOFLOW_API_KEY", ""), type="password")
+    model_id = st.text_input("Model ID", value=DEFAULT_MODEL_ID)
+    target_class = st.text_input("Target Class", value=DEFAULT_CLASS)
+    conf = st.slider("Detection confidence (0–100)", 0, 100, DEFAULT_CONF, 1)
 
-process = st.button("Run Prediction", type="primary", disabled=(uploaded is None))
+    st.caption("Tip: set an environment variable ROBOFLOW_API_KEY for convenience.")
 
-# --------- Load models once ---------
-@st.cache_resource(show_spinner=True)
-def _load_models():
-    return load_model_bundle()
+uploaded = st.file_uploader("Upload a full-eye image", type=["jpg","jpeg","png","bmp","tif","tiff","webp"])
 
-anemia_model, hb_model, clf_cols, reg_cols, load_msg = _load_models()
+# ---------- MAIN ACTION ---------- #
+if uploaded is not None:
+    # Validate required metadata
+    if age is None:
+        st.warning("Please enter **Age** in the sidebar (required).")
+        st.stop()
 
-if anemia_model is None or hb_model is None:
-    st.info(load_msg)
+    # Gender mapping for reg model
+    gender_map = {"Female": 0.0, "Male": 1.0, "Prefer not to say": np.nan}
+    gender_val = gender_map.get(gender_choice, np.nan)
 
-# ----------------- Main action ----------------- #
-if process:
-    if uploaded is None:
-        st.warning("Please upload an image."); st.stop()
-    if not api_key:
-        st.error("Missing Roboflow API key."); st.stop()
-    if anemia_model is None and task_option == "Screen for Anemia":
-        st.error("Anemia model not loaded."); st.stop()
-    if hb_model is None and task_option == "Estimate Hb":
-        st.error("Hb model not loaded."); st.stop()
-
-    # Open + upright
+    # Load models & feature lists
     try:
-        pil_full = Image.open(io.BytesIO(uploaded.read()))
+        clf, rgr, clf_features, reg_features = load_artifacts(RUN_DIR)
+    except Exception as e:
+        st.error(f"Failed to load models or feature lists from {RUN_DIR}: {e}")
+        st.stop()
+
+    # Read image and run Roboflow detect
+    try:
+        pil_full = Image.open(uploaded)
         pil_full = exif_upright(pil_full)
-    except Exception as e:
-        st.error(f"Failed to open image: {e}"); st.stop()
+        st.image(pil_full, caption="Uploaded Image (uprighted)", use_container_width=True)
 
-    # Detect
-    try:
+        if not rf_api_key:
+            st.warning("Enter your **Roboflow API Key** in the sidebar.")
+            st.stop()
+
         b64 = to_b64_jpeg(pil_full)
-        rf_json = roboflow_detect_b64(b64, model_id=model_id, api_key=api_key, conf_0_100=int(conf))
+        rf_json = roboflow_detect_b64(b64, model_id=model_id, api_key=rf_api_key, conf_0_100=int(conf))
         preds = rf_json.get("predictions", [])
-        best = select_best_box(preds, target_class=class_name)
+        best = select_best_box(preds, target_class=target_class)
         if best is None:
-            st.warning("No detection found. Try lowering the confidence threshold or using a clearer image."); st.stop()
-    except Exception as e:
-        st.error(f"Roboflow error: {e}"); st.stop()
+            st.error("No conjunctiva detected. Try a clearer photo or lower the confidence.")
+            st.stop()
 
-    # Draw & crop
-    try:
-        overlay = draw_box_overlay(pil_full, best)
         crop = crop_from_box(pil_full, best)
+        st.image(crop, caption="Detected Conjunctiva (crop)", use_container_width=True)
+
     except Exception as e:
-        st.error(f"Cropping error: {e}"); st.stop()
+        st.error(f"Roboflow detection/cropping failed: {e}")
+        st.stop()
 
-    with colL:
-        st.image(overlay, caption=f"Detection: {best.get('class','?')} (conf {best.get('confidence',0.0):.2f})", use_container_width=True)
-    with colR:
-        st.image(crop, caption="Cropped conjunctiva", use_container_width=True)
-
-    # Features (baseline + vascularity)
+    # Extract features from crop (with glare inpaint)
     try:
-        feats_all = compute_all_features(crop)
+        feats = extract_all_features_from_crop(crop)
+        # Add Age / GENDER fields if models require them
+        feats["Age"] = float(age)
+        feats["GENDER"] = float(gender_val) if not np.isnan(gender_val) else np.nan
     except Exception as e:
-        st.error(f"Feature extraction error: {e}"); st.stop()
+        st.error(f"Feature extraction failed: {e}")
+        st.stop()
 
-    st.markdown("---"); st.subheader("3) Result")
-
-    # Column lists for each model (fallback to baseline 14 if json lists missing)
-    baseline14 = [
-        "R_norm_p50", "a_mean", "R_p50", "R_p10", "RG", "S_p50",
-        "gray_p90", "gray_kurt", "gray_std", "gray_mean",
-        "B_mean", "B_p10", "B_p75", "G_kurt"
-    ]
-    clf_required = clf_cols if clf_cols else baseline14
-    reg_required = reg_cols if reg_cols else baseline14
-
-    if task_option == "Estimate Hb":
-        try:
-            X = align_features(feats_all, reg_required)
-            pred = float(hb_model.predict(X)[0])
-            st.metric(label="Estimated Hb (g/dL)", value=f"{pred:.2f}")
-        except Exception as e:
-            st.error(f"Prediction error: {e}")
-    else:
-        try:
-            X = align_features(feats_all, clf_required)
-            pred = int(anemia_model.predict(X)[0])
-            if pred == 1:
-                st.warning("**Result:** Possible Anemia")
+    # Build per-task feature vectors and predict
+    # We'll fill any missing values with simple defaults (0.0) and warn.
+    # (Your models were trained after median imputation; if you want identical behavior,
+    #  we can store medians during training and load them here. For now we use 0.0 fallback.)
+    def build_vector(required_feats, feat_dict):
+        x = []
+        missing = []
+        for f in required_feats:
+            if f in feat_dict and feat_dict[f] is not None and not (isinstance(feat_dict[f], float) and np.isnan(feat_dict[f])):
+                x.append(float(feat_dict[f]))
             else:
-                st.success("**Result:** Not Anemic")
+                x.append(0.0)  # fallback
+                missing.append(f)
+        return np.array([x], dtype=np.float32), missing
+
+    st.divider()
+    if mode == "Screen for Anemia":
+        Xc, miss_c = build_vector(clf_features, feats)
+        if miss_c:
+            st.info(f"Some classifier features missing; using 0.0 for: {', '.join(miss_c)}")
+
+        try:
+            if hasattr(clf, "predict_proba"):
+                p1 = float(clf.predict_proba(Xc)[0, 1])
+            else:
+                # fallback to decision_function scaled
+                score = float(clf.decision_function(Xc)[0])
+                p1 = 1.0 / (1.0 + np.exp(-score))
+            label = "Possible Anemia" if p1 >= thresh else "Likely Not Anemia"
+            st.subheader("Anemia Screening Result")
+            st.markdown(f"**{label}**  •  P(anemia) = **{p1:.2%}**  •  Threshold = {thresh:.2f}")
         except Exception as e:
-            st.error(f"Prediction error: {e}")
+            st.error(f"Classification failed: {e}")
 
-    # Show feature values we computed (for transparency)
-    with st.expander("Extracted features (baseline + vascularity)"):
-        st.dataframe(pd.DataFrame([feats_all]).T.rename(columns={0: "value"}))
+    else:
+        Xr, miss_r = build_vector(reg_features, feats)
+        if miss_r:
+            st.info(f"Some regression features missing; using 0.0 for: {', '.join(miss_r)}")
+        try:
+            hb_pred = float(rgr.predict(Xr)[0])
+            st.subheader("Hemoglobin (Hb) Estimate")
+            st.markdown(f"**Estimated Hb: {hb_pred:.2f} g/dL**")
+        except Exception as e:
+            st.error(f"Regression failed: {e}")
 
-    with st.expander("Advanced / Debug info"):
-        st.write("Model load:", load_msg)
-        st.write("Roboflow best box:", best)
-        st.write("Classifier expects columns:", clf_required)
-        st.write("Regressor expects columns:", reg_required)
+    # Show feature table actually used (for transparency)
+    with st.expander("Show extracted feature values"):
+        df_show = pd.DataFrame([feats]).T
+        df_show.columns = ["value"]
+        st.dataframe(df_show, use_container_width=True)
+
+    st.caption("Note: This tool is for screening/estimation only and not a diagnostic device.")
