@@ -1,0 +1,17 @@
+[
+  "R_p10",
+  "R_p50",
+  "R_norm_p50",
+  "a_mean",
+  "RG",
+  "gray_mean",
+  "G_kurt",
+  "B_p10",
+  "S_p50",
+  "gray_p90",
+  "gray_kurt",
+  "B_p75",
+  "B_mean",
+  "gray_std",
+  "tortuosity_mean"
+]

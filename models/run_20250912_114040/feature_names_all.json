@@ -1,0 +1,22 @@
+[
+  "R_norm_p50",
+  "a_mean",
+  "R_p50",
+  "R_p10",
+  "RG",
+  "S_p50",
+  "gray_p90",
+  "gray_kurt",
+  "gray_std",
+  "gray_mean",
+  "B_mean",
+  "B_p10",
+  "B_p75",
+  "G_kurt",
+  "vessel_area_fraction",
+  "mean_vesselness",
+  "p90_vesselness",
+  "skeleton_len_per_area",
+  "branchpoint_density",
+  "tortuosity_mean"
+]

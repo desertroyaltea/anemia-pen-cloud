@@ -1,0 +1,14 @@
+[
+  "a_mean",
+  "R_norm_p50",
+  "RG",
+  "R_p10",
+  "R_p50",
+  "S_p50",
+  "B_p10",
+  "gray_mean",
+  "Age",
+  "gray_kurt",
+  "G_kurt",
+  "skeleton_len_per_area"
+]

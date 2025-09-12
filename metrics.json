@@ -1,0 +1,63 @@
+{
+  "n_samples": 209,
+  "n_features": 22,
+  "features": [
+    "Age",
+    "GENDER",
+    "R_norm_p50",
+    "a_mean",
+    "R_p50",
+    "R_p10",
+    "RG",
+    "S_p50",
+    "gray_p90",
+    "gray_kurt",
+    "gray_std",
+    "gray_mean",
+    "B_mean",
+    "B_p10",
+    "B_p75",
+    "G_kurt",
+    "vessel_area_fraction",
+    "mean_vesselness",
+    "p90_vesselness",
+    "skeleton_len_per_area",
+    "branchpoint_density",
+    "tortuosity_mean"
+  ],
+  "non_numeric_values_coerced": {
+    "GENDER": 209
+  },
+  "classification": {
+    "holdout_accuracy": 0.7301587301587301,
+    "holdout_precision": 0.6666666666666666,
+    "holdout_recall": 0.7857142857142857,
+    "holdout_f1": 0.7213114754098361,
+    "holdout_roc_auc": 0.7979591836734694,
+    "cv_best_params": {
+      "bootstrap": true,
+      "max_depth": null,
+      "max_features": "sqrt",
+      "min_samples_leaf": 2,
+      "min_samples_split": 2,
+      "n_estimators": 800
+    },
+    "cv_best_score_roc_auc": 0.8727752639517344
+  },
+  "regression": {
+    "holdout_r2": 0.46162506281082816,
+    "holdout_mae": 1.3770843675751459,
+    "holdout_rmse": 1.6921721540775863,
+    "cv_best_params": {
+      "bootstrap": true,
+      "max_depth": 10,
+      "max_features": "sqrt",
+      "min_samples_leaf": 1,
+      "min_samples_split": 2,
+      "n_estimators": 800
+    },
+    "cv_best_score_r2": 0.42440041782618254
+  },
+  "test_size": 0.3,
+  "random_state": 42
+}
