@@ -1,5 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+Streamlit app for Conjunctiva-based Anemia Screening & Hb Estimation
+
+This version is locked to the FAST extraction models trained WITHOUT Age/GENDER:
+- Run folder: models/run_20250912_173617
+- Uses glare masking + inpainting and vascularity features
+- Extracts EXACT features required by the models
+
+Requirements:
+  streamlit numpy pandas pillow requests opencv-python scikit-image scipy joblib
+"""
 
 import os
 import io
@@ -21,18 +32,32 @@ from scipy.ndimage import convolve
 from skimage import exposure, filters, morphology, measure
 from skimage.morphology import skeletonize
 
-# ---------- CONSTANTS ---------- #
-RUN_DIR = Path("models") / "run_20250912_152931"
+# ---------- MODEL ARTIFACTS (locked to this run) ---------- #
+RUN_DIR = Path("models") / "run_20250912_173617"
 ANEMIA_MODEL_PATH = RUN_DIR / "anemia_rf.joblib"
 HB_MODEL_PATH     = RUN_DIR / "hb_rf.joblib"
 CLF_FEATS_PATH    = RUN_DIR / "clf_features.json"
 REG_FEATS_PATH    = RUN_DIR / "reg_features.json"
 
+# Fallbacks (used only if JSON files are not found in RUN_DIR)
+FALLBACK_CLF_FEATURES = [
+    "R_p50","R_norm_p50","R_p10","a_mean","RG","gray_mean",
+    "gray_kurt","S_p50","gray_p90","B_p10","glare_frac","G_kurt",
+    "B_mean","mean_vesselness","B_p75","p90_vesselness","tortuosity_mean","gray_std"
+]
+FALLBACK_REG_FEATURES = [
+    "a_mean","R_norm_p50","RG","R_p50","R_p10","S_p50","tortuosity_mean",
+    "gray_mean","gray_kurt","B_p10","glare_frac","G_kurt","gray_std",
+    "skeleton_len_per_area","B_p75","vessel_area_fraction","gray_p90",
+    "B_mean","branchpoint_density","p90_vesselness","mean_vesselness"
+]
+
+# ---------- ROBOFLOW SETTINGS ---------- #
 DEFAULT_MODEL_ID  = "eye-conjunctiva-detector/2"
 DEFAULT_CLASS     = "conjunctiva"
 DEFAULT_CONF      = 25  # 0-100
 
-# ---------- UTILITIES ---------- #
+# ---------- UTILS ---------- #
 def exif_upright(pil_img: Image.Image) -> Image.Image:
     return ImageOps.exif_transpose(pil_img).convert("RGB")
 
@@ -212,56 +237,49 @@ def load_artifacts(run_dir: Path):
         raise FileNotFoundError(f"Run folder not found: {run_dir}")
     clf = joblib.load(run_dir / "anemia_rf.joblib")
     rgr = joblib.load(run_dir / "hb_rf.joblib")
-    with open(run_dir / "clf_features.json", "r", encoding="utf-8") as f:
-        clf_features = json.load(f)
-    with open(run_dir / "reg_features.json", "r", encoding="utf-8") as f:
-        reg_features = json.load(f)
+    # Prefer JSONs from the run; otherwise use fallbacks locked to this model family
+    try:
+        with open(run_dir / "clf_features.json", "r", encoding="utf-8") as f:
+            clf_features = json.load(f)
+    except Exception:
+        clf_features = FALLBACK_CLF_FEATURES
+    try:
+        with open(run_dir / "reg_features.json", "r", encoding="utf-8") as f:
+            reg_features = json.load(f)
+    except Exception:
+        reg_features = FALLBACK_REG_FEATURES
     return clf, rgr, clf_features, reg_features
 
 # ---------- STREAMLIT UI ---------- #
-st.set_page_config(page_title="Conjunctiva Anemia Screener + Hb Estimator", layout="centered")
+st.set_page_config(page_title="Conjunctiva Anemia Screener + Hb Estimator (No Age/GENDER)", layout="centered")
 
 st.title("Conjunctiva Anemia Screening & Hb Estimation")
-st.caption("Uses latest trained models from **models/run_20250912_152931** with glare handling and vascularity features.")
+st.caption("Using FAST extraction models trained **without** Age/GENDER • "
+           "Artifacts loaded from **models/run_20250912_173617**.")
 
 with st.sidebar:
     st.header("Settings")
     mode = st.radio("Task", ["Screen for Anemia", "Estimate Hb"], index=0)
 
-    # Inputs required by models
-    age = st.number_input("Age (years)", min_value=0, max_value=120, value=None, step=1, format="%d")
-    gender_choice = st.selectbox("Gender (for Hb model)", ["Prefer not to say", "Female", "Male"], index=0)
-
     # Classification display options
     thresh = st.slider("Anemia decision threshold (P[anemia])", 0.10, 0.90, 0.50, 0.01)
 
-    st.divider()
-    st.subheader("Roboflow")
+    st.subheader("Roboflow Detection")
     rf_api_key = st.text_input("API Key", value=os.getenv("ROBOFLOW_API_KEY", ""), type="password")
     model_id = st.text_input("Model ID", value=DEFAULT_MODEL_ID)
     target_class = st.text_input("Target Class", value=DEFAULT_CLASS)
     conf = st.slider("Detection confidence (0–100)", 0, 100, DEFAULT_CONF, 1)
-
-    st.caption("Tip: set an environment variable ROBOFLOW_API_KEY for convenience.")
+    st.caption("Tip: set environment variable ROBOFLOW_API_KEY for convenience.")
 
 uploaded = st.file_uploader("Upload a full-eye image", type=["jpg","jpeg","png","bmp","tif","tiff","webp"])
 
 # ---------- MAIN ACTION ---------- #
 if uploaded is not None:
-    # Validate required metadata
-    if age is None:
-        st.warning("Please enter **Age** in the sidebar (required).")
-        st.stop()
-
-    # Gender mapping for reg model
-    gender_map = {"Female": 0.0, "Male": 1.0, "Prefer not to say": np.nan}
-    gender_val = gender_map.get(gender_choice, np.nan)
-
     # Load models & feature lists
     try:
         clf, rgr, clf_features, reg_features = load_artifacts(RUN_DIR)
     except Exception as e:
-        st.error(f"Failed to load models or feature lists from {RUN_DIR}: {e}")
+        st.error(f"Failed to load models/features from {RUN_DIR}: {e}")
         st.stop()
 
     # Read image and run Roboflow detect
@@ -292,26 +310,21 @@ if uploaded is not None:
     # Extract features from crop (with glare inpaint)
     try:
         feats = extract_all_features_from_crop(crop)
-        # Add Age / GENDER fields if models require them
-        feats["Age"] = float(age)
-        feats["GENDER"] = float(gender_val) if not np.isnan(gender_val) else np.nan
     except Exception as e:
         st.error(f"Feature extraction failed: {e}")
         st.stop()
 
     # Build per-task feature vectors and predict
-    # We'll fill any missing values with simple defaults (0.0) and warn.
-    # (Your models were trained after median imputation; if you want identical behavior,
-    #  we can store medians during training and load them here. For now we use 0.0 fallback.)
     def build_vector(required_feats, feat_dict):
         x = []
         missing = []
         for f in required_feats:
-            if f in feat_dict and feat_dict[f] is not None and not (isinstance(feat_dict[f], float) and np.isnan(feat_dict[f])):
-                x.append(float(feat_dict[f]))
-            else:
-                x.append(0.0)  # fallback
+            val = feat_dict.get(f, None)
+            if val is None or (isinstance(val, float) and np.isnan(val)):
+                x.append(0.0)  # fallback; for exact training behavior, we can add saved medians later
                 missing.append(f)
+            else:
+                x.append(float(val))
         return np.array([x], dtype=np.float32), missing
 
     st.divider()
@@ -324,7 +337,6 @@ if uploaded is not None:
             if hasattr(clf, "predict_proba"):
                 p1 = float(clf.predict_proba(Xc)[0, 1])
             else:
-                # fallback to decision_function scaled
                 score = float(clf.decision_function(Xc)[0])
                 p1 = 1.0 / (1.0 + np.exp(-score))
             label = "Possible Anemia" if p1 >= thresh else "Likely Not Anemia"
@@ -350,4 +362,4 @@ if uploaded is not None:
         df_show.columns = ["value"]
         st.dataframe(df_show, use_container_width=True)
 
-    st.caption("Note: This tool is for screening/estimation only and not a diagnostic device.")
+st.caption("Note: For screening/estimation only — not a diagnostic device.")
