@@ -327,6 +327,7 @@ if uploaded is not None:
 
     st.divider()
     if mode == "Screen for Anemia":
+        st.subheader("Anemia Screening Result")
         st.caption(f"Using anemia screening model: **{ANEMIA_SCREENING_RUN_DIR}**")
         try:
             clf = load_anemia_model()
@@ -339,13 +340,20 @@ if uploaded is not None:
             else:
                 score = float(clf.decision_function(Xc)[0])
                 p1 = 1.0 / (1.0 + np.exp(-score))
-            label = "Possible Anemia" if p1 >= thresh else "Likely Not Anemia"
-            st.subheader("Anemia Screening Result")
-            st.markdown(f"**{label}** •  P(anemia) = **{p1:.2%}** •  Threshold = {thresh:.2f}")
+            
+            # --- NEW: Display results with more OOMPH ---
+            if p1 >= thresh:
+                st.error("POSSIBLE ANEMIA", icon="⚠️")
+                st.markdown(f"<p style='font-size: 20px;'>The model predicted a <b>{p1:.1%} chance of anemia</b>, which is above the threshold of {thresh:.1%}.</p>", unsafe_allow_html=True)
+            else:
+                st.success("LIKELY NOT ANEMIA", icon="✅")
+                st.markdown(f"<p style='font-size: 20px;'>The model predicted a <b>{p1:.1%} chance of anemia</b>, which is below the threshold of {thresh:.1%}.</p>", unsafe_allow_html=True)
+                
         except Exception as e:
             st.error(f"Classification failed: {e}")
 
     else: # Estimate Hb
+        st.subheader("Hemoglobin (Hb) Estimate")
         st.caption(f"Using Hb estimation model: **{HB_ESTIMATION_RUN_DIR}**")
         try:
             rgr = load_hb_model()
@@ -353,8 +361,7 @@ if uploaded is not None:
             if miss_r:
                 st.info(f"Some regression features missing; using 0.0 for: {', '.join(miss_r)}")
             hb_pred = float(rgr.predict(Xr)[0])
-            st.subheader("Hemoglobin (Hb) Estimate")
-            st.markdown(f"**Estimated Hb: {hb_pred:.2f} g/dL**")
+            st.markdown(f"## **Estimated Hb: {hb_pred:.2f} g/dL**")
         except Exception as e:
             st.error(f"Regression failed: {e}")
 
@@ -367,3 +374,4 @@ if uploaded is not None:
         st.dataframe(df_show, use_container_width=True)
 
 st.caption("Note: For screening/estimation only — not a diagnostic device.")
+
