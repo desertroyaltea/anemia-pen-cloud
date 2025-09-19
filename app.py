@@ -37,7 +37,7 @@ from skimage.morphology import skeletonize
 # Path for the Hb estimation model (run_20250918_192217)
 HB_ESTIMATION_RUN_DIR = Path("models") / "run_20250918_192217"
 # Path for the Anemia screening model (run_20250914_224341)
-ANEMIA_SCREENING_RUN_DIR = Path("models") / "run_20250914_224341"
+ANEMIA_SCREENING_RUN_DIR = Path("Extract + Train (no vessels)") / "models" / "run_20250914_224341"
 
 # --- Features for Hb Estimation Model (run_20250918_192217) --- #
 HB_FEATURES = [
@@ -133,7 +133,7 @@ def compute_baseline_features(pil_img: Image.Image) -> dict:
     G = rgb[..., 1].astype(np.float32)
     B = rgb[..., 2].astype(np.float32)
 
-    gray = cv2.cvtColor(rgb, cv2.COLOR_RGB_GRAY).astype(np.float32)
+    gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY).astype(np.float32)
     hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
     S = hsv[..., 1].astype(np.float32) / 255.0
     lab = cv2.cvtColor(rgb, cv2.COLOR_RGB2Lab)
