@@ -343,11 +343,11 @@ if uploaded is not None:
             
             # --- NEW: Display results with more OOMPH ---
             if p1 >= thresh:
-                st.error("POSSIBLE ANEMIA", icon="⚠️")
-                st.markdown(f"<p style='font-size: 20px;'>The model predicted a <b>{p1:.1%} chance of anemia</b>, which is above the threshold of {thresh:.1%}.</p>", unsafe_allow_html=True)
+                st.error("HIGH SUSPICION: POSSIBLE ANEMIA", icon="⚠️")
+                st.markdown(f"<p style='font-size: 20px;'>The model predicted a <b>{p1:.1%} chance of anemia</b>.</p>", unsafe_allow_html=True)
             else:
-                st.success("LIKELY NOT ANEMIA", icon="✅")
-                st.markdown(f"<p style='font-size: 20px;'>The model predicted a <b>{p1:.1%} chance of anemia</b>, which is below the threshold of {thresh:.1%}.</p>", unsafe_allow_html=True)
+                st.success("LOW SUSPICION: LIKELY NOT ANEMIA", icon="✅")
+                st.markdown(f"<p style='font-size: 20px;'>The model predicted a <b>{p1:.1%} chance of anemia</b>.</p>", unsafe_allow_html=True)
                 
         except Exception as e:
             st.error(f"Classification failed: {e}")
