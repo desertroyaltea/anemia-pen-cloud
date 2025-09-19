@@ -37,14 +37,14 @@ from skimage.morphology import skeletonize
 # Path for the Hb estimation model (run_20250918_192217)
 HB_ESTIMATION_RUN_DIR = Path("models") / "run_20250918_192217"
 # Path for the Anemia screening model (run_20250914_224341)
-ANEMIA_SCREENING_RUN_DIR = Path("models") / "run_20250914_224341"
+ANEMIA_SCREENING_RUN_DIR = Path("Extract + Train (no vessels)") / "models" / "run_20250914_224341"
 
 # --- Features for Hb Estimation Model (run_20250918_192217) --- #
 HB_FEATURES = [
     "glare_frac", "R_norm_p50", "a_mean", "R_p50", "R_p10", "RG", "S_p50",
-    "gray_p90", "gray_kurt", "gray_std", "gray_mean", "B_p10", "B_p75",
+    "gray_p90", "gray_kurt", "gray_std", "gray_mean", "B_mean", "B_p10", "B_p75",
     "G_kurt", "mean_vesselness", "p90_vesselness", "skeleton_len_per_area",
-    "branchpoint_density", "tortuosity_mean"
+    "branchpoint_density", "tortuosity_mean", "vessel_area_fraction"
 ]
 
 # --- Features for Anemia Screening Model (run_20250914_224341) --- #
