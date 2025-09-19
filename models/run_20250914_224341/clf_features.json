@@ -1,0 +1,17 @@
+[
+  "glare_frac",
+  "R_norm_p50",
+  "a_mean",
+  "R_p50",
+  "R_p10",
+  "RG",
+  "S_p50",
+  "gray_p90",
+  "gray_kurt",
+  "gray_std",
+  "gray_mean",
+  "B_mean",
+  "B_p10",
+  "B_p75",
+  "G_kurt"
+]

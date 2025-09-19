@@ -1,0 +1,76 @@
+{
+  "n_samples": 217,
+  "n_features_all": 21,
+  "non_numeric_values_coerced": {},
+  "classification": {
+    "cv_best_auc": 0.857744828700711,
+    "selected_k": 19,
+    "selected_features": [
+      "glare_frac",
+      "R_norm_p50",
+      "a_mean",
+      "R_p50",
+      "R_p10",
+      "RG",
+      "S_p50",
+      "gray_p90",
+      "gray_kurt",
+      "gray_std",
+      "gray_mean",
+      "B_p10",
+      "B_p75",
+      "G_kurt",
+      "mean_vesselness",
+      "p90_vesselness",
+      "skeleton_len_per_area",
+      "branchpoint_density",
+      "tortuosity_mean"
+    ],
+    "holdout_accuracy": 0.7878787878787878,
+    "holdout_precision": 0.7857142857142857,
+    "holdout_recall": 0.7333333333333333,
+    "holdout_f1": 0.7586206896551724,
+    "holdout_roc_auc": 0.8472222222222222,
+    "cv_best_params": {
+      "rf__max_depth": 8,
+      "rf__max_features": "sqrt",
+      "rf__min_samples_leaf": 1,
+      "rf__min_samples_split": 5,
+      "rf__n_estimators": 300,
+      "select__k": 19
+    }
+  },
+  "regression": {
+    "cv_best_r2": 0.3437251812546431,
+    "selected_k": 13,
+    "selected_features": [
+      "R_norm_p50",
+      "a_mean",
+      "R_p50",
+      "R_p10",
+      "RG",
+      "S_p50",
+      "gray_p90",
+      "gray_kurt",
+      "gray_mean",
+      "B_p10",
+      "G_kurt",
+      "branchpoint_density",
+      "tortuosity_mean"
+    ],
+    "holdout_r2": 0.5464411660254815,
+    "holdout_mae": 1.1278775393967437,
+    "holdout_rmse": 1.5089633894037582,
+    "cv_best_params": {
+      "rf__max_depth": 10,
+      "rf__max_features": "sqrt",
+      "rf__min_samples_leaf": 1,
+      "rf__min_samples_split": 2,
+      "rf__n_estimators": 300,
+      "select__k": 13
+    }
+  },
+  "test_size": 0.3,
+  "random_state": 42,
+  "run_dir": "models\\run_20250918_192217"
+}

@@ -1,0 +1,74 @@
+{
+  "n_samples": 217,
+  "n_features_all": 15,
+  "non_numeric_values_coerced": {},
+  "classification": {
+    "cv_best_auc": 0.8538501939237234,
+    "selected_k": 15,
+    "selected_features": [
+      "glare_frac",
+      "R_norm_p50",
+      "a_mean",
+      "R_p50",
+      "R_p10",
+      "RG",
+      "S_p50",
+      "gray_p90",
+      "gray_kurt",
+      "gray_std",
+      "gray_mean",
+      "B_mean",
+      "B_p10",
+      "B_p75",
+      "G_kurt"
+    ],
+    "holdout_accuracy": 0.7575757575757576,
+    "holdout_precision": 0.7333333333333333,
+    "holdout_recall": 0.7333333333333333,
+    "holdout_f1": 0.7333333333333333,
+    "holdout_roc_auc": 0.8509259259259259,
+    "cv_best_params": {
+      "rf__max_depth": 8,
+      "rf__max_features": "sqrt",
+      "rf__min_samples_leaf": 2,
+      "rf__min_samples_split": 2,
+      "rf__n_estimators": 300,
+      "select__k": 15
+    }
+  },
+  "regression": {
+    "cv_best_r2": 0.319576663692105,
+    "selected_k": 15,
+    "selected_features": [
+      "glare_frac",
+      "R_norm_p50",
+      "a_mean",
+      "R_p50",
+      "R_p10",
+      "RG",
+      "S_p50",
+      "gray_p90",
+      "gray_kurt",
+      "gray_std",
+      "gray_mean",
+      "B_mean",
+      "B_p10",
+      "B_p75",
+      "G_kurt"
+    ],
+    "holdout_r2": 0.5261284613546933,
+    "holdout_mae": 1.1562531838952277,
+    "holdout_rmse": 1.5423828959746442,
+    "cv_best_params": {
+      "rf__max_depth": 14,
+      "rf__max_features": "sqrt",
+      "rf__min_samples_leaf": 2,
+      "rf__min_samples_split": 2,
+      "rf__n_estimators": 500,
+      "select__k": 15
+    }
+  },
+  "test_size": 0.3,
+  "random_state": 42,
+  "run_dir": "models\\run_20250914_224341"
+}

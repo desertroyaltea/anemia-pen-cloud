@@ -3,10 +3,11 @@
 """
 Streamlit app for Conjunctiva-based Anemia Screening & Hb Estimation
 
-This version is locked to the FAST extraction models trained WITHOUT Age/GENDER:
-- Run folder: models/run_20250912_173617
-- Uses glare masking + inpainting and vascularity features
-- Extracts EXACT features required by the models
+This version dynamically loads the appropriate model based on the user's selection:
+- Anemia Screening: Uses a model trained without vascularity features.
+- Hb Estimation: Uses a model trained with vascularity features.
+
+The application extracts only the specific features required by the selected model.
 
 Requirements:
   streamlit numpy pandas pillow requests opencv-python scikit-image scipy joblib
@@ -32,24 +33,25 @@ from scipy.ndimage import convolve
 from skimage import exposure, filters, morphology, measure
 from skimage.morphology import skeletonize
 
-# ---------- MODEL ARTIFACTS (locked to this run) ---------- #
-RUN_DIR = Path("models") / "run_20250912_173617"
-ANEMIA_MODEL_PATH = RUN_DIR / "anemia_rf.joblib"
-HB_MODEL_PATH     = RUN_DIR / "hb_rf.joblib"
-CLF_FEATS_PATH    = RUN_DIR / "clf_features.json"
-REG_FEATS_PATH    = RUN_DIR / "reg_features.json"
+# ---------- MODEL ARTIFACTS ---------- #
+# Path for the Hb estimation model (run_20250918_192217)
+HB_ESTIMATION_RUN_DIR = Path("models") / "run_20250918_192217"
+# Path for the Anemia screening model (run_20250914_224341)
+ANEMIA_SCREENING_RUN_DIR = Path("models") / "run_20250914_224341"
 
-# Fallbacks (used only if JSON files are not found in RUN_DIR)
-FALLBACK_CLF_FEATURES = [
-    "R_p50","R_norm_p50","R_p10","a_mean","RG","gray_mean",
-    "gray_kurt","S_p50","gray_p90","B_p10","glare_frac","G_kurt",
-    "B_mean","mean_vesselness","B_p75","p90_vesselness","tortuosity_mean","gray_std"
+# --- Features for Hb Estimation Model (run_20250918_192217) --- #
+HB_FEATURES = [
+    "glare_frac", "R_norm_p50", "a_mean", "R_p50", "R_p10", "RG", "S_p50",
+    "gray_p90", "gray_kurt", "gray_std", "gray_mean", "B_p10", "B_p75",
+    "G_kurt", "mean_vesselness", "p90_vesselness", "skeleton_len_per_area",
+    "branchpoint_density", "tortuosity_mean"
 ]
-FALLBACK_REG_FEATURES = [
-    "a_mean","R_norm_p50","RG","R_p50","R_p10","S_p50","tortuosity_mean",
-    "gray_mean","gray_kurt","B_p10","glare_frac","G_kurt","gray_std",
-    "skeleton_len_per_area","B_p75","vessel_area_fraction","gray_p90",
-    "B_mean","branchpoint_density","p90_vesselness","mean_vesselness"
+
+# --- Features for Anemia Screening Model (run_20250914_224341) --- #
+ANEMIA_FEATURES = [
+    "glare_frac", "R_norm_p50", "a_mean", "R_p50", "R_p10", "RG", "S_p50",
+    "gray_p90", "gray_kurt", "gray_std", "gray_mean", "B_mean", "B_p10",
+    "B_p75", "G_kurt"
 ]
 
 # ---------- ROBOFLOW SETTINGS ---------- #
@@ -131,7 +133,7 @@ def compute_baseline_features(pil_img: Image.Image) -> dict:
     G = rgb[..., 1].astype(np.float32)
     B = rgb[..., 2].astype(np.float32)
 
-    gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY).astype(np.float32)
+    gray = cv2.cvtColor(rgb, cv2.COLOR_RGB_GRAY).astype(np.float32)
     hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
     S = hsv[..., 1].astype(np.float32) / 255.0
     lab = cv2.cvtColor(rgb, cv2.COLOR_RGB2Lab)
@@ -216,53 +218,39 @@ def vascularity_features_from_conjunctiva(rgb_u8: np.ndarray,
         "tortuosity_mean": tortuosity_mean,
     }
 
-def extract_all_features_from_crop(crop_img: Image.Image) -> dict:
-    rgb = np.array(crop_img.convert("RGB"), dtype=np.uint8)
-    glare_mask = detect_glare_mask(rgb)
-    if glare_mask.sum() > 0:
-        rgb_proc = inpaint_glare(rgb, glare_mask)
-    else:
-        rgb_proc = rgb
-
-    base = compute_baseline_features(Image.fromarray(rgb_proc))
-    vas  = vascularity_features_from_conjunctiva(rgb_proc, black_ridges=True, min_size=50, area_threshold=50)
-    out = {"glare_frac": float(glare_mask.mean())}
-    out.update(base); out.update(vas)
-    return out
-
 # ---------- MODEL LOADING (cached) ---------- #
 @st.cache_resource(show_spinner=False)
-def load_artifacts(run_dir: Path):
-    if not run_dir.exists():
-        raise FileNotFoundError(f"Run folder not found: {run_dir}")
-    clf = joblib.load(run_dir / "anemia_rf.joblib")
-    rgr = joblib.load(run_dir / "hb_rf.joblib")
-    # Prefer JSONs from the run; otherwise use fallbacks locked to this model family
-    try:
-        with open(run_dir / "clf_features.json", "r", encoding="utf-8") as f:
-            clf_features = json.load(f)
-    except Exception:
-        clf_features = FALLBACK_CLF_FEATURES
-    try:
-        with open(run_dir / "reg_features.json", "r", encoding="utf-8") as f:
-            reg_features = json.load(f)
-    except Exception:
-        reg_features = FALLBACK_REG_FEATURES
-    return clf, rgr, clf_features, reg_features
+def load_anemia_model():
+    """Loads the anemia screening model from its specific path."""
+    path = ANEMIA_SCREENING_RUN_DIR / "anemia_rf.joblib"
+    if not path.exists():
+        raise FileNotFoundError(f"Anemia model not found at: {path}")
+    return joblib.load(path)
+
+@st.cache_resource(show_spinner=False)
+def load_hb_model():
+    """Loads the Hb estimation model from its specific path."""
+    path = HB_ESTIMATION_RUN_DIR / "hb_rf.joblib"
+    if not path.exists():
+        raise FileNotFoundError(f"Hb model not found at: {path}")
+    return joblib.load(path)
 
 # ---------- STREAMLIT UI ---------- #
-st.set_page_config(page_title="Conjunctiva Anemia Screener + Hb Estimator (No Age/GENDER)", layout="centered")
+st.set_page_config(page_title="Conjunctiva Anemia Screener + Hb Estimator", layout="centered")
 
 st.title("Conjunctiva Anemia Screening & Hb Estimation")
-st.caption("Using FAST extraction models trained **without** Age/GENDER • "
-           "Artifacts loaded from **models/run_20250912_173617**.")
 
 with st.sidebar:
     st.header("Settings")
     mode = st.radio("Task", ["Screen for Anemia", "Estimate Hb"], index=0)
 
-    # Classification display options
-    thresh = st.slider("Anemia decision threshold (P[anemia])", 0.10, 0.90, 0.50, 0.01)
+    # Classification display options (conditional on mode)
+    if mode == "Screen for Anemia":
+        st.subheader("Screening Options")
+        thresh = st.slider("Anemia decision threshold (P[anemia])", 0.10, 0.90, 0.58, 0.01)
+    else:
+        # Define thresh so it exists, but it won't be used in Hb mode
+        thresh = 0.58
 
     st.subheader("Roboflow Detection")
     rf_api_key = st.text_input("API Key", value=os.getenv("ROBOFLOW_API_KEY", ""), type="password")
@@ -275,14 +263,7 @@ uploaded = st.file_uploader("Upload a full-eye image", type=["jpg","jpeg","png",
 
 # ---------- MAIN ACTION ---------- #
 if uploaded is not None:
-    # Load models & feature lists
-    try:
-        clf, rgr, clf_features, reg_features = load_artifacts(RUN_DIR)
-    except Exception as e:
-        st.error(f"Failed to load models/features from {RUN_DIR}: {e}")
-        st.stop()
-
-    # Read image and run Roboflow detect
+    # --- 1. Image Upload, Detection, and Cropping ---
     try:
         pil_full = Image.open(uploaded)
         pil_full = exif_upright(pil_full)
@@ -292,8 +273,9 @@ if uploaded is not None:
             st.warning("Enter your **Roboflow API Key** in the sidebar.")
             st.stop()
 
-        b64 = to_b64_jpeg(pil_full)
-        rf_json = roboflow_detect_b64(b64, model_id=model_id, api_key=rf_api_key, conf_0_100=int(conf))
+        with st.spinner("Detecting conjunctiva..."):
+            b64 = to_b64_jpeg(pil_full)
+            rf_json = roboflow_detect_b64(b64, model_id=model_id, api_key=rf_api_key, conf_0_100=int(conf))
         preds = rf_json.get("predictions", [])
         best = select_best_box(preds, target_class=target_class)
         if best is None:
@@ -307,21 +289,37 @@ if uploaded is not None:
         st.error(f"Roboflow detection/cropping failed: {e}")
         st.stop()
 
-    # Extract features from crop (with glare inpaint)
+    # --- 2. Dynamic Feature Extraction based on selected mode ---
     try:
-        feats = extract_all_features_from_crop(crop)
+        with st.spinner("Extracting features..."):
+            rgb = np.array(crop.convert("RGB"), dtype=np.uint8)
+            glare_mask = detect_glare_mask(rgb)
+            if glare_mask.sum() > 0:
+                rgb_proc = inpaint_glare(rgb, glare_mask)
+            else:
+                rgb_proc = rgb
+
+            # Start with glare and baseline features (used by both models)
+            feats = {"glare_frac": float(glare_mask.mean())}
+            base_feats = compute_baseline_features(Image.fromarray(rgb_proc))
+            feats.update(base_feats)
+
+            # For Hb estimation, we also need vascular features
+            if mode == "Estimate Hb":
+                vas_feats = vascularity_features_from_conjunctiva(rgb_proc, black_ridges=True, min_size=50, area_threshold=50)
+                feats.update(vas_feats)
     except Exception as e:
         st.error(f"Feature extraction failed: {e}")
         st.stop()
 
-    # Build per-task feature vectors and predict
+    # --- 3. Build Feature Vector and Predict ---
     def build_vector(required_feats, feat_dict):
         x = []
         missing = []
         for f in required_feats:
             val = feat_dict.get(f, None)
             if val is None or (isinstance(val, float) and np.isnan(val)):
-                x.append(0.0)  # fallback; for exact training behavior, we can add saved medians later
+                x.append(0.0)
                 missing.append(f)
             else:
                 x.append(float(val))
@@ -329,11 +327,13 @@ if uploaded is not None:
 
     st.divider()
     if mode == "Screen for Anemia":
-        Xc, miss_c = build_vector(clf_features, feats)
-        if miss_c:
-            st.info(f"Some classifier features missing; using 0.0 for: {', '.join(miss_c)}")
-
+        st.caption(f"Using anemia screening model: **{ANEMIA_SCREENING_RUN_DIR}**")
         try:
+            clf = load_anemia_model()
+            Xc, miss_c = build_vector(ANEMIA_FEATURES, feats)
+            if miss_c:
+                st.info(f"Some classifier features missing; using 0.0 for: {', '.join(miss_c)}")
+
             if hasattr(clf, "predict_proba"):
                 p1 = float(clf.predict_proba(Xc)[0, 1])
             else:
@@ -341,23 +341,27 @@ if uploaded is not None:
                 p1 = 1.0 / (1.0 + np.exp(-score))
             label = "Possible Anemia" if p1 >= thresh else "Likely Not Anemia"
             st.subheader("Anemia Screening Result")
-            st.markdown(f"**{label}**  •  P(anemia) = **{p1:.2%}**  •  Threshold = {thresh:.2f}")
+            st.markdown(f"**{label}** •  P(anemia) = **{p1:.2%}** •  Threshold = {thresh:.2f}")
         except Exception as e:
             st.error(f"Classification failed: {e}")
 
-    else:
-        Xr, miss_r = build_vector(reg_features, feats)
-        if miss_r:
-            st.info(f"Some regression features missing; using 0.0 for: {', '.join(miss_r)}")
+    else: # Estimate Hb
+        st.caption(f"Using Hb estimation model: **{HB_ESTIMATION_RUN_DIR}**")
         try:
+            rgr = load_hb_model()
+            Xr, miss_r = build_vector(HB_FEATURES, feats)
+            if miss_r:
+                st.info(f"Some regression features missing; using 0.0 for: {', '.join(miss_r)}")
             hb_pred = float(rgr.predict(Xr)[0])
             st.subheader("Hemoglobin (Hb) Estimate")
             st.markdown(f"**Estimated Hb: {hb_pred:.2f} g/dL**")
         except Exception as e:
             st.error(f"Regression failed: {e}")
 
-    # Show feature table actually used (for transparency)
+    # --- 4. Show extracted features for transparency ---
     with st.expander("Show extracted feature values"):
+        # Note: This dictionary may contain more features than used by the model,
+        # which is useful for debugging.
         df_show = pd.DataFrame([feats]).T
         df_show.columns = ["value"]
         st.dataframe(df_show, use_container_width=True)

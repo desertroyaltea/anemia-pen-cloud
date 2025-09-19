@@ -1,0 +1,23 @@
+{
+  "glare_frac": 0.023616588,
+  "R_norm_p50": 0.378021985,
+  "a_mean": 22.32679558,
+  "R_p50": 183.0,
+  "R_p10": 136.0,
+  "RG": 1.356254101,
+  "S_p50": 0.282352954,
+  "gray_p90": 198.0,
+  "gray_kurt": 2.267340183,
+  "gray_std": 38.79742432,
+  "gray_mean": 143.9353333,
+  "B_mean": 151.9546814,
+  "B_p10": 88.0,
+  "B_p75": 190.0,
+  "G_kurt": 2.125727654,
+  "vessel_area_fraction": 0.000351957,
+  "mean_vesselness": 0.002504506,
+  "p90_vesselness": 0.006899153,
+  "skeleton_len_per_area": 0.000151986,
+  "branchpoint_density": 4.09431e-06,
+  "tortuosity_mean": 1.097967243
+}
