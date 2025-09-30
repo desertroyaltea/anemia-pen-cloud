@@ -1,7 +1,10 @@
 streamlit
-Pillow
 numpy
+pandas
+Pillow
+requests
 joblib
-scikit-learn
-inference-sdk
+opencv-python-headless
 scikit-image
+scipy
+plotly
