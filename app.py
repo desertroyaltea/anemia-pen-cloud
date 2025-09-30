@@ -3,14 +3,15 @@
 """
 Streamlit app for Patient-Centric Hb Estimation and Tracking.
 
-This redesigned version is aimed at patients to track their estimated 
-Hemoglobin (Hb) levels over time using selfies of their eye conjunctiva.
+This redesigned version features a modern health dashboard UI. After login,
+the user is taken directly to a dashboard showing their latest reading,
+a trend chart, and their full history.
 
 Features:
 - Simple user login to persist and view history.
-- Camera input for easy selfies.
-- Roboflow integration for conjunctiva detection.
-- Core Hb estimation model from the original script.
+- A central dashboard for all key information.
+- Prominent display of the latest Hb reading.
+- Integrated camera input within an expander to reduce clutter.
 - Visual history with charts and image cards.
 - "Doctor View" to show detailed technical features.
 - Simple report generation for printing/PDF export.
@@ -44,7 +45,6 @@ from skimage.morphology import skeletonize
 DATA_FILE = Path("user_data.json")
 
 # --- Model Artifacts ---
-# Using only the Hb estimation model for this version
 HB_ESTIMATION_RUN_DIR = Path("models") / "run_20250918_192217"
 HB_FEATURES = [
     "glare_frac", "R_norm_p50", "a_mean", "R_p50", "R_p10", "RG", "S_p50",
@@ -79,7 +79,6 @@ def get_user_history(user_id):
     """Retrieves the history for a specific user, sorted by date."""
     data = load_data()
     history = data.get(user_id, [])
-    # Sort entries by timestamp, newest first
     return sorted(history, key=lambda x: x['timestamp'], reverse=True)
 
 def add_reading_to_history(user_id, reading_data):
@@ -101,11 +100,8 @@ def pil_to_jpeg_bytes(img: Image.Image, quality: int = 90) -> bytes:
     img.convert("RGB").save(buf, format="JPEG", quality=quality, optimize=True)
     return buf.getvalue()
 
-def to_b64_jpeg(img: Image.Image, is_pil=True) -> str:
-    if is_pil:
-        b64_bytes = base64.b64encode(pil_to_jpeg_bytes(img, quality=90))
-    else: # Already bytes
-        b64_bytes = base64.b64encode(img)
+def to_b64_jpeg(img: Image.Image) -> str:
+    b64_bytes = base64.b64encode(pil_to_jpeg_bytes(img, quality=90))
     return b64_bytes.decode("utf-8")
 
 def b64_to_pil(b64_str: str) -> Image.Image:
@@ -146,7 +142,7 @@ def detect_glare_mask(rgb: np.ndarray) -> np.ndarray:
 def inpaint_glare(rgb: np.ndarray, mask: np.ndarray) -> np.ndarray:
     bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB_BGR)
     out = cv2.inpaint(bgr, (mask.astype(np.uint8) * 255), inpaintRadius=3, flags=cv2.INPAINT_TELEA)
-    return cv2.cvtColor(out, cv2.COLOR_BGR2RGB)
+    return cv2.cvtColor(out, cv2.COLOR_BGR_RGB)
 
 # --- Feature Extraction ---
 def compute_baseline_features(pil_img: Image.Image) -> dict:
@@ -218,7 +214,7 @@ def run_analysis_pipeline(pil_image, api_key):
     
     crop = crop_from_box(pil_image, best)
     
-    # 2. Feature Extraction
+    # 2. Feature Extraction and Prediction
     rgb = np.array(crop.convert("RGB"), dtype=np.uint8)
     glare_mask = detect_glare_mask(rgb)
     rgb_proc = inpaint_glare(rgb, glare_mask) if glare_mask.sum() > 0 else rgb
@@ -227,7 +223,6 @@ def run_analysis_pipeline(pil_image, api_key):
     feats.update(compute_baseline_features(Image.fromarray(rgb_proc)))
     feats.update(vascularity_features_from_conjunctiva(rgb_proc))
 
-    # 3. Model Prediction
     rgr = load_hb_model()
     x_vec = np.array([[feats.get(f, 0.0) for f in HB_FEATURES]], dtype=np.float32)
     hb_pred = float(rgr.predict(x_vec)[0])
@@ -241,97 +236,79 @@ def run_analysis_pipeline(pil_image, api_key):
 
 def render_login_page():
     st.header("Welcome to your Hb Tracker")
-    user_id = st.text_input("Please enter your Name or a unique ID to begin:", key="user_id_input")
+    st.write("A simple way to track your estimated Hemoglobin levels over time.")
+    user_id = st.text_input("Please enter your Name or a unique ID to begin:", key="user_id_input", placeholder="e.g., Patient123")
     
-    if st.button("Login / Register"):
+    if st.button("Login / Register", use_container_width=True):
         if user_id:
             st.session_state.user_id = user_id
-            st.session_state.page = "main_menu"
+            st.session_state.page = "dashboard" # Go directly to dashboard
             st.rerun()
         else:
             st.warning("Please enter a Name or ID.")
 
-def render_main_menu():
-    st.title(f"Welcome, {st.session_state.user_id}!")
-    st.write("What would you like to do today?")
+def render_dashboard_page():
+    st.title(f"Health Dashboard")
+    st.caption(f"Showing results for user: **{st.session_state.user_id}**")
     
-    if st.button("📸 Estimate My Hb Level", use_container_width=True):
-        st.session_state.page = "estimate"
-        st.rerun()
-        
-    if st.button("📊 View My History", use_container_width=True):
-        st.session_state.page = "history"
-        st.rerun()
-
-def render_estimation_page():
-    st.header("New Hb Estimation")
-    
-    rf_api_key = st.text_input("Roboflow API Key", value=os.getenv("ROBOFLOW_API_KEY", ""), type="password")
-    
-    uploaded_photo = st.camera_input(
-        "Take a clear, well-lit selfie of your eye.",
-        help="Gently pull down your lower eyelid to show the conjunctiva."
-    )
-    
-    if uploaded_photo:
-        if not rf_api_key:
-            st.warning("Please enter your Roboflow API Key to proceed.")
-            st.stop()
-            
-        with st.spinner("Analyzing your photo... This may take a moment."):
-            try:
-                pil_full = exif_upright(Image.open(uploaded_photo))
-                analysis_result = run_analysis_pipeline(pil_full, rf_api_key)
-                st.session_state.new_reading = analysis_result
-            except Exception as e:
-                st.error(f"An error occurred during analysis: {e}")
-                st.session_state.new_reading = None
-
-        if st.session_state.get("new_reading"):
-            res = st.session_state.new_reading
-            hb = res['hb_value']
-            color, text = get_hb_classification(hb)
-            
-            st.subheader("Analysis Complete!")
-            st.image(b64_to_pil(res['crop_b64']), caption="Detected Conjunctiva")
-            
-            st.markdown(f"### Estimated Hb: <font color='{color}'>{hb:.2f} g/dL</font>", unsafe_allow_html=True)
-            st.markdown(f"**Interpretation:** {text}")
-            
-            if st.button("💾 Save this Result to My History"):
-                add_reading_to_history(st.session_state.user_id, res)
-                st.success("Result saved successfully!")
-                st.session_state.page = "history" # Go to history after saving
-                st.session_state.new_reading = None
-                st.rerun()
-
-    if st.button("← Back to Main Menu"):
-        st.session_state.page = "main_menu"
-        st.session_state.new_reading = None # Clear any pending reading
-        st.rerun()
-
-def render_history_page():
-    st.header(f"History for {st.session_state.user_id}")
     history = get_user_history(st.session_state.user_id)
     
-    if not history:
-        st.info("You have no saved readings yet. Go to 'Estimate My Hb Level' to get started.")
-    else:
-        # --- Chart ---
-        df = pd.DataFrame(history)
-        df['timestamp'] = pd.to_datetime(df['timestamp'])
-        df = df.sort_values('timestamp')
-        
-        fig = px.line(
-            df, x='timestamp', y='hb_value',
-            title='Your Hb Trend Over Time',
-            markers=True,
-            labels={'timestamp': 'Date', 'hb_value': 'Estimated Hb (g/dL)'}
-        )
-        fig.update_traces(line=dict(color='royalblue', width=2), marker=dict(size=8))
-        st.plotly_chart(fig, use_container_width=True)
+    # --- LATEST READING METRIC ---
+    with st.container(border=True):
+        if not history:
+            st.info("Your latest reading will appear here once you take your first measurement.")
+        else:
+            latest = history[0]
+            hb = latest['hb_value']
+            _, text = get_hb_classification(hb)
+            st.metric(label="Latest Estimated Hb", value=f"{hb:.2f} g/dL", help=text)
 
-        # --- Controls: Doctor View and Export ---
+    # --- TAKE NEW READING EXPANDER ---
+    with st.expander("📸 Take a New Reading"):
+        rf_api_key = st.text_input("Roboflow API Key", value=os.getenv("ROBOFLOW_API_KEY", ""), type="password")
+        
+        uploaded_photo = st.camera_input(
+            "Take a clear, well-lit selfie of your eye.",
+            help="Gently pull down your lower eyelid to show the conjunctiva."
+        )
+        
+        if uploaded_photo:
+            if not rf_api_key:
+                st.warning("Please enter your Roboflow API Key to proceed.")
+            else:
+                with st.spinner("Analyzing your photo... This may take a moment."):
+                    try:
+                        pil_full = exif_upright(Image.open(uploaded_photo))
+                        analysis_result = run_analysis_pipeline(pil_full, rf_api_key)
+                        
+                        if analysis_result:
+                            add_reading_to_history(st.session_state.user_id, analysis_result)
+                            st.success("Analysis complete and result saved!")
+                            st.rerun() # Rerun to update the dashboard instantly
+                    except Exception as e:
+                        st.error(f"An error occurred during analysis: {e}")
+
+    # --- TREND CHART & HISTORY ---
+    if not history:
+        st.info("Your trend chart and history will be displayed here after you save your first reading.")
+    else:
+        st.header("📊 Your Hemoglobin Trend")
+        with st.container(border=True):
+            df = pd.DataFrame(history)
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+            df = df.sort_values('timestamp')
+            
+            fig = px.line(
+                df, x='timestamp', y='hb_value',
+                title='Your Hb Trend Over Time', markers=True,
+                labels={'timestamp': 'Date', 'hb_value': 'Estimated Hb (g/dL)'}
+            )
+            fig.update_traces(line=dict(color='royalblue', width=2), marker=dict(size=8))
+            st.plotly_chart(fig, use_container_width=True)
+
+        st.header("📋 Your Reading History")
+        
+        # Controls
         col1, col2 = st.columns(2)
         with col1:
             doctor_view = st.toggle("🔬 Doctor View", help="Show detailed technical data for each reading.")
@@ -340,9 +317,7 @@ def render_history_page():
                 st.session_state.page = "report"
                 st.rerun()
 
-        st.divider()
-
-        # --- Visual Cards ---
+        # History Cards
         for reading in history:
             dt_obj = datetime.fromisoformat(reading['timestamp'])
             date_str = dt_obj.strftime("%B %d, %Y at %I:%M %p")
@@ -352,34 +327,28 @@ def render_history_page():
             with st.container(border=True):
                 c1, c2 = st.columns([1, 2])
                 with c1:
-                    st.image(b64_to_pil(reading['crop_b64']), caption=f"Reading from {date_str}")
+                    st.image(b64_to_pil(reading['crop_b64']), use_column_width='always')
                 with c2:
-                    st.markdown(f"**{date_str}**")
-                    st.markdown(f"#### Estimated Hb: <font color='{color}'>{hb:.2f} g/dL</font>", unsafe_allow_html=True)
+                    st.caption(f"{date_str}")
+                    st.markdown(f"#### <font color='{color}'>{hb:.2f} g/dL</font>", unsafe_allow_html=True)
                     st.markdown(f"*{text}*")
                 
                 if doctor_view:
                     with st.expander("Show Technical Details"):
-                        st.dataframe(pd.DataFrame([reading['features']]).T.rename(columns={0: 'Value'}), use_container_width=True)
-
-    if st.button("← Back to Main Menu"):
-        st.session_state.page = "main_menu"
-        st.rerun()
+                        features_df = pd.DataFrame([reading['features']]).T
+                        features_df.columns = ["Value"]
+                        st.dataframe(features_df, use_container_width=True)
 
 def render_report_page():
     """Generates a clean page for printing to PDF via browser."""
-    st.set_page_config(layout="centered") # Ensure centered layout for printing
+    st.set_page_config(layout="centered")
     history = get_user_history(st.session_state.user_id)
     
     # Hide non-report elements using CSS
     st.markdown("""
         <style>
-            .stButton, .stToggle, #MainMenu, footer, .stHeader {
-                display: none !important;
-            }
-            .main .block-container {
-                padding-top: 2rem;
-            }
+            #MainMenu, footer, .stHeader, .stButton, .stToggle { display: none !important; }
+            .main .block-container { padding-top: 2rem; }
         </style>
     """, unsafe_allow_html=True)
     
@@ -391,44 +360,33 @@ def render_report_page():
     if not history:
         st.warning("No data to report.")
     else:
-        # Chart
-        df = pd.DataFrame(history)
+        df = pd.DataFrame(history).sort_values('timestamp')
         df['timestamp'] = pd.to_datetime(df['timestamp'])
-        df = df.sort_values('timestamp')
+        
         fig = px.line(df, x='timestamp', y='hb_value', title='Hb Trend', markers=True, labels={'timestamp': 'Date', 'hb_value': 'Estimated Hb (g/dL)'})
         st.plotly_chart(fig, use_container_width=True)
 
-        # Data Table
         st.subheader("Readings Data")
-        report_df = df[['timestamp', 'hb_value']].copy()
-        report_df['timestamp'] = report_df['timestamp'].dt.strftime('%Y-%m-%d %H:%M')
-        report_df['hb_value'] = report_df['hb_value'].round(2)
-        report_df.rename(columns={'timestamp': 'Date and Time', 'hb_value': 'Estimated Hb (g/dL)'}, inplace=True)
+        report_df = df[['timestamp', 'hb_value']].rename(columns={'timestamp': 'Date and Time', 'hb_value': 'Estimated Hb (g/dL)'})
+        report_df['Date and Time'] = report_df['Date and Time'].dt.strftime('%Y-%m-%d %H:%M')
+        report_df['Estimated Hb (g/dL)'] = report_df['Estimated Hb (g/dL)'].round(2)
         st.dataframe(report_df, use_container_width=True, hide_index=True)
         
     if st.button("← Back to App"):
-        st.session_state.page = "history"
+        st.session_state.page = "dashboard"
         st.rerun()
 
 # ---------- MAIN APP ROUTER ---------- #
 def main():
     st.set_page_config(page_title="Hb Tracker", layout="wide")
     
-    # Initialize session state variables
     if "page" not in st.session_state:
         st.session_state.page = "login"
-    if "user_id" not in st.session_state:
-        st.session_state.user_id = None
     
-    # Page routing
     if st.session_state.page == "login":
         render_login_page()
-    elif st.session_state.page == "main_menu":
-        render_main_menu()
-    elif st.session_state.page == "estimate":
-        render_estimation_page()
-    elif st.session_state.page == "history":
-        render_history_page()
+    elif st.session_state.page == "dashboard":
+        render_dashboard_page()
     elif st.session_state.page == "report":
         render_report_page()
 
